@@ -3,8 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Others", "Others", "{E04411A2-0CD7-4046-8E2D-335C0409E8BC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Projects\Others\Console\Console.vcxproj", "{53708158-DF35-4377-9D26-6DD516015D94}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53708158-DF35-4377-9D26-6DD516015D94}.Debug|Win32.ActiveCfg = Debug|Win32
+		{53708158-DF35-4377-9D26-6DD516015D94}.Debug|Win32.Build.0 = Debug|Win32
+		{53708158-DF35-4377-9D26-6DD516015D94}.Release|Win32.ActiveCfg = Release|Win32
+		{53708158-DF35-4377-9D26-6DD516015D94}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{53708158-DF35-4377-9D26-6DD516015D94} = {E04411A2-0CD7-4046-8E2D-335C0409E8BC}
 	EndGlobalSection
 EndGlobal
