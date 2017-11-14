@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "Size.hpp"
-
 #pragma endregion
 
 

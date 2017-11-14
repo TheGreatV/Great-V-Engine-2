@@ -2,7 +2,9 @@
 
 #pragma once
 
-#include "Size.hpp"
+#include <cstring>
+
+#include "Header.hpp"
 
 #pragma endregion
 
@@ -13,6 +15,7 @@
 
 namespace GreatVEngine2
 {
+	using Size = std::size_t;
 }
 
 
