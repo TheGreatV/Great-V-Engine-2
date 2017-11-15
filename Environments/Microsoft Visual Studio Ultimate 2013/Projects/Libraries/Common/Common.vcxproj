@@ -72,6 +72,7 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Header.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Memory.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Move.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Reference.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Size.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -79,6 +80,7 @@
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Header.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Memory.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Move.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Reference.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Size.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

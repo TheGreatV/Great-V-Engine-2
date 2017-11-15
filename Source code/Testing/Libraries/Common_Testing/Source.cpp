@@ -24,6 +24,16 @@ int moveAssignmentCallsCounter = 0;
 class CallChecker
 {
 public:
+	static void Reset()
+	{
+		constructorCallsCounter = 0;
+		copyCallsCounter = 0;
+		moveCopyCallsCounter = 0;
+		destructorCallsCounter = 0;
+		assignmentCallsCounter = 0;
+		moveAssignmentCallsCounter = 0;
+	}
+public:
 	CallChecker()
 	{
 		++constructorCallsCounter;
@@ -54,7 +64,20 @@ public:
 	}
 };
 
+// arguments checker
+class ArgumentsChecker
+{
+public:
+	int x;
+	float y;
+	ArgumentsChecker(const int& x_, const float& y_):
+		x(x_), y(y_)
+	{
+	}
+};
 
+
+// Memory
 void Memory_AllocationAndReleasing()
 {
 	// single
@@ -190,6 +213,8 @@ void Memory_Compare()
 	GVE::ReleaseMemory(memory4n);
 }
 
+
+// Move
 void Move_ForwardFunction(int& x)
 {
 	x = 5;
@@ -308,6 +333,159 @@ void Move_Forward()
 }
 
 
+// Reference
+void Reference_UniquePointer_CreatingAndDestroying()
+{
+	CallChecker::Reset();
+	{
+		GVE::UniquePointer<CallChecker> p;
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	CallChecker::Reset();
+	{
+		auto p = new CallChecker();
+
+		auto p1 = GVE::UniquePointer<CallChecker>(p);
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	CallChecker::Reset();
+	{
+		auto p = GVE::MakeUnique<CallChecker>();
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	auto p = GVE::MakeUnique<ArgumentsChecker>(5, 10.0f);
+
+	Check(p->x == 5 && p->y == 10.0f);
+}
+void Reference_UniquePointer_Move()
+{
+	// move assignment
+	CallChecker::Reset();
+	{
+		GVE::UniquePointer<CallChecker> p1;
+		{
+			auto p2 = GVE::MakeUnique<CallChecker>();
+			
+			CallChecker::Reset();
+
+			p1 = GVE::Move(p2);
+
+			Check(
+				constructorCallsCounter == 0 &&
+				copyCallsCounter == 0 &&
+				moveCopyCallsCounter == 0 &&
+				destructorCallsCounter == 0 &&
+				assignmentCallsCounter == 0 &&
+				moveAssignmentCallsCounter == 0
+			);
+		}
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// move copy
+	CallChecker::Reset();
+
+	auto test = []()
+	{
+		auto p = GVE::MakeUnique<CallChecker>();
+
+		return p;
+	};
+
+	{
+		auto p = test();
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+}
+
 void main()
 {
 	Memory_AllocationAndReleasing();
@@ -316,6 +494,9 @@ void main()
 
 	Move_Move();
 	Move_Forward();
+
+	Reference_UniquePointer_CreatingAndDestroying();
+	Reference_UniquePointer_Move();
 
 	std::system("pause");
 }
