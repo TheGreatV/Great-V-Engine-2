@@ -70,7 +70,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Common.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Header.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\LifetimeManagement.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Memory.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Move.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Size.cpp" />
@@ -78,7 +77,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Common.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Header.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\LifetimeManagement.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Memory.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Move.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Size.hpp" />
