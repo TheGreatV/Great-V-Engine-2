@@ -14,6 +14,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Projects\Libraries\Common\Common.vcxproj", "{EFDD998F-0124-464E-91B2-D0D656E1F802}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{28E9180D-DB34-48DD-A805-94ED66AEDE12}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{CE3D9D4A-C69D-4B3E-8104-E4473CE375F6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common_Testing", "Projects\Testing\Libraries\Common_Testing\Common_Testing.vcxproj", "{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFDD998F-0124-464E-91B2-D0D656E1F802} = {EFDD998F-0124-464E-91B2-D0D656E1F802}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -28,6 +37,10 @@ Global
 		{EFDD998F-0124-464E-91B2-D0D656E1F802}.Debug|Win32.Build.0 = Debug|Win32
 		{EFDD998F-0124-464E-91B2-D0D656E1F802}.Release|Win32.ActiveCfg = Release|Win32
 		{EFDD998F-0124-464E-91B2-D0D656E1F802}.Release|Win32.Build.0 = Release|Win32
+		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}.Debug|Win32.Build.0 = Debug|Win32
+		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}.Release|Win32.ActiveCfg = Release|Win32
+		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -35,5 +48,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{53708158-DF35-4377-9D26-6DD516015D94} = {E04411A2-0CD7-4046-8E2D-335C0409E8BC}
 		{EFDD998F-0124-464E-91B2-D0D656E1F802} = {BC471CF9-4E34-4E72-9BFE-FFC5A58A4F6A}
+		{CE3D9D4A-C69D-4B3E-8104-E4473CE375F6} = {28E9180D-DB34-48DD-A805-94ED66AEDE12}
+		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B} = {CE3D9D4A-C69D-4B3E-8104-E4473CE375F6}
 	EndGlobalSection
 EndGlobal

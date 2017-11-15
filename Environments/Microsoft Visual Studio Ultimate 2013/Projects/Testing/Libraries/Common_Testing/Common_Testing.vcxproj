@@ -11,12 +11,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{EFDD998F-0124-464E-91B2-D0D656E1F802}</ProjectGuid>
-    <RootNamespace>Common</RootNamespace>
+    <ProjectGuid>{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B}</ProjectGuid>
+    <RootNamespace>Common_Testing</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -33,13 +33,13 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Properties\[Great V Engine 2] Common Project Properties (Debug).props" />
-    <Import Project="..\..\..\Properties\Libraries\[Great V Engine 2] Common - Project.props" />
+    <Import Project="..\..\..\..\Properties\[Great V Engine 2] Common Project Properties (Debug).props" />
+    <Import Project="..\..\..\..\Properties\Libraries\[Great V Engine 2] Common - User.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Properties\[Great V Engine 2] Common Project Properties (Release).props" />
-    <Import Project="..\..\..\Properties\Libraries\[Great V Engine 2] Common - Project.props" />
+    <Import Project="..\..\..\..\Properties\[Great V Engine 2] Common Project Properties (Release).props" />
+    <Import Project="..\..\..\..\Properties\Libraries\[Great V Engine 2] Common - User.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -68,20 +68,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Common.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Header.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\LifetimeManagement.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Memory.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Move.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Size.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Common.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Header.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\LifetimeManagement.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Memory.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Move.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Size.hpp" />
+    <ClCompile Include="..\..\..\..\..\..\Source code\Testing\Libraries\Common_Testing\Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Size.hpp"
+#include "Memory.hpp"
+#include "Move.hpp"
 
 #pragma endregion
 
