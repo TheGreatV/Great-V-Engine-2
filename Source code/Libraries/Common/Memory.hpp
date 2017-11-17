@@ -16,41 +16,42 @@
 
 namespace GreatVEngine2
 {
-	template<class Type> using Memory = Type*;
+	using Null = std::nullptr_t;
+	template<class Type_> using Memory = Type_*;
 
 
-	template<class Type> inline Memory<Type>	AllocateMemory(const Size& size_);
-	template<class Type> inline void			ReleaseMemory(const Memory<Type>& memory_);
-	template<class Type> inline void			CopyMemory(const Memory<Type>& destination_, const Memory<Type>& source_, const Size& amount_);
-	template<class Type> inline bool			CompareMemory(const Memory<Type>& memory1_, const Memory<Type>& memory2_, const Size& amount_);
+	template<class Type_> inline Memory<Type_>	AllocateMemory(const Size& size_);
+	template<class Type_> inline void			ReleaseMemory(const Memory<Type_>& memory_);
+	template<class Type_> inline void			CopyMemory(const Memory<Type_>& destination_, const Memory<Type_>& source_, const Size& amount_);
+	template<class Type_> inline bool			CompareMemory(const Memory<Type_>& memory1_, const Memory<Type_>& memory2_, const Size& amount_);
 }
 
 
 #pragma region GreatVEngine2
 
-template<class Type>
-inline GreatVEngine2::Memory<Type> GreatVEngine2::AllocateMemory(const Size& size_)
+template<class Type_>
+inline GreatVEngine2::Memory<Type_> GreatVEngine2::AllocateMemory(const Size& size_)
 {
-	auto memoryAmount = sizeof(Type) * size_;
+	auto memoryAmount = sizeof(Type_) * size_;
 	auto rawMemory = std::malloc(memoryAmount);
-	auto memory = static_cast<Memory<Type>>(rawMemory);
+	auto memory = static_cast<Memory<Type_>>(rawMemory);
 
 	return memory;
 }
-template<class Type>
-inline void GreatVEngine2::ReleaseMemory(const Memory<Type>& memory_)
+template<class Type_>
+inline void GreatVEngine2::ReleaseMemory(const Memory<Type_>& memory_)
 {
 	std::free(memory_);
 }
-template<class Type>
-inline void GreatVEngine2::CopyMemory(const Memory<Type>& destination_, const Memory<Type>& source_, const Size& amount_)
+template<class Type_>
+inline void GreatVEngine2::CopyMemory(const Memory<Type_>& destination_, const Memory<Type_>& source_, const Size& amount_)
 {
-	std::memcpy(destination_, source_, sizeof(Type)* amount_);
+	std::memcpy(destination_, source_, sizeof(Type_)* amount_);
 }
-template<class Type>
-inline bool GreatVEngine2::CompareMemory(const Memory<Type>& memory1_, const Memory<Type>& memory2_, const Size& amount_)
+template<class Type_>
+inline bool GreatVEngine2::CompareMemory(const Memory<Type_>& memory1_, const Memory<Type_>& memory2_, const Size& amount_)
 {
-	auto rawCompareResult = std::memcmp(memory1_, memory2_, sizeof(Type) * amount_);
+	auto rawCompareResult = std::memcmp(memory1_, memory2_, sizeof(Type_) * amount_);
 
 	return rawCompareResult == 0;
 }

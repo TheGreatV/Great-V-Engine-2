@@ -3,6 +3,7 @@
 #include <../Common/Common.hpp>
 namespace GVE = GreatVEngine2;
 
+#include <memory>
 
 void Check(bool x)
 {
@@ -63,6 +64,41 @@ public:
 		return *this;
 	}
 };
+
+// call tracker
+class CallTracker
+{
+public:
+	CallTracker()
+	{
+		std::cout << "CallTracker()" << std::endl;
+	}
+	CallTracker(const CallTracker&)
+	{
+		std::cout << "CallTracker(const CallTracker&)" << std::endl;
+	}
+	CallTracker(CallTracker&&)
+	{
+		std::cout << "CallTracker(CallTracker&&)" << std::endl;
+	}
+	~CallTracker()
+	{
+		std::cout << "~CallTracker()" << std::endl;
+	}
+	CallTracker& operator = (const CallTracker&)
+	{
+		std::cout << "operator = (const CallTracker&)" << std::endl;
+
+		return *this;
+	}
+	CallTracker& operator = (CallTracker&&)
+	{
+		std::cout << "operator = (CallTracker&&)" << std::endl;
+
+		return *this;
+	}
+};
+
 
 // arguments checker
 class ArgumentsChecker
@@ -232,55 +268,6 @@ void Move_ForwardFunction2(T&&... t)
 
 void Move_Move()
 {
-	/*class Test
-	{
-	public:
-		Test()
-		{
-			std::cout << "Test()" << std::endl;
-		}
-		Test(const Test&)
-		{
-			std::cout << "Test(const Test&)" << std::endl;
-		}
-		Test(Test&&)
-		{
-			std::cout << "Test(Test&&)" << std::endl;
-		}
-		~Test()
-		{
-			std::cout << "~Test()" << std::endl;
-		}
-		Test& operator = (const Test&)
-		{
-			std::cout << "operator = (const Test&)" << std::endl;
-
-			return *this;
-		}
-		Test& operator = (Test&&)
-		{
-			std::cout << "operator = (Test&&)" << std::endl;
-
-			return *this;
-		}
-		static Test Function()
-		{
-			Test x;
-
-			return std::move(x);
-		}
-	};*/
-
-	/*
-	Test t1;
-	Test t2 = t1;
-	Test t3 = Test::Function();
-
-	t1 = t2;
-	t1 = std::move(t2);
-	t1 = Test::Function();
-	*/
-
 	CallChecker x;
 
 	constructorCallsCounter = 0;
@@ -334,8 +321,223 @@ void Move_Forward()
 
 
 // Reference
+void Reference_ConstantPointer_CreatingAndDestroying()
+{
+	// empty
+	CallChecker::Reset();
+	{
+		GVE::ConstantPointer<CallChecker> p;
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// nullptr
+	CallChecker::Reset();
+	{
+		GVE::ConstantPointer<CallChecker> p(nullptr);
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// new
+	CallChecker::Reset();
+	{
+		auto p = new CallChecker();
+
+		auto p1 = GVE::ConstantPointer<CallChecker>(p);
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// make unique
+	CallChecker::Reset();
+	{
+		auto p = GVE::MakeConstant<CallChecker>();
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// arguments
+	auto p = GVE::MakeConstant<ArgumentsChecker>(5, 10.0f);
+
+	Check(p->x == 5 && p->y == 10.0f);
+}
+void Reference_ConstantPointer_Move()
+{
+	// move copy
+	CallChecker::Reset();
+
+	auto test = []()
+	{
+		auto p = GVE::MakeConstant<CallChecker>();
+
+		return p;
+	};
+
+	{
+		auto p = test();
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+}
+void Reference_ConstantPointer_Selector()
+{
+	class Test
+	{
+	public:
+		int x = 0;
+	};
+
+	auto p = new Test();
+	auto u = GVE::ConstantPointer<Test>(p);
+
+	u->x = 5;
+
+	Check(p->x == 5);
+
+	(*u).x = 10;
+	
+	Check(p->x == 10);
+
+	auto p2 = new Test();
+	const GVE::ConstantPointer<Test> u2(p2);
+
+	p2->x = 15;
+
+	Check((*u2).x == 15);
+	Check(u2->x == 15);
+}
+void Reference_ConstantPointer_Value()
+{
+	auto p = new int();
+	auto c = GVE::ConstantPointer<int>(p);
+
+	Check(c.GetValue() == p);
+
+	// cast to value
+	auto r1 = [&](int* x) -> bool
+	{
+		return x == p;
+	}(c);
+
+	Check(r1 == true);
+
+	auto r2 = [&](const int* x) -> bool
+	{
+		return x == p;
+	}(c);
+
+	Check(r2 == true);
+
+	// operators
+	Check((c == c) == true);
+	Check((c != c) == false);
+
+	Check((c == p) == true);
+	Check((c != p) == false);
+	Check((p == c) == true);
+	Check((p != c) == false);
+	
+	Check((c == nullptr) == false);
+	Check((c != nullptr) == true);
+	Check((nullptr == c) == false);
+	Check((nullptr != c) == true);
+
+	auto c2 = GVE::MakeConstant<int>();
+
+	Check((c == c2) == false);
+	Check((c != c2) == true);
+
+	auto e = GVE::ConstantPointer<int>(nullptr);
+
+	Check(static_cast<bool>(e) == false);
+	Check((e == nullptr) == true);
+	Check((e != nullptr) == false);
+}
+
 void Reference_UniquePointer_CreatingAndDestroying()
 {
+	// empty
 	CallChecker::Reset();
 	{
 		GVE::UniquePointer<CallChecker> p;
@@ -359,6 +561,31 @@ void Reference_UniquePointer_CreatingAndDestroying()
 		moveAssignmentCallsCounter == 0
 	);
 
+	// nullptr
+	CallChecker::Reset();
+	{
+		GVE::UniquePointer<CallChecker> p(nullptr);
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// new
 	CallChecker::Reset();
 	{
 		auto p = new CallChecker();
@@ -384,6 +611,7 @@ void Reference_UniquePointer_CreatingAndDestroying()
 		moveAssignmentCallsCounter == 0
 	);
 
+	// make unique
 	CallChecker::Reset();
 	{
 		auto p = GVE::MakeUnique<CallChecker>();
@@ -407,6 +635,7 @@ void Reference_UniquePointer_CreatingAndDestroying()
 		moveAssignmentCallsCounter == 0
 	);
 
+	// arguments
 	auto p = GVE::MakeUnique<ArgumentsChecker>(5, 10.0f);
 
 	Check(p->x == 5 && p->y == 10.0f);
@@ -485,6 +714,185 @@ void Reference_UniquePointer_Move()
 		moveAssignmentCallsCounter == 0
 	);
 }
+void Reference_UniquePointer_Selector()
+{
+	class Test
+	{
+	public:
+		int x = 0;
+	};
+
+	auto p = new Test();
+	auto u = GVE::UniquePointer<Test>(p);
+
+	u->x = 5;
+
+	Check(p->x == 5);
+
+	(*u).x = 10;
+	
+	Check(p->x == 10);
+
+	auto p2 = new Test();
+	const GVE::UniquePointer<Test> u2(p2);
+
+	p2->x = 15;
+
+	Check((*u2).x == 15);
+	Check(u2->x == 15);
+}
+void Reference_UniquePointer_Value()
+{
+	auto p = new int();
+	auto u = GVE::UniquePointer<int>(p);
+
+	// get value
+	Check(u.GetValue() == p);
+
+	// cast to value
+	auto r1 = [&](int* x) -> bool
+	{
+		return x == p;
+	}(u);
+
+	Check(r1 == true);
+
+	auto r2 = [&](const int* x) -> bool
+	{
+		return x == p;
+	}(u);
+
+	Check(r2 == true);
+
+	// operators
+	Check(static_cast<bool>(u) == true);
+	Check((u == nullptr) == false);
+	Check((u != nullptr) == true);
+
+	Check((p == u) == true);
+	Check((u == p) == true);
+	Check((p != u) == false);
+	Check((u != p) == false);
+
+	Check((u == u) == true);
+	Check((u != u) == false);
+
+	auto u2 = GVE::MakeUnique<int>();
+
+	Check((u == u2) == false);
+	Check((u != u2) == true);
+
+	auto e = GVE::UniquePointer<int>(nullptr);
+
+	Check(static_cast<bool>(e) == false);
+	Check((e == nullptr) == true);
+	Check((e != nullptr) == false);
+}
+
+void Reference_SharedPointer_CreationAndDestroying()
+{
+	// empty
+	CallChecker::Reset();
+	{
+		auto x = GVE::SharedPointer<CallChecker>();
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// nullptr
+	CallChecker::Reset();
+	{
+		auto x = GVE::SharedPointer<CallChecker>(nullptr);
+
+		Check(
+			constructorCallsCounter == 0 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 0 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 0 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// new
+	CallChecker::Reset();
+	{
+		auto x = GVE::SharedPointer<CallChecker>(new CallChecker());
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// make shared
+	CallChecker::Reset();
+	{
+		auto x = GVE::MakeShared<CallChecker>();
+
+		Check(
+			constructorCallsCounter == 1 &&
+			copyCallsCounter == 0 &&
+			moveCopyCallsCounter == 0 &&
+			destructorCallsCounter == 0 &&
+			assignmentCallsCounter == 0 &&
+			moveAssignmentCallsCounter == 0
+		);
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+
+	// arguments
+	auto p = GVE::MakeShared<ArgumentsChecker>(5, 10.0f);
+
+	Check(p->x == 5 && p->y == 10.0f);
+}
+
 
 void main()
 {
@@ -492,11 +900,23 @@ void main()
 	Memory_Copy();
 	Memory_Compare();
 
+
 	Move_Move();
 	Move_Forward();
 
+
+	Reference_ConstantPointer_CreatingAndDestroying();
+	Reference_ConstantPointer_Move();
+	Reference_ConstantPointer_Selector();
+	Reference_ConstantPointer_Value();
+
 	Reference_UniquePointer_CreatingAndDestroying();
 	Reference_UniquePointer_Move();
+	Reference_UniquePointer_Selector();
+	Reference_UniquePointer_Value();
+
+	Reference_SharedPointer_CreationAndDestroying();
+
 
 	std::system("pause");
 }
