@@ -26,8 +26,8 @@ namespace GreatVEngine2
 	template<class Type_> class UserPointer;		// can't be deleted
 
 
-	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	StaticCast(const StrongPointer<SourceType_>& source_);
-	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	DynamicCast(const StrongPointer<SourceType_>& source_);
+	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	StaticCast(StrongPointer<SourceType_>& source_);
+	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	DynamicCast(StrongPointer<SourceType_>& source_);
 }
 
 
@@ -131,17 +131,16 @@ namespace GreatVEngine2
 		using Value = Memory<Type_>;
 		using Counter = Size;
 	protected:
+		class StaticCastTag {};
+		class DynamicCastTag {};
 		class CommonReferenceHolder;
 	protected:
-		static Counter						nullCounter;
+		static CommonReferenceHolder		nullHolder;
 	protected:
-		static inline Memory<Counter>		ObtainCounter(const Counter& counter_ = 0);
-	protected:
-		Value								value;
-		Memory<Counter>						counter;
+		Memory<CommonReferenceHolder>		holder;
 	protected:
 		inline								SharedPointer() = delete;
-		inline								SharedPointer(const Value& value_, const Memory<Counter>& counter_);
+		inline								SharedPointer(const Memory<CommonReferenceHolder>& holder_);
 		inline								SharedPointer(const SharedPointer&) = delete;
 		inline								SharedPointer(SharedPointer&&) = delete;
 		inline								~SharedPointer() = default;
@@ -161,16 +160,20 @@ namespace GreatVEngine2
 	{
 	public:
 		friend WeakPointer<Type_>;
-		template<class DestinationType_, class SourceType_> friend StrongPointer<DestinationType_> StaticCast(const StrongPointer<SourceType_>& source_);
-		template<class DestinationType_, class SourceType_> friend StrongPointer<DestinationType_> DynamicCast(const StrongPointer<SourceType_>& source_);
+		template<class DestinationType_, class SourceType_> friend StrongPointer<DestinationType_> StaticCast(StrongPointer<SourceType_>& source_);
+		template<class DestinationType_, class SourceType_> friend StrongPointer<DestinationType_> DynamicCast(StrongPointer<SourceType_>& source_);
 	protected:
-		inline											StrongPointer(const Value& value_, const Memory<Counter>& counter_);
+		Value											value;
+	protected:
+		inline explicit									StrongPointer(const Memory<CommonReferenceHolder>& holder_);
+		inline											StrongPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_);
 	public:
 		inline											StrongPointer();
 		inline explicit									StrongPointer(const Null&);
 		inline explicit									StrongPointer(const Value& value_);
 		inline explicit									StrongPointer(const WeakPointer<Type_>& source_);
-		template<class DerivedType_> inline explicit	StrongPointer(const StrongPointer<DerivedType_>& source_);
+		// template<class DerivedType_> inline explicit	StrongPointer(const StrongPointer<DerivedType_>& source_, const StaticCastTag&);
+		// template<class DerivedType_> inline explicit	StrongPointer(const StrongPointer<DerivedType_>& source_, const DynamicCastTag&);
 		inline											StrongPointer(const StrongPointer& source_);
 		inline											StrongPointer(StrongPointer&& source_);
 		inline											~StrongPointer();
@@ -194,7 +197,7 @@ namespace GreatVEngine2
 	public:
 		friend StrongPointer<Type_>;
 	protected:
-		inline					WeakPointer(const Value& value_, const Memory<Counter>& counter_);
+		inline					WeakPointer(const Memory<CommonReferenceHolder>& holder_);
 	public:
 		inline					WeakPointer();
 		inline explicit			WeakPointer(const Null&);
@@ -215,9 +218,10 @@ namespace GreatVEngine2
 
 	template<class Type_> class SharedPointer<Type_>::CommonReferenceHolder
 	{
+		friend SharedPointer;
 	public:
-		using Value									= typename SharedPointer<Type_>;
-		using Counter								= Size;
+		using Value									= typename SharedPointer::Value;
+		using Counter								= typename SharedPointer::Counter;
 	public:
 		static inline Memory<CommonReferenceHolder>	Obtain(const Value& value_)
 		{
@@ -464,65 +468,38 @@ inline void GreatVEngine2::UniquePointer<Type_>::Release()
 #pragma region SharedPointer
 
 template<class Type_>
-typename GreatVEngine2::SharedPointer<Type_>::Counter GreatVEngine2::SharedPointer<Type_>::nullCounter = 1;
+typename GreatVEngine2::SharedPointer<Type_>::CommonReferenceHolder GreatVEngine2::SharedPointer<Type_>::nullHolder = CommonReferenceHolder(nullptr, 1);
 
 template<class Type_>
-inline GreatVEngine2::Memory<typename GreatVEngine2::SharedPointer<Type_>::Counter> GreatVEngine2::SharedPointer<Type_>::ObtainCounter(const Counter& counter_)
-{
-	return new Counter(counter_);
-}
-
-template<class Type_>
-inline GreatVEngine2::SharedPointer<Type_>::SharedPointer(const Value& value_, const Memory<Counter>& counter_):
-	value(value_),
-	counter(counter_)
+inline GreatVEngine2::SharedPointer<Type_>::SharedPointer(const Memory<CommonReferenceHolder>& holder_):
+	holder(holder_)
 {
 }
 
 template<class Type_>
 inline void GreatVEngine2::SharedPointer<Type_>::IncreaseCounter()
 {
-	++(*counter);
+	holder->IncreaseCounter();
 }
 template<class Type_>
 inline void GreatVEngine2::SharedPointer<Type_>::DecreaseCounter()
 {
-	--(*counter);
-
-	if (*counter == 0)
-	{
-		delete value;
-		delete counter;
-	}
+	holder->DecreaseCounter();
 }
 template<class Type_>
 inline typename GreatVEngine2::SharedPointer<Type_>::Value GreatVEngine2::SharedPointer<Type_>::GetValue() const
 {
-	return value;
+	return holder->GetValue();
 }
 template<class Type_>
 inline typename GreatVEngine2::SharedPointer<Type_>::Counter GreatVEngine2::SharedPointer<Type_>::GetCounter() const
 {
-	return *counter;
+	return holder->GetCounter();
 }
 template<class Type_>
 inline void GreatVEngine2::SharedPointer<Type_>::Release()
 {
-	if (value)
-	{
-		if (counter == 1)
-		{
-			value = nullptr;
-
-			delete counter; // value != nullptr, thus counter != &nullCounter
-
-			counter = &nullCounter;
-		}
-		else
-		{
-			throw 5; // TODO
-		}
-	}
+	holder->Release();
 }
 
 #pragma endregion
@@ -530,11 +507,18 @@ inline void GreatVEngine2::SharedPointer<Type_>::Release()
 #pragma region StrongPointer
 
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_, const Memory<Counter>& counter_):
-	SharedPointer(value_, counter_)
+inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Memory<CommonReferenceHolder>& holder_):
+	StrongPointer(holder_->GetValue(), holder_)
+{
+}
+template<class Type_>
+inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_):
+	SharedPointer(holder_),
+	value(value_)
 {
 	IncreaseCounter();
 }
+
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer():
 	StrongPointer(nullptr)
@@ -542,36 +526,32 @@ inline GreatVEngine2::StrongPointer<Type_>::StrongPointer():
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Null&):
-	StrongPointer(nullptr, &nullCounter)
+	StrongPointer(&nullHolder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_):
-	StrongPointer(value_, ObtainCounter())
-{
-}
-template<class Type_> template<class DerivedType_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer<DerivedType_>& source_):
-	StrongPointer(Move(StaticCast<Type_>(source_)))
+	StrongPointer(CommonReferenceHolder::Obtain(value_))
 {
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const WeakPointer<Type_>& source_):
-	StrongPointer(source_.value, source_.counter)
+	StrongPointer(source_.holder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer& source_):
-	StrongPointer(source_.value, source_.counter)
+	StrongPointer(source_.holder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(StrongPointer&& source_):
-	SharedPointer(source_.value, source_.counter)
+	SharedPointer(source_.holder),
+	value(source_.value)
 {
+	source_.holder = &nullHolder;
 	source_.value = nullptr;
-	source_.counter = &nullCounter;
-	
+
 	source_.IncreaseCounter();
 }
 template<class Type_>
@@ -586,7 +566,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	DecreaseCounter();
 
 	value = nullptr;
-	counter = &nullCounter;
+	holder = &nullHolder;
 
 	IncreaseCounter();
 
@@ -598,7 +578,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	DecreaseCounter();
 	
 	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
 	IncreaseCounter();
 
@@ -610,7 +590,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	DecreaseCounter();
 
 	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
 	IncreaseCounter();
 
@@ -622,10 +602,10 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	DecreaseCounter();
 
 	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
 	source_.value = nullptr;
-	source_.counter = &nullCounter;
+	source_.holder = &nullHolder;
 
 	source_.IncreaseCounter();
 
@@ -656,7 +636,7 @@ inline Type_& GreatVEngine2::StrongPointer<Type_>::operator * ()
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::operator bool() const
 {
-	return static_cast<bool>(value);
+	return value != nullptr;
 }
 template<class Type_>
 inline GreatVEngine2::StrongPointer<Type_>::operator Value() const
@@ -669,8 +649,8 @@ inline GreatVEngine2::StrongPointer<Type_>::operator Value() const
 #pragma region WeakPointer
 
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Value& value_, const Memory<Counter>& counter_):
-	SharedPointer(value_, counter_)
+inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Memory<CommonReferenceHolder>& holder_):
+	SharedPointer(holder_)
 {
 }
 template<class Type_>
@@ -680,59 +660,53 @@ inline GreatVEngine2::WeakPointer<Type_>::WeakPointer():
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Null&):
-	WeakPointer(nullptr, &nullCounter)
+	WeakPointer(&nullHolder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const StrongPointer<Type_>& source_):
-	WeakPointer(source_.value, source_.counter)
+	WeakPointer(source_.holder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const WeakPointer& source_):
-	WeakPointer(source_.value, source_.counter)
+	WeakPointer(source_.holder)
 {
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(WeakPointer&& source_):
-	WeakPointer(source_.value, source_.counter)
+	WeakPointer(source_.holder)
 {
-	source_.value = nullptr;
-	source_.counter = &nullCounter;
+	source_.holder = &nullHolder;
 }
 
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const Null&)
 {
-	value = nullptr;
-	counter = &nullCounter;
+	holder = &nullHolder;
 
 	return *this;
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const StrongPointer<Type_>& source_)
 {
-	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
 	return *this;
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const WeakPointer& source_)
 {
-	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
 	return *this;
 }
 template<class Type_>
 inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (WeakPointer&& source_)
 {
-	value = source_.value;
-	counter = source_.counter;
+	holder = source_.holder;
 
-	source_.value = nullptr;
-	source_.counter = &nullCounter;
+	source_.holder = &nullHolder;
 
 	return *this;
 }
@@ -786,20 +760,23 @@ inline typename GreatVEngine2::WeakPointer<Type_> GreatVEngine2::MakeWeak<Type_>
 
 
 template<class DestinationType_, class SourceType_>
-typename GreatVEngine2::StrongPointer<DestinationType_> GreatVEngine2::StaticCast<DestinationType_, SourceType_>(const StrongPointer<SourceType_>& source_)
+typename GreatVEngine2::StrongPointer<DestinationType_> GreatVEngine2::StaticCast<DestinationType_, SourceType_>(StrongPointer<SourceType_>& source_)
 {
-	auto castedValue = static_cast<typename StrongPointer<DestinationType_>::Value>(source_.value);
+	auto castedValue = static_cast<StrongPointer<DestinationType_>::Value>(source_.value);
+	auto castedHolder = reinterpret_cast<Memory<StrongPointer<DestinationType_>::CommonReferenceHolder>>(source_.holder); // TODO: replace with static_cast
 	
-	return StrongPointer<DestinationType_>(castedValue, source_.counter);
+	return Move(StrongPointer<DestinationType_>(castedValue, castedHolder));
 }
 template<class DestinationType_, class SourceType_>
-typename GreatVEngine2::StrongPointer<DestinationType_> GreatVEngine2::DynamicCast<DestinationType_, SourceType_>(const StrongPointer<SourceType_>& source_)
+typename GreatVEngine2::StrongPointer<DestinationType_> GreatVEngine2::DynamicCast<DestinationType_, SourceType_>(StrongPointer<SourceType_>& source_)
 {
 	auto castedValue = dynamic_cast<typename StrongPointer<DestinationType_>::Value>(source_.value);
+	auto castedHolder = reinterpret_cast<Memory<StrongPointer<DestinationType_>::CommonReferenceHolder>>(source_.holder); // TODO: replace with dynamic_cast?
 
-	return castedValue
-		? StrongPointer<DestinationType_>(castedValue, source_.counter)
-		: StrongPointer<DestinationType_>(nullptr);
+	return Move(castedValue
+		? StrongPointer<DestinationType_>(castedValue, castedHolder)
+		: StrongPointer<DestinationType_>(nullptr)
+	);
 }
 
 #pragma endregion

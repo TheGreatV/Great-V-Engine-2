@@ -1108,7 +1108,7 @@ void Reference_StrongPointer_Weak()
 
 	Check(s.GetValue() == s2.GetValue());
 }
-void Reference_StrongPointer_DynamicCast()
+void Reference_StrongPointer_Cast()
 {
 	// static
 	auto sd = GVE::MakeStrong<StaticInheritanceCheckerDerived>();
@@ -1120,7 +1120,7 @@ void Reference_StrongPointer_DynamicCast()
 	Check(sb->x == 5);
 
 	// dynamic
-	auto db = GVE::StrongPointer<DynamicInheritanceCheckerBase>(GVE::MakeStrong<DynamicInheritanceCheckerDerived>(5, 10));
+	auto db = GVE::StaticCast<DynamicInheritanceCheckerBase>(GVE::MakeStrong<DynamicInheritanceCheckerDerived>(5, 10));
 	auto dd = GVE::DynamicCast<DynamicInheritanceCheckerDerived>(db);
 
 	Check(dd->y == 5);
@@ -1362,29 +1362,15 @@ double Stopwatch(T t)
 }
 
 
-class X
+void main2()
 {
-public:
-	X() = default;
-protected:
-	void* operator new (size_t)
-	{
-		return ::new()
-	}
-};
-
-
-void main()
-{
-	new X();
-
 	std::cout << "sizeof(std::size_t): " << sizeof(std::size_t) << std::endl;
 	std::cout << "sizeof(int): " << sizeof(int) << std::endl;
 	std::cout << "sizeof(std::shared_ptr<int>): " << sizeof(std::shared_ptr<int>) << std::endl;
 
 	std::system("pause");
 }
-void main2()
+void main()
 {
 	// Memory
 	Memory_AllocationAndReleasing();
@@ -1411,7 +1397,7 @@ void main2()
 	Reference_StrongPointer_Usage();
 	Reference_StrongPointer_Move();
 	Reference_StrongPointer_Weak();
-	Reference_StrongPointer_DynamicCast();
+	Reference_StrongPointer_Cast();
 
 	Reference_WeakPointer_CreationAndDestroying();
 	Reference_WeakPointer_Usage();
