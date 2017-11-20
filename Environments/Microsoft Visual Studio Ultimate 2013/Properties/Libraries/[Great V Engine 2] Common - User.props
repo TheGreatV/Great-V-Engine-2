@@ -13,6 +13,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)../../_Build/$(VisualStudioEdition)/Common/$(PlatformName)/$(Configuration)/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Common.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
