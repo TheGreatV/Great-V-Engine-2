@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Reference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Collection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Common.hpp">
@@ -51,6 +54,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Reference.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Collection.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

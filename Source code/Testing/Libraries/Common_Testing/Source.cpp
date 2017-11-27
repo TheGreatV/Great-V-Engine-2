@@ -151,6 +151,12 @@ class DynamicInheritanceCheckerDerived:
 	public DynamicInheritanceCheckerBase
 {
 public:
+	static int destructorCallsCounter;
+	static void Reset()
+	{
+		destructorCallsCounter = 0;
+	}
+public:
 	int y;
 	DynamicInheritanceCheckerDerived() = default;
 	DynamicInheritanceCheckerDerived(int y_, int x_):
@@ -158,8 +164,13 @@ public:
 		y(y_)
 	{
 	}
-	virtual ~DynamicInheritanceCheckerDerived() override = default;
+	virtual ~DynamicInheritanceCheckerDerived() override
+	{
+		++destructorCallsCounter;
+	}
 };
+
+int DynamicInheritanceCheckerDerived::destructorCallsCounter = 0;
 
 
 // Memory
@@ -1132,6 +1143,15 @@ void Reference_StrongPointer_Cast()
 	auto fdd = GVE::DynamicCast<DynamicInheritanceCheckerDerived>(fdb);
 
 	Check(fdd.GetValue() == nullptr);
+
+	// derived destructor
+	auto db2 = GVE::StrongPointer<DynamicInheritanceCheckerBase>(new DynamicInheritanceCheckerDerived());
+
+	DynamicInheritanceCheckerDerived::Reset();
+
+	db2 = nullptr;
+
+	Check(DynamicInheritanceCheckerDerived::destructorCallsCounter == 1);
 }
 
 void Reference_WeakPointer_CreationAndDestroying()
@@ -1362,14 +1382,6 @@ double Stopwatch(T t)
 }
 
 
-void main2()
-{
-	std::cout << "sizeof(std::size_t): " << sizeof(std::size_t) << std::endl;
-	std::cout << "sizeof(int): " << sizeof(int) << std::endl;
-	std::cout << "sizeof(std::shared_ptr<int>): " << sizeof(std::shared_ptr<int>) << std::endl;
-
-	std::system("pause");
-}
 void main()
 {
 	// Memory

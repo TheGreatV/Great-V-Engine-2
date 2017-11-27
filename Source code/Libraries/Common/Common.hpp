@@ -6,6 +6,7 @@
 #include "Memory.hpp"
 #include "Move.hpp"
 #include "Reference.hpp"
+#include "Collection.hpp"
 
 #pragma endregion
 

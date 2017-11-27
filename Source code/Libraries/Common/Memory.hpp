@@ -16,8 +16,8 @@
 
 namespace GreatVEngine2
 {
-	using Null = std::nullptr_t;
-	template<class Type_> using Memory = Type_*;
+	using										Null = std::nullptr_t;
+	template<class Type_> using					Memory = Type_*;
 
 
 	template<class Type_> inline Memory<Type_>	AllocateMemory(const Size& size_ = 1);
