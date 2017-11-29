@@ -163,7 +163,17 @@ namespace Brothel
 	class Frontage;
 	class FrontageDependent;
 	class Groundwork;
+	
+	class Inmate;
 	class Bed;
+
+	class Character;
+	class Personnel;
+
+
+	// friend functions
+	inline void Settle(const GVE::StrongPointer<Inmate>& inmate_, const GVE::StrongPointer<Bed>& bed_);
+	inline void Evict(const GVE::StrongPointer<Bed>& bed_);
 
 
 	class Exception:
@@ -185,17 +195,19 @@ namespace Brothel
 		public BasicGameClass::Game
 	{
 	protected:
-		GVE::List<GVE::StrongPointer<City>> cities;
+		GVE::List<GVE::StrongPointer<City>>			cities;
+		GVE::List<GVE::StrongPointer<Personnel>>	personnels;
 	public:
-		inline explicit					Game(const GVE::StrongPointer<Game>& this_);
-		inline							Game(const Game&) = delete;
-		inline virtual					~Game() override
+		inline explicit								Game(const GVE::StrongPointer<Game>& this_);
+		inline										Game(const Game&) = delete;
+		inline virtual								~Game() override
 		{
 		}
 	public:
-		inline Game&					operator = (const Game&) = delete;
+		inline Game&								operator = (const Game&) = delete;
 	public:
-		inline GVE::WeakPointer<City>	CreateCity();
+		inline GVE::WeakPointer<City>				CreateCity();
+		inline GVE::WeakPointer<Personnel>			CreatePersonnel();
 	};
 
 	class City:
@@ -231,16 +243,21 @@ namespace Brothel
 		public CityDependent
 	{
 	public:
-		using Sections = GVE::List<GVE::StrongPointer<Section>>;
+		using Sections																= GVE::List<GVE::StrongPointer<Section>>;
+		using Rooms																	= GVE::List<GVE::StrongPointer<Room>>;
 	protected:
-		Sections sections;
+		Sections																	sections;
+		Rooms																		rooms;
 	public:
-		inline Building(const GVE::StrongPointer<Building>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
-		inline Building(const GVE::StrongPointer<Building>& this_, Sections&& sections_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
-		inline Building(const Building&) = delete;
-		inline virtual ~Building() override = default;
+		inline																		Building(const GVE::StrongPointer<Building>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
+		inline																		Building(const GVE::StrongPointer<Building>& this_, Sections&& sections_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
+		inline																		Building(const Building&) = delete;
+		inline virtual																~Building() override = default;
 	public:
-		inline Building& operator = (const Building&) = delete;
+		inline Building&															operator = (const Building&) = delete;
+	public:
+		template<class Room_, class... Arguments_> inline GVE::WeakPointer<Room_>	CreateRoom(Arguments_&&... arguments_);
+		// template<class Room_> inline GVE::WeakPointer<Room_>						CreateRoom();
 	};
 	class BuildingDependent
 	{
@@ -328,40 +345,6 @@ namespace Brothel
 	public:
 		inline GVE::StrongPointer<Room>		GetRoom() const;
 	};
-	namespace Rooms
-	{
-		class Bedroom:
-			public Room
-		{
-		public:
-			using Beds				= GVE::List<GVE::StrongPointer<Bed>>;
-		protected:
-			const Beds				beds;
-		public:
-			inline					Bedroom(const GVE::StrongPointer<Bedroom>& this_, Beds&& beds_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_);
-			inline					Bedroom(const Bedroom&) = delete;
-			inline virtual			~Bedroom() override = default;
-		public:
-			inline Bedroom&			operator = (const Bedroom&) = delete;
-		};
-		namespace Bedrooms
-		{
-			class Miserable:
-				public Bedroom
-			{
-			public:
-				class Frontage;
-			protected:
-				static inline Beds							CreateBeds(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Game>& game_);
-			public:
-				inline										Miserable(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Section>& pivot_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_);
-				inline										Miserable(const Miserable&) = delete;
-				inline virtual								~Miserable() override = default;
-			public:
-				inline Miserable&							operator = (const Miserable&) = delete;
-			};
-		}
-	}
 
 	class Frontage:
 		public Entity,
@@ -423,17 +406,105 @@ namespace Brothel
 		inline void						Link(const GVE::StrongPointer<Section>& section_);
 		inline void						Unlink();
 	};
+	
+	class Inmate:
+		public Entity
+	{
+	public:
+		friend inline void			Settle(const GVE::StrongPointer<Inmate>& inmate_, const GVE::StrongPointer<Bed>& bed_);
+		friend inline void			Evict(const GVE::StrongPointer<Bed>& bed_);
+	protected:
+		GVE::WeakPointer<Bed>		bed = GVE::WeakPointer<Bed>(nullptr);
+	public:
+		inline						Inmate(const GVE::StrongPointer<Inmate>& this_, const GVE::StrongPointer<Game>& game_);
+		inline						Inmate(const Inmate&) = delete;
+		inline virtual				~Inmate() override = default;
+	public:
+		inline Inmate&				operator = (const Inmate&) = delete;
+	};
 	class Bed:
 		public Entity,
 		public RoomDependent
 	{
 	public:
-		inline				Bed(const GVE::StrongPointer<Bed>& this_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_);
-		inline				Bed(const Bed&) = delete;
-		inline virtual		~Bed() override = default;
+		friend inline void			Settle(const GVE::StrongPointer<Inmate>& inmate_, const GVE::StrongPointer<Bed>& bed_);
+		friend inline void			Evict(const GVE::StrongPointer<Bed>& bed_);
+	protected:
+		GVE::WeakPointer<Inmate>	inmate = GVE::WeakPointer<Inmate>(nullptr);
 	public:
-		inline Bed&			operator = (const Bed&) = delete;
+		inline						Bed(const GVE::StrongPointer<Bed>& this_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_);
+		inline						Bed(const Bed&) = delete;
+		inline virtual				~Bed() override = default;
+	public:
+		inline Bed&					operator = (const Bed&) = delete;
+	public:
+		inline bool					IsEmpty() const;
 	};
+
+	class Character:
+		public Entity
+	{
+	public:
+		inline						Character(const GVE::StrongPointer<Character>& this_, const GVE::StrongPointer<Game>& game_);
+		inline						Character(const Character&) = delete;
+		inline virtual				~Character() override = default;
+	public:
+		inline Character&			operator = (const Character&) = delete;
+	};
+	class Personnel:
+		public Character,
+		public Inmate
+	{
+	public:
+		inline								Personnel(const GVE::StrongPointer<Personnel>& this_, const GVE::StrongPointer<Game>& game_);
+		inline								Personnel(const Personnel&) = delete;
+		inline virtual						~Personnel() override = default;
+	public:
+		inline Personnel&					operator = (const Personnel&) = delete;
+	public:
+		template<class Derived_> inline		GVE::StrongPointer<Derived_> GetThis() const;
+		template<class Derived_> inline		GVE::WeakPointer<Derived_> GetWeak() const;
+	};
+
+	namespace Rooms
+	{
+		class Bedroom:
+			public Room
+		{
+		public:
+			using Beds				= GVE::List<GVE::StrongPointer<Bed>>;
+		protected:
+			const Beds				beds;
+		public:
+			inline					Bedroom(const GVE::StrongPointer<Bedroom>& this_, Beds&& beds_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_);
+			inline					Bedroom(const Bedroom&) = delete;
+			inline virtual			~Bedroom() override = default;
+		public:
+			inline Bedroom&			operator = (const Bedroom&) = delete;
+		public:
+			inline bool				IsEmptyBedAvailable() const;
+			inline void				Settle(const GVE::StrongPointer<Inmate>& inmate_);
+		};
+		namespace Bedrooms
+		{
+			class Miserable:
+				public Bedroom
+			{
+			public:
+				class Frontage;
+			protected:
+				class Bed;
+			protected:
+				static inline Beds							CreateBeds(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Game>& game_);
+			public:
+				inline										Miserable(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Section>& pivot_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_);
+				inline										Miserable(const Miserable&) = delete;
+				inline virtual								~Miserable() override = default;
+			public:
+				inline Miserable&							operator = (const Miserable&) = delete;
+			};
+		}
+	}
 
 #pragma region Rooms::Bedrooms::Miserable::Frontage
 	class Rooms::Bedrooms::Miserable::Frontage:
@@ -457,6 +528,18 @@ namespace Brothel
 		inline Frontage&								operator = (const Frontage&) = delete;
 	};
 #pragma endregion
+#pragma region Rooms::Bedrooms::Miserable::Bed
+		class Rooms::Bedrooms::Miserable::Bed:
+			public Brothel::Bed
+		{
+		public:
+			inline						Bed(const GVE::StrongPointer<Bed>& this_, const GVE::StrongPointer<Miserable>& room_, const GVE::StrongPointer<Game>& game_);
+			inline						Bed(const Bed&) = delete;
+			inline virtual				~Bed() override = default;
+		public:
+			inline Bed&					operator = (const Bed&) = delete;
+		};
+#pragma endregion
 }
 
 
@@ -464,7 +547,7 @@ namespace Brothel
 
 #pragma region Entity
 
-inline Brothel::Entity::Entity(const GVE::StrongPointer<Entity>& this_, const GVE::StrongPointer<Game>& game_):
+Brothel::Entity::Entity(const GVE::StrongPointer<Entity>& this_, const GVE::StrongPointer<Game>& game_):
 	BasicGameClass::Entity(this_, game_)
 {
 }
@@ -473,12 +556,12 @@ inline Brothel::Entity::Entity(const GVE::StrongPointer<Entity>& this_, const GV
 
 #pragma region Game
 
-inline Brothel::Game::Game(const GVE::StrongPointer<Game>& this_):
+Brothel::Game::Game(const GVE::StrongPointer<Game>& this_):
 	BasicGameClass::Game(this_)
 {
 }
 
-inline GVE::WeakPointer<Brothel::City> Brothel::Game::CreateCity()
+GVE::WeakPointer<Brothel::City> Brothel::Game::CreateCity()
 {
 	auto ownedThis = GetThis<Game>();
 
@@ -492,12 +575,26 @@ inline GVE::WeakPointer<Brothel::City> Brothel::Game::CreateCity()
 
 	return weak;
 }
+GVE::WeakPointer<Brothel::Personnel> Brothel::Game::CreatePersonnel()
+{
+	auto ownedThis = GetThis<Game>();
+
+	auto personnel = GVE::Make<Personnel>(ownedThis);
+
+	personnels.push_back(personnel);
+
+	Add(GVE::StaticCast<Character>(personnel));
+
+	auto weak = GVE::MakeWeak(personnel);
+
+	return weak;
+}
 
 #pragma endregion
 
 #pragma region City
 
-inline Brothel::City::City(const GVE::StrongPointer<City>& this_, const GVE::StrongPointer<Game>& game_):
+Brothel::City::City(const GVE::StrongPointer<City>& this_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_)
 {
 }
@@ -535,12 +632,12 @@ GVE::WeakPointer<Building_> Brothel::City::CreateBuilding()
 
 #pragma region CityDependent
 
-inline Brothel::CityDependent::CityDependent(const GVE::StrongPointer<City>& city_):
+Brothel::CityDependent::CityDependent(const GVE::StrongPointer<City>& city_):
 	city(GVE::MakeWeak(city_))
 {
 }
 
-inline GVE::StrongPointer<Brothel::City> Brothel::CityDependent::GetCity() const
+GVE::StrongPointer<Brothel::City> Brothel::CityDependent::GetCity() const
 {
 	return GVE::MakeStrong(city);
 }
@@ -549,27 +646,47 @@ inline GVE::StrongPointer<Brothel::City> Brothel::CityDependent::GetCity() const
 
 #pragma region Building
 
-inline Brothel::Building::Building(const GVE::StrongPointer<Building>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
+Brothel::Building::Building(const GVE::StrongPointer<Building>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
 	Building(this_, {}, city_, game_)
 {
 }
-inline Brothel::Building::Building(const GVE::StrongPointer<Building>& this_, Sections&& sections_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
+Brothel::Building::Building(const GVE::StrongPointer<Building>& this_, Sections&& sections_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
 	CityDependent(city_),
 	sections(sections_)
 {
 }
 
+template<class Room_, class... Arguments_>
+GVE::WeakPointer<Room_> Brothel::Building::CreateRoom(Arguments_&&... arguments_)
+{
+	auto ownedGame = GetGame();
+	auto ownedThis = GetThis<Building>();
+
+	auto room = GVE::Make<Room_>(GVE::Forward<Arguments_>(arguments_)..., ownedThis, ownedGame);
+
+	rooms.push_back(room);
+
+	auto weak = GVE::MakeWeak(room);
+
+	return GVE::Move(weak);
+}
+// template<class Room_>
+// GVE::WeakPointer<Room_> Brothel::Building::CreateRoom()
+// {
+// 	// TODO
+// }
+
 #pragma endregion
 
 #pragma region BuildingDependent
 
-inline Brothel::BuildingDependent::BuildingDependent(const GVE::StrongPointer<Building>& building_):
+Brothel::BuildingDependent::BuildingDependent(const GVE::StrongPointer<Building>& building_):
 	building(GVE::MakeWeak(building_))
 {
 }
 
-inline GVE::StrongPointer<Brothel::Building> Brothel::BuildingDependent::GetBuilding() const
+GVE::StrongPointer<Brothel::Building> Brothel::BuildingDependent::GetBuilding() const
 {
 	return GVE::MakeStrong(building);
 }
@@ -580,7 +697,7 @@ inline GVE::StrongPointer<Brothel::Building> Brothel::BuildingDependent::GetBuil
 
 #pragma region Test
 
-inline Brothel::Buildings::Test::Sections Brothel::Buildings::Test::CreateSections(const GVE::StrongPointer<Test>& building_, const GVE::StrongPointer<Game>& game_)
+Brothel::Buildings::Test::Sections Brothel::Buildings::Test::CreateSections(const GVE::StrongPointer<Test>& building_, const GVE::StrongPointer<Game>& game_)
 {
 	Sections sections;
 
@@ -590,7 +707,7 @@ inline Brothel::Buildings::Test::Sections Brothel::Buildings::Test::CreateSectio
 	return GVE::Move(sections);
 }
 
-inline Brothel::Buildings::Test::Test(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
+Brothel::Buildings::Test::Test(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_):
 	Building(this_, GVE::Move(CreateSections(this_, game_)), city_, game_)
 {
 }
@@ -601,22 +718,22 @@ inline Brothel::Buildings::Test::Test(const GVE::StrongPointer<Test>& this_, con
 
 #pragma region Section
 
-inline Brothel::Section::Section(const GVE::StrongPointer<Section>& this_, const Type& type_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
+Brothel::Section::Section(const GVE::StrongPointer<Section>& this_, const Type& type_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
 	BuildingDependent(building_),
 	type(type_)
 {
 }
 
-inline Brothel::Section::Type Brothel::Section::GetType() const
+Brothel::Section::Type Brothel::Section::GetType() const
 {
 	return type;
 }
-inline bool Brothel::Section::IsAttached() const
+bool Brothel::Section::IsAttached() const
 {
 	return attachedGroundwork != nullptr;
 }
-inline void Brothel::Section::Attach(const GVE::StrongPointer<Groundwork>& groundwork_)
+void Brothel::Section::Attach(const GVE::StrongPointer<Groundwork>& groundwork_)
 {
 	attachedGroundwork = GVE::MakeWeak(groundwork_);
 }
@@ -625,7 +742,7 @@ inline void Brothel::Section::Attach(const GVE::StrongPointer<Groundwork>& groun
 
 #pragma region Room
 
-inline Brothel::Room::Room(const GVE::StrongPointer<Room>& this_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
+Brothel::Room::Room(const GVE::StrongPointer<Room>& this_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
 	BuildingDependent(building_),
 	frontage(frontage_)
@@ -636,12 +753,12 @@ inline Brothel::Room::Room(const GVE::StrongPointer<Room>& this_, const GVE::Str
 
 #pragma region RoomDependent
 
-inline Brothel::RoomDependent::RoomDependent(const GVE::StrongPointer<Room>& room_):
+Brothel::RoomDependent::RoomDependent(const GVE::StrongPointer<Room>& room_):
 	room(GVE::MakeWeak(room_))
 {
 }
 
-inline GVE::StrongPointer<Brothel::Room> Brothel::RoomDependent::GetRoom() const
+GVE::StrongPointer<Brothel::Room> Brothel::RoomDependent::GetRoom() const
 {
 	return GVE::MakeStrong(room);
 }
@@ -652,10 +769,37 @@ inline GVE::StrongPointer<Brothel::Room> Brothel::RoomDependent::GetRoom() const
 
 #pragma region Bedroom
 
-inline Brothel::Rooms::Bedroom::Bedroom(const GVE::StrongPointer<Bedroom>& this_, Beds&& beds_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
+Brothel::Rooms::Bedroom::Bedroom(const GVE::StrongPointer<Bedroom>& this_, Beds&& beds_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
 	Room(this_, frontage_, building_, game_),
 	beds(beds_)
 {
+}
+
+bool Brothel::Rooms::Bedroom::IsEmptyBedAvailable() const
+{
+	for (auto &bed : beds)
+	{
+		if (bed->IsEmpty())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+void Brothel::Rooms::Bedroom::Settle(const GVE::StrongPointer<Inmate>& inmate_)
+{
+	for (auto &bed : beds)
+	{
+		if (bed->IsEmpty())
+		{
+			Brothel::Settle(inmate_, bed);
+
+			return; // TODO: return bed?
+		}
+	}
+
+	throw Exception();
 }
 
 #pragma endregion
@@ -666,7 +810,7 @@ inline Brothel::Rooms::Bedroom::Bedroom(const GVE::StrongPointer<Bedroom>& this_
 
 #pragma region Frontage
 
-inline Brothel::Rooms::Bedrooms::Miserable::Frontage::GroundworksPack Brothel::Rooms::Bedrooms::Miserable::Frontage::CreateGroundworks(const GVE::StrongPointer<Frontage>& this_, const GVE::StrongPointer<Game>& game_)
+Brothel::Rooms::Bedrooms::Miserable::Frontage::GroundworksPack Brothel::Rooms::Bedrooms::Miserable::Frontage::CreateGroundworks(const GVE::StrongPointer<Frontage>& this_, const GVE::StrongPointer<Game>& game_)
 {
 	auto g1 = GVE::Make<Groundwork>(Section::Type::Inner, this_, game_);
 	auto g2 = GVE::Make<Groundwork>(Section::Type::Outer, this_, game_);
@@ -687,29 +831,39 @@ inline Brothel::Rooms::Bedrooms::Miserable::Frontage::GroundworksPack Brothel::R
 	};
 }
 
-inline Brothel::Rooms::Bedrooms::Miserable::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, GroundworksPack&& groundworksPack_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
+Brothel::Rooms::Bedrooms::Miserable::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, GroundworksPack&& groundworksPack_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
 	Brothel::Frontage(this_, GVE::Move(groundworksPack_.groundworks), groundworksPack_.pivot, room_, game_)
 {
 }
 
-inline Brothel::Rooms::Bedrooms::Miserable::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
+Brothel::Rooms::Bedrooms::Miserable::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
 	Frontage(this_, CreateGroundworks(this_, game_), room_, game_)
 {
 }
 
 #pragma endregion
 
+#pragma region Bed
 
-inline Brothel::Rooms::Bedrooms::Miserable::Beds Brothel::Rooms::Bedrooms::Miserable::CreateBeds(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Game>& game_)
+Brothel::Rooms::Bedrooms::Miserable::Bed::Bed(const GVE::StrongPointer<Bed>& this_, const GVE::StrongPointer<Miserable>& room_, const GVE::StrongPointer<Game>& game_):
+	Brothel::Bed(this_, room_, game_)
+{
+}
+
+#pragma endregion
+
+
+Brothel::Rooms::Bedrooms::Miserable::Beds Brothel::Rooms::Bedrooms::Miserable::CreateBeds(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Game>& game_)
 {
 	Beds beds;
 
-	// TODO
+	beds.push_back(GVE::Make<Bed>(this_, game_));
+	beds.push_back(GVE::Make<Bed>(this_, game_));
 
 	return GVE::Move(beds);
 }
 
-inline Brothel::Rooms::Bedrooms::Miserable::Miserable(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Section>& pivot_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
+Brothel::Rooms::Bedrooms::Miserable::Miserable(const GVE::StrongPointer<Miserable>& this_, const GVE::StrongPointer<Section>& pivot_, const GVE::StrongPointer<Building>& building_, const GVE::StrongPointer<Game>& game_):
 	Bedroom(this_, CreateBeds(this_, game_), GVE::Make<Frontage>(this_, game_), building_, game_)
 {
 	// TODO: connect frontage to sections
@@ -723,7 +877,7 @@ inline Brothel::Rooms::Bedrooms::Miserable::Miserable(const GVE::StrongPointer<M
 
 #pragma region Frontage
 
-inline Brothel::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, Groundworks&& groundworks_, const GVE::StrongPointer<Groundwork>& pivot_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
+Brothel::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, Groundworks&& groundworks_, const GVE::StrongPointer<Groundwork>& pivot_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
 	RoomDependent(room_),
 	groundworks(groundworks_),
@@ -731,7 +885,7 @@ inline Brothel::Frontage::Frontage(const GVE::StrongPointer<Frontage>& this_, Gr
 {
 }
 
-inline bool Brothel::Frontage::Check(const GVE::StrongPointer<Groundwork>& groundwork_, const GVE::StrongPointer<Section>& section_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_)
+bool Brothel::Frontage::Check(const GVE::StrongPointer<Groundwork>& groundwork_, const GVE::StrongPointer<Section>& section_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_)
 {
 	if (checked_.find(groundwork_) != checked_.end())
 	{
@@ -763,7 +917,7 @@ inline bool Brothel::Frontage::Check(const GVE::StrongPointer<Groundwork>& groun
 
 	return true;
 }
-inline void Brothel::Frontage::Connect(const GVE::StrongPointer<Groundwork>& groundwork_, const GVE::StrongPointer<Section>& section_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_, GVE::Map<GVE::StrongPointer<Groundwork>, GVE::StrongPointer<Section>>& map_)
+void Brothel::Frontage::Connect(const GVE::StrongPointer<Groundwork>& groundwork_, const GVE::StrongPointer<Section>& section_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_, GVE::Map<GVE::StrongPointer<Groundwork>, GVE::StrongPointer<Section>>& map_)
 {
 	if (checked_.find(groundwork_) == checked_.end())
 	{
@@ -794,7 +948,7 @@ inline void Brothel::Frontage::Connect(const GVE::StrongPointer<Groundwork>& gro
 		}
 	}
 }
-inline void Brothel::Frontage::Disconnect(const GVE::StrongPointer<Groundwork>& groundwork_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_)
+void Brothel::Frontage::Disconnect(const GVE::StrongPointer<Groundwork>& groundwork_, GVE::Set<GVE::StrongPointer<Groundwork>>& checked_)
 {
 	if (checked_.find(groundwork_) == checked_.end())
 	{
@@ -821,13 +975,13 @@ inline void Brothel::Frontage::Disconnect(const GVE::StrongPointer<Groundwork>& 
 	}
 }
 
-inline bool Brothel::Frontage::IsConnectPossible(const GVE::StrongPointer<Section>& section_)
+bool Brothel::Frontage::IsConnectPossible(const GVE::StrongPointer<Section>& section_)
 {
 	GVE::Set<GVE::StrongPointer<Groundwork>> checked;
 
 	return Check(pivot, section_, checked);
 }
-inline void Brothel::Frontage::Connect(const GVE::StrongPointer<Section>& section_)
+void Brothel::Frontage::Connect(const GVE::StrongPointer<Section>& section_)
 {
 	GVE::Set<GVE::StrongPointer<Groundwork>> checked;
 	GVE::Map<GVE::StrongPointer<Groundwork>, GVE::StrongPointer<Section>> map;
@@ -840,7 +994,7 @@ inline void Brothel::Frontage::Connect(const GVE::StrongPointer<Section>& sectio
 		i.first->Link(i.second);
 	}
 }
-inline void Brothel::Frontage::Disconnect()
+void Brothel::Frontage::Disconnect()
 {
 	GVE::Set<GVE::StrongPointer<Groundwork>> checked;
 
@@ -851,12 +1005,12 @@ inline void Brothel::Frontage::Disconnect()
 
 #pragma region FrontageDependent
 
-inline Brothel::FrontageDependent::FrontageDependent(const GVE::StrongPointer<Frontage>& frontage_):
+Brothel::FrontageDependent::FrontageDependent(const GVE::StrongPointer<Frontage>& frontage_):
 	frontage(GVE::MakeWeak(frontage_))
 {
 }
 
-inline GVE::StrongPointer<Brothel::Frontage> Brothel::FrontageDependent::GetFrontage() const
+GVE::StrongPointer<Brothel::Frontage> Brothel::FrontageDependent::GetFrontage() const
 {
 	return GVE::MakeStrong(frontage);
 }
@@ -865,22 +1019,22 @@ inline GVE::StrongPointer<Brothel::Frontage> Brothel::FrontageDependent::GetFron
 
 #pragma region Groundwork
 
-inline Brothel::Groundwork::Groundwork(const GVE::StrongPointer<Groundwork>& this_, const Section::Type& requiredType_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Game>& game_):
+Brothel::Groundwork::Groundwork(const GVE::StrongPointer<Groundwork>& this_, const Section::Type& requiredType_, const GVE::StrongPointer<Frontage>& frontage_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
 	FrontageDependent(frontage_),
 	requiredType(requiredType_)
 {
 }
 
-inline Brothel::Section::Type Brothel::Groundwork::GetRequiredType() const
+Brothel::Section::Type Brothel::Groundwork::GetRequiredType() const
 {
 	return requiredType;
 }
-inline void Brothel::Groundwork::Link(const GVE::StrongPointer<Section>& section_)
+void Brothel::Groundwork::Link(const GVE::StrongPointer<Section>& section_)
 {
 	linkedSection = section_;
 }
-inline void Brothel::Groundwork::Unlink()
+void Brothel::Groundwork::Unlink()
 {
 	linkedSection->Attach(GVE::StrongPointer<Groundwork>(nullptr));
 
@@ -889,6 +1043,86 @@ inline void Brothel::Groundwork::Unlink()
 
 
 #pragma endregion
+
+#pragma region Inmate
+
+inline Brothel::Inmate::Inmate(const GVE::StrongPointer<Inmate>& this_, const GVE::StrongPointer<Game>& game_):
+	Entity(this_, game_)
+{
+}
+
+#pragma endregion
+
+#pragma region Bed
+
+Brothel::Bed::Bed(const GVE::StrongPointer<Bed>& this_, const GVE::StrongPointer<Room>& room_, const GVE::StrongPointer<Game>& game_):
+	Entity(this_, game_),
+	RoomDependent(room_)
+{
+}
+
+bool Brothel::Bed::IsEmpty() const
+{
+	return inmate == nullptr;
+}
+
+#pragma endregion
+
+#pragma region Character
+
+Brothel::Character::Character(const GVE::StrongPointer<Character>& this_, const GVE::StrongPointer<Game>& game_):
+	Entity(this_, game_)
+{
+}
+
+#pragma endregion
+
+#pragma region Personnel
+
+Brothel::Personnel::Personnel(const GVE::StrongPointer<Personnel>& this_, const GVE::StrongPointer<Game>& game_):
+	Character(this_, game_),
+	Inmate(this_, game_)
+{
+}
+
+template<class Derived_>
+inline GVE::StrongPointer<Derived_> Brothel::Personnel::GetThis() const
+{
+	return Character::GetThis<Derived_>();
+}
+template<class Derived_> inline GVE::WeakPointer<Derived_> Brothel::Personnel::GetWeak() const
+{
+	return Character::GetWeak<Derived_>();
+}
+
+#pragma endregion
+
+
+void Brothel::Settle(const GVE::StrongPointer<Inmate>& inmate_, const GVE::StrongPointer<Bed>& bed_)
+{
+	if (bed_->inmate == nullptr)
+	{
+		if (inmate_->bed != nullptr)
+		{
+			inmate_->bed->inmate = nullptr;
+			inmate_->bed = nullptr;
+		}
+
+		bed_->inmate = inmate_;
+	}
+	else
+	{
+		throw Exception(); // TODO
+	}
+}
+void Brothel::Evict(const GVE::StrongPointer<Bed>& bed_)
+{
+	if (bed_->inmate != nullptr)
+	{
+		bed_->inmate->bed = nullptr;
+		bed_->inmate = nullptr;
+	}
+}
 
 #pragma endregion
 
@@ -915,31 +1149,33 @@ void main()
 	s1->front = s2;
 	s2->back = s1;
 
-	auto f = GVE::Make<Rooms::Bedrooms::Miserable::Frontage>(GVE::StrongPointer<Room>(nullptr), game);
-
-	auto t1 = f->IsConnectPossible(s1);
-	auto t2 = f->IsConnectPossible(s2);
-
-	try
+	auto room = [&]()
 	{
-		f->Connect(s2);
-	}
-	catch (...)
-	{
-	}
+		auto f = GVE::Make<Rooms::Bedrooms::Miserable::Frontage>(GVE::StrongPointer<Room>(nullptr), game);
 
-	f->Connect(s1);
+		if (f->IsConnectPossible(s1))
+		{
+			// auto r = GVE::Make<Rooms::Bedrooms::Miserable>(s1, GVE::MakeStrong(building), game);
+			auto r = building->CreateRoom<Rooms::Bedrooms::Miserable>(s1);
 
-	try
-	{
-		f->Connect(s1);
-	}
-	catch (...)
-	{
-	}
+			return GVE::Move(r);
+		}
+		else
+		{
+			throw Exception();
+		}
+	}();
 
-	f->Disconnect();
-	f->Connect(s1);
+	auto personnel = game->CreatePersonnel();
+
+	if (room->IsEmptyBedAvailable())
+	{
+		room->Settle(GVE::MakeStrong(personnel));
+	}
+	else
+	{
+		throw Exception();
+	}
 
 	// TODO
 
