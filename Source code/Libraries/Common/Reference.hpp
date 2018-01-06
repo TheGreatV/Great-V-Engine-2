@@ -28,6 +28,8 @@ namespace GreatVEngine2
 
 	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	StaticCast(const StrongPointer<SourceType_>& source_);
 	template<class DestinationType_, class SourceType_> StrongPointer<DestinationType_>	DynamicCast(const StrongPointer<SourceType_>& source_);
+	template<class DestinationType_, class SourceType_> WeakPointer<DestinationType_>	StaticCast(const WeakPointer<SourceType_>& source_);
+	template<class DestinationType_, class SourceType_> WeakPointer<DestinationType_>	DynamicCast(const WeakPointer<SourceType_>& source_);
 }
 
 
@@ -206,8 +208,12 @@ namespace GreatVEngine2
 	{
 	public:
 		friend StrongPointer<Type_>;
+		template<class DestinationType_, class SourceType_> friend WeakPointer<DestinationType_> StaticCast(const WeakPointer<SourceType_>& source_);
+		template<class DestinationType_, class SourceType_> friend WeakPointer<DestinationType_> DynamicCast(const WeakPointer<SourceType_>& source_);
 	protected:
-		inline explicit			WeakPointer(const Memory<CommonReferenceHolder>& holder_);
+		Value					value;
+	protected:
+		inline					WeakPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_);
 	public:
 		inline					WeakPointer();
 		inline explicit			WeakPointer(const Null&);
@@ -228,6 +234,10 @@ namespace GreatVEngine2
 		inline Value			operator -> ();
 		inline const Type_&		operator * () const;
 		inline Type_&			operator * ();
+	public:
+		template<class OtherType_> inline operator WeakPointer<OtherType_>() const;
+	public:
+		inline bool				IsExpired() const;
 	};
 
 
@@ -257,7 +267,7 @@ namespace GreatVEngine2
 		}
 		inline										CommonReferenceHolder(const CommonReferenceHolder&) = delete;
 		inline										CommonReferenceHolder(CommonReferenceHolder&&) = delete;
-		virtual										~CommonReferenceHolder()
+		inline virtual								~CommonReferenceHolder()
 		{
 			delete value; // okay to delete nullptr
 		}
@@ -316,73 +326,73 @@ namespace GreatVEngine2
 #pragma region ConstantPointer
 
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(const Null&):
+GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(const Null&):
 	ConstantPointer()
 {
 }
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(const Value& value_):
+GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(const Value& value_):
 	Pointer(),
 	value(value_)
 {
 }
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(ConstantPointer&& source_):
+GreatVEngine2::ConstantPointer<Type_>::ConstantPointer(ConstantPointer&& source_):
 	ConstantPointer(source_.value)
 {
 	source_.value = nullptr;
 }
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::~ConstantPointer()
+GreatVEngine2::ConstantPointer<Type_>::~ConstantPointer()
 {
 	delete value; // it is OK to delete nullptr
 }
 
 template<class Type_>
-inline typename const GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::operator -> () const
+typename const GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::operator -> () const
 {
 	return value;
 }
 template<class Type_>
-inline typename GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::operator -> ()
+typename GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::operator -> ()
 {
 	return value;
 }
 template<class Type_>
-inline const Type_& GreatVEngine2::ConstantPointer<Type_>::operator * () const
+const Type_& GreatVEngine2::ConstantPointer<Type_>::operator * () const
 {
 	return *value;
 }
 template<class Type_>
-inline Type_& GreatVEngine2::ConstantPointer<Type_>::operator * ()
+Type_& GreatVEngine2::ConstantPointer<Type_>::operator * ()
 {
 	return *value;
 }
 
 template<class Type_>
-inline bool GreatVEngine2::ConstantPointer<Type_>::operator == (const ConstantPointer& source_) const
+bool GreatVEngine2::ConstantPointer<Type_>::operator == (const ConstantPointer& source_) const
 {
 	return value == source_.value;
 }
 template<class Type_>
-inline bool GreatVEngine2::ConstantPointer<Type_>::operator != (const ConstantPointer& source_) const
+bool GreatVEngine2::ConstantPointer<Type_>::operator != (const ConstantPointer& source_) const
 {
 	return value != source_.value;
 }
 
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::operator bool() const
+GreatVEngine2::ConstantPointer<Type_>::operator bool() const
 {
 	return value != nullptr;
 }
 template<class Type_>
-inline GreatVEngine2::ConstantPointer<Type_>::operator Value() const
+GreatVEngine2::ConstantPointer<Type_>::operator Value() const
 {
 	return value;
 }
 
 template<class Type_>
-inline typename GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::GetValue() const
+typename GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::ConstantPointer<Type_>::GetValue() const
 {
 	return value;
 }
@@ -392,30 +402,30 @@ inline typename GreatVEngine2::ConstantPointer<Type_>::Value GreatVEngine2::Cons
 #pragma region UniquePointer
 
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::UniquePointer(const Null&):
+GreatVEngine2::UniquePointer<Type_>::UniquePointer(const Null&):
 	UniquePointer(static_cast<Value>(nullptr))
 {
 }
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::UniquePointer(const Value& value_):
+GreatVEngine2::UniquePointer<Type_>::UniquePointer(const Value& value_):
 	Pointer(),
 	value(value_)
 {
 }
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::UniquePointer(UniquePointer&& source_):
+GreatVEngine2::UniquePointer<Type_>::UniquePointer(UniquePointer&& source_):
 	UniquePointer(source_.value)
 {
 	source_.value = nullptr;
 }
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::~UniquePointer()
+GreatVEngine2::UniquePointer<Type_>::~UniquePointer()
 {
 	delete value; // delete nullptr is okay
 }
 
 template<class Type_>
-inline typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointer<Type_>::operator = (const Null&)
+typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointer<Type_>::operator = (const Null&)
 {
 	delete value; // it is okay to delete nullptr
 
@@ -424,7 +434,7 @@ inline typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointe
 	return *this;
 }
 template<class Type_>
-inline typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointer<Type_>::operator = (UniquePointer&& source_)
+typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointer<Type_>::operator = (UniquePointer&& source_)
 {
 	delete value; // it is okay to delete nullptr
 
@@ -435,55 +445,55 @@ inline typename GreatVEngine2::UniquePointer<Type_>& GreatVEngine2::UniquePointe
 }
 
 template<class Type_>
-inline typename const GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::operator -> () const
+typename const GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::operator -> () const
 {
 	return value;
 }
 template<class Type_>
-inline typename GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::operator -> ()
+typename GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::operator -> ()
 {
 	return value;
 }
 template<class Type_>
-inline const Type_& GreatVEngine2::UniquePointer<Type_>::operator * () const
+const Type_& GreatVEngine2::UniquePointer<Type_>::operator * () const
 {
 	return *value;
 }
 template<class Type_>
-inline Type_& GreatVEngine2::UniquePointer<Type_>::operator * ()
+Type_& GreatVEngine2::UniquePointer<Type_>::operator * ()
 {
 	return *value;
 }
 
 template<class Type_>
-inline bool GreatVEngine2::UniquePointer<Type_>::operator == (const UniquePointer& source_) const
+bool GreatVEngine2::UniquePointer<Type_>::operator == (const UniquePointer& source_) const
 {
 	return value == source_.value;
 }
 template<class Type_>
-inline bool GreatVEngine2::UniquePointer<Type_>::operator != (const UniquePointer& source_) const
+bool GreatVEngine2::UniquePointer<Type_>::operator != (const UniquePointer& source_) const
 {
 	return value != source_.value;
 }
 
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::operator bool() const
+GreatVEngine2::UniquePointer<Type_>::operator bool() const
 {
 	return value != nullptr;
 }
 template<class Type_>
-inline GreatVEngine2::UniquePointer<Type_>::operator Value() const
+GreatVEngine2::UniquePointer<Type_>::operator Value() const
 {
 	return value;
 }
 
 template<class Type_>
-inline typename GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::GetValue() const
+typename GreatVEngine2::UniquePointer<Type_>::Value GreatVEngine2::UniquePointer<Type_>::GetValue() const
 {
 	return value;
 }
 template<class Type_>
-inline void GreatVEngine2::UniquePointer<Type_>::Release()
+void GreatVEngine2::UniquePointer<Type_>::Release()
 {
 	value = nullptr;
 }
@@ -496,33 +506,33 @@ template<class Type_>
 typename GreatVEngine2::SharedPointer<Type_>::CommonReferenceHolder GreatVEngine2::SharedPointer<Type_>::nullHolder = CommonReferenceHolder(nullptr, 1);
 
 template<class Type_>
-inline GreatVEngine2::SharedPointer<Type_>::SharedPointer(const Memory<CommonReferenceHolder>& holder_):
+GreatVEngine2::SharedPointer<Type_>::SharedPointer(const Memory<CommonReferenceHolder>& holder_):
 	holder(holder_)
 {
 }
 
 template<class Type_>
-inline void GreatVEngine2::SharedPointer<Type_>::IncreaseCounter()
+void GreatVEngine2::SharedPointer<Type_>::IncreaseCounter()
 {
 	holder->IncreaseCounter();
 }
 template<class Type_>
-inline void GreatVEngine2::SharedPointer<Type_>::DecreaseCounter()
+void GreatVEngine2::SharedPointer<Type_>::DecreaseCounter()
 {
 	holder->DecreaseCounter();
 }
 template<class Type_>
-inline typename GreatVEngine2::SharedPointer<Type_>::Value GreatVEngine2::SharedPointer<Type_>::GetValue() const
+typename GreatVEngine2::SharedPointer<Type_>::Value GreatVEngine2::SharedPointer<Type_>::GetValue() const
 {
 	return holder->GetValue();
 }
 template<class Type_>
-inline typename GreatVEngine2::SharedPointer<Type_>::Counter GreatVEngine2::SharedPointer<Type_>::GetCounter() const
+typename GreatVEngine2::SharedPointer<Type_>::Counter GreatVEngine2::SharedPointer<Type_>::GetCounter() const
 {
 	return holder->GetCounter();
 }
 template<class Type_>
-inline void GreatVEngine2::SharedPointer<Type_>::Release()
+void GreatVEngine2::SharedPointer<Type_>::Release()
 {
 	holder->Release();
 }
@@ -532,12 +542,12 @@ inline void GreatVEngine2::SharedPointer<Type_>::Release()
 #pragma region StrongPointer
 
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Memory<CommonReferenceHolder>& holder_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Memory<CommonReferenceHolder>& holder_):
 	StrongPointer(holder_->GetValue(), holder_)
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_):
 	SharedPointer(holder_),
 	value(value_)
 {
@@ -545,32 +555,32 @@ inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_, c
 }
 
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer():
+GreatVEngine2::StrongPointer<Type_>::StrongPointer():
 	StrongPointer(nullptr)
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Null&):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Null&):
 	StrongPointer(&nullHolder)
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const Value& value_):
 	StrongPointer(CommonReferenceHolder::Obtain(value_))
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const WeakPointer<Type_>& source_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const WeakPointer<Type_>& source_):
 	StrongPointer(!source_.holder->IsEmpty() ? source_.holder : throw ExpiredException())
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer& source_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer& source_):
 	StrongPointer(source_.holder)
 {
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(StrongPointer&& source_):
+GreatVEngine2::StrongPointer<Type_>::StrongPointer(StrongPointer&& source_):
 	SharedPointer(source_.holder),
 	value(source_.value)
 {
@@ -580,13 +590,13 @@ inline GreatVEngine2::StrongPointer<Type_>::StrongPointer(StrongPointer&& source
 	source_.IncreaseCounter();
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::~StrongPointer()
+GreatVEngine2::StrongPointer<Type_>::~StrongPointer()
 {
 	DecreaseCounter();
 }
 
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const Null&)
+GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const Null&)
 {
 	DecreaseCounter();
 
@@ -598,7 +608,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const WeakPointer<Type_>& source_)
+GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const WeakPointer<Type_>& source_)
 {
 	DecreaseCounter();
 	
@@ -610,7 +620,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const StrongPointer& source_)
+GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (const StrongPointer& source_)
 {
 	DecreaseCounter();
 
@@ -622,7 +632,7 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (StrongPointer&& source_)
+GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>::operator = (StrongPointer&& source_)
 {
 	DecreaseCounter();
 
@@ -638,39 +648,39 @@ inline GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::StrongPointer<Type_>:
 }
 
 template<class Type_>
-inline typename const GreatVEngine2::StrongPointer<Type_>::Value GreatVEngine2::StrongPointer<Type_>::operator -> () const
+typename const GreatVEngine2::StrongPointer<Type_>::Value GreatVEngine2::StrongPointer<Type_>::operator -> () const
 {
 	return value; // TODO: check if expired
 }
 template<class Type_>
-inline typename GreatVEngine2::StrongPointer<Type_>::Value GreatVEngine2::StrongPointer<Type_>::operator -> ()
+typename GreatVEngine2::StrongPointer<Type_>::Value GreatVEngine2::StrongPointer<Type_>::operator -> ()
 {
 	return value; // TODO: check if expired
 }
 template<class Type_>
-inline const Type_& GreatVEngine2::StrongPointer<Type_>::operator * () const
+const Type_& GreatVEngine2::StrongPointer<Type_>::operator * () const
 {
 	return *value; // TODO: check != nullptr
 }
 template<class Type_>
-inline Type_& GreatVEngine2::StrongPointer<Type_>::operator * ()
+Type_& GreatVEngine2::StrongPointer<Type_>::operator * ()
 {
 	return *value; // TODO: check != nullptr
 }
 
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::operator bool() const
+GreatVEngine2::StrongPointer<Type_>::operator bool() const
 {
 	return value != nullptr;
 }
 template<class Type_>
-inline GreatVEngine2::StrongPointer<Type_>::operator Value() const
+GreatVEngine2::StrongPointer<Type_>::operator Value() const
 {
 	return value;
 }
 
 template<class Type_> template<class OtherType_>
-inline GreatVEngine2::StrongPointer<Type_>::operator GreatVEngine2::StrongPointer<OtherType_>() const
+GreatVEngine2::StrongPointer<Type_>::operator GreatVEngine2::StrongPointer<OtherType_>() const
 {
 	return StaticCast<OtherType_>(*this);
 }
@@ -680,143 +690,162 @@ inline GreatVEngine2::StrongPointer<Type_>::operator GreatVEngine2::StrongPointe
 #pragma region WeakPointer
 
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Memory<CommonReferenceHolder>& holder_):
-	SharedPointer(holder_)
+GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Value& value_, const Memory<CommonReferenceHolder>& holder_):
+	SharedPointer(holder_),
+	value(value_)
 {
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer():
+GreatVEngine2::WeakPointer<Type_>::WeakPointer():
 	WeakPointer(nullptr)
 {
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Null&):
-	WeakPointer(&nullHolder)
+GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Null&):
+	WeakPointer(nullptr, &nullHolder)
 {
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const StrongPointer<Type_>& source_):
-	WeakPointer(source_.holder)
+GreatVEngine2::WeakPointer<Type_>::WeakPointer(const StrongPointer<Type_>& source_):
+	WeakPointer(source_.value, source_.holder)
 {
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(const WeakPointer& source_):
-	WeakPointer(source_.holder)
+GreatVEngine2::WeakPointer<Type_>::WeakPointer(const WeakPointer& source_):
+	WeakPointer(source_.value, source_.holder)
 {
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>::WeakPointer(WeakPointer&& source_):
-	WeakPointer(source_.holder)
+GreatVEngine2::WeakPointer<Type_>::WeakPointer(WeakPointer&& source_):
+	WeakPointer(source_.value, source_.holder)
 {
+	source_.value = nullptr;
 	source_.holder = &nullHolder;
 }
 
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const Null&)
+GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const Null&)
 {
+	value = nullptr;
 	holder = &nullHolder;
 
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const StrongPointer<Type_>& source_)
+GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const StrongPointer<Type_>& source_)
 {
+	value = source_.value;
 	holder = source_.holder;
 
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const WeakPointer& source_)
+GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (const WeakPointer& source_)
 {
+	value = source_.value;
 	holder = source_.holder;
 
 	return *this;
 }
 template<class Type_>
-inline GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (WeakPointer&& source_)
+GreatVEngine2::WeakPointer<Type_>& GreatVEngine2::WeakPointer<Type_>::operator = (WeakPointer&& source_)
 {
+	value = source_.value;
 	holder = source_.holder;
 
+	source_.value = nullptr;
 	source_.holder = &nullHolder;
 
 	return *this;
 }
 
 template<class Type_>
-inline bool GreatVEngine2::WeakPointer<Type_>::operator == (const WeakPointer& source_) const
+bool GreatVEngine2::WeakPointer<Type_>::operator == (const WeakPointer& source_) const
 {
-	return holder->GetValue() == source_.holder->GetValue();
+	return value == source_.value;
 }
 template<class Type_>
-inline bool GreatVEngine2::WeakPointer<Type_>::operator != (const WeakPointer& source_) const
+bool GreatVEngine2::WeakPointer<Type_>::operator != (const WeakPointer& source_) const
 {
-	return holder->GetValue() != source_.holder->GetValue();
+	return value != source_.value;
 }
 
 template<class Type_>
-inline typename const GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::operator -> () const
+typename const GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::operator -> () const
 {
-	return holder->GetValue(); // TODO: check if expired
+	return value; // TODO: check if expired
 }
 template<class Type_>
-inline typename GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::operator -> ()
+typename GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::operator -> ()
 {
-	return holder->GetValue(); // TODO: check if expired
+	return value; // TODO: check if expired
 }
 template<class Type_>
-inline const Type_& GreatVEngine2::WeakPointer<Type_>::operator * () const
+const Type_& GreatVEngine2::WeakPointer<Type_>::operator * () const
 {
-	return *(holder->GetValue()); // TODO: check != nullptr
+	return *value; // TODO: check != nullptr
 }
 template<class Type_>
-inline Type_& GreatVEngine2::WeakPointer<Type_>::operator * ()
+Type_& GreatVEngine2::WeakPointer<Type_>::operator * ()
 {
-	return *(holder->GetValue()); // TODO: check != nullptr
+	return *value; // TODO: check != nullptr
+}
+
+template<class Type_> template<class OtherType_>
+GreatVEngine2::WeakPointer<Type_>::operator GreatVEngine2::WeakPointer<OtherType_>() const
+{
+	return StaticCast<OtherType_>(*this);
+}
+
+template<class Type_>
+bool GreatVEngine2::WeakPointer<Type_>::IsExpired() const
+{
+	return holder->GetCounter() == 0;
 }
 
 #pragma endregion
 
 
 template<class Type_, class... Arguments>
-inline typename GreatVEngine2::ConstantPointer<Type_> GreatVEngine2::MakeConstant<Type_>(Arguments&&... arguments)
+typename GreatVEngine2::ConstantPointer<Type_> GreatVEngine2::MakeConstant<Type_>(Arguments&&... arguments)
 {
 	return ConstantPointer<Type_>(new Type_(Forward<Arguments>(arguments)...));
 }
 template<class Type_>
-inline typename GreatVEngine2::ConstantPointer<Type_> GreatVEngine2::MakeConstant<Type_>()
+typename GreatVEngine2::ConstantPointer<Type_> GreatVEngine2::MakeConstant<Type_>()
 {
 	return ConstantPointer<Type_>(new Type_());
 }
 
 template<class Type_, class... Arguments>
-inline typename GreatVEngine2::UniquePointer<Type_> GreatVEngine2::MakeUnique<Type_>(Arguments&&... arguments)
+typename GreatVEngine2::UniquePointer<Type_> GreatVEngine2::MakeUnique<Type_>(Arguments&&... arguments)
 {
 	return UniquePointer<Type_>(new Type_(Forward<Arguments>(arguments)...));
 }
 template<class Type_>
-inline typename GreatVEngine2::UniquePointer<Type_> GreatVEngine2::MakeUnique<Type_>()
+typename GreatVEngine2::UniquePointer<Type_> GreatVEngine2::MakeUnique<Type_>()
 {
 	return UniquePointer<Type_>(new Type_());
 }
 
 template<class Type_, class... Arguments>
-inline typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>(Arguments&&... arguments)
+typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>(Arguments&&... arguments)
 {
 	return StrongPointer<Type_>(new Type_(Forward<Arguments>(arguments)...));
 }
 template<class Type_>
-inline typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>()
+typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>()
 {
 	return StrongPointer<Type_>(new Type_());
 }
 template<class Type_>
-inline typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>(const WeakPointer<Type_>& source_)
+typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>(const WeakPointer<Type_>& source_)
 {
 	return Move(StrongPointer<Type_>(source_));
 }
 
 template<class Type_>
-inline typename GreatVEngine2::WeakPointer<Type_> GreatVEngine2::MakeWeak<Type_>(const StrongPointer<Type_>& source_)
+typename GreatVEngine2::WeakPointer<Type_> GreatVEngine2::MakeWeak<Type_>(const StrongPointer<Type_>& source_)
 {
 	return Move(WeakPointer<Type_>(source_));
 }
@@ -828,11 +857,11 @@ GreatVEngine2::StrongPointer<Type_> GreatVEngine2::Make(Arguments_&&... argument
 		public Type_
 	{
 	public:
-		inline Holder(const StrongPointer<Type_>& this_, Arguments_&&... arguments_):
+		Holder(const StrongPointer<Type_>& this_, Arguments_&&... arguments_):
 			Type_(this_, Forward<Arguments_&&>(arguments_)...)
 		{
 		}
-		inline void operator delete (GVE::Memory<void> rawMemory_)
+		void operator delete (GVE::Memory<void> rawMemory_)
 		{
 			auto memory = static_cast<GVE::Memory<Holder>>(rawMemory_);
 			
@@ -868,49 +897,68 @@ typename GreatVEngine2::StrongPointer<DestinationType_> GreatVEngine2::DynamicCa
 		: StrongPointer<DestinationType_>(nullptr)
 	);
 }
+template<class DestinationType_, class SourceType_>
+typename GreatVEngine2::WeakPointer<DestinationType_> GreatVEngine2::StaticCast<DestinationType_, SourceType_>(const WeakPointer<SourceType_>& source_)
+{
+	auto castedValue = static_cast<WeakPointer<DestinationType_>::Value>(source_.value);
+	auto castedHolder = reinterpret_cast<Memory<WeakPointer<DestinationType_>::CommonReferenceHolder>>(source_.holder); // TODO: replace with static_cast
+
+	return Move(WeakPointer<DestinationType_>(castedValue, castedHolder));
+}
+template<class DestinationType_, class SourceType_>
+typename GreatVEngine2::WeakPointer<DestinationType_> GreatVEngine2::DynamicCast<DestinationType_, SourceType_>(const WeakPointer<SourceType_>& source_)
+{
+	auto castedValue = dynamic_cast<typename WeakPointer<DestinationType_>::Value>(source_.value);
+	auto castedHolder = reinterpret_cast<Memory<WeakPointer<DestinationType_>::CommonReferenceHolder>>(source_.holder); // TODO: replace with dynamic_cast?
+
+	return Move(castedValue
+		? WeakPointer<DestinationType_>(castedValue, castedHolder)
+		: WeakPointer<DestinationType_>(nullptr)
+		);
+}
 
 #pragma endregion
 
 
 // ConstantPointer
 template<class Type_>
-inline bool operator == (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_)
+bool operator == (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_)
 {
 	return pointer_.GetValue() == value_;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_)
+bool operator != (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_)
 {
 	return pointer_.GetValue() != value_;
 }
 template<class Type_>
-inline bool operator == (const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
+bool operator == (const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
 {
 	return pointer_ == value_;
 }
 template<class Type_>
-inline bool operator != (const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
+bool operator != (const typename GreatVEngine2::ConstantPointer<Type_>::Value& value_, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
 {
 	return pointer_ != value_;
 }
 
 template<class Type_>
-inline bool operator == (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator == (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.GetValue() == nullptr;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator != (const GreatVEngine2::ConstantPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.GetValue() != nullptr;
 }
 template<class Type_>
-inline bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
+bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
 {
 	return nullptr == pointer_.GetValue();
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
+bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::ConstantPointer<Type_>& pointer_)
 {
 	return nullptr != pointer_.GetValue();
 }
@@ -918,65 +966,65 @@ inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::Consta
 
 // UniquePointer
 template<class Type_>
-inline bool operator == (const GreatVEngine2::UniquePointer<Type_>& pointer_, const typename GreatVEngine2::UniquePointer<Type_>::Value& value_)
+bool operator == (const GreatVEngine2::UniquePointer<Type_>& pointer_, const typename GreatVEngine2::UniquePointer<Type_>::Value& value_)
 {
 	return pointer_.GetValue() == value_;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::UniquePointer<Type_>& pointer_, const typename GreatVEngine2::UniquePointer<Type_>::Value& value_)
+bool operator != (const GreatVEngine2::UniquePointer<Type_>& pointer_, const typename GreatVEngine2::UniquePointer<Type_>::Value& value_)
 {
 	return pointer_.GetValue() != value_;
 }
 template<class Type_>
-inline bool operator == (const typename GreatVEngine2::UniquePointer<Type_>::Value& value_, const GreatVEngine2::UniquePointer<Type_>& pointer_)
+bool operator == (const typename GreatVEngine2::UniquePointer<Type_>::Value& value_, const GreatVEngine2::UniquePointer<Type_>& pointer_)
 {
 	return pointer_ == value_;
 }
 template<class Type_>
-inline bool operator != (const typename GreatVEngine2::UniquePointer<Type_>::Value& value_, const GreatVEngine2::UniquePointer<Type_>& pointer_)
+bool operator != (const typename GreatVEngine2::UniquePointer<Type_>::Value& value_, const GreatVEngine2::UniquePointer<Type_>& pointer_)
 {
 	return pointer_ != value_;
 }
 
 template<class Type_>
-inline bool operator == (const GreatVEngine2::UniquePointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator == (const GreatVEngine2::UniquePointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.GetValue() == nullptr;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::UniquePointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator != (const GreatVEngine2::UniquePointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.GetValue() != nullptr;
 }
 template<class Type_>
-inline bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_)
+bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_)
 {
 	return nullptr == pointer_.GetValue();
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_)
+bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_)
 {
 	return nullptr != pointer_.GetValue();
 }
 
 // WeakPointer
 template<class Type_>
-inline bool operator == (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator == (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.holder == &GreatVEngine2::WeakPointer<Type_>::nullHolder;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+bool operator != (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
 	return pointer_.holder != &GreatVEngine2::WeakPointer<Type_>::nullHolder;
 }
 template<class Type_>
-inline bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
+bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
 {
 	return pointer_.holder == &GreatVEngine2::WeakPointer<Type_>::nullHolder;
 }
 template<class Type_>
-inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
+bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
 {
 	return pointer_.holder != &GreatVEngine2::WeakPointer<Type_>::nullHolder;
 }
