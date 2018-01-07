@@ -946,7 +946,7 @@ void Reference_StrongPointer_CreationAndDestroying()
 		moveAssignmentCallsCounter == 0
 	);
 
-	// make shared
+	// make strong
 	CallChecker::Reset();
 	{
 		auto x = GVE::MakeStrong<CallChecker>();
@@ -1364,7 +1364,6 @@ void Reference_WeakPointer_Usage()
 		moveAssignmentCallsCounter == 0
 	);
 }
-
 
 template<class T>
 double Stopwatch(T t)
