@@ -34,6 +34,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sketches", "Sketches", "{8E
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch_BasicGameClass", "Projects\Others\Sketches\Sketch_BasicGameClass\Sketch_BasicGameClass.vcxproj", "{46710742-4294-42C1-81D4-780415CB5EEE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch_Brothel", "Projects\Others\Sketches\Sketch_Brothel\Sketch_Brothel.vcxproj", "{0309D42D-75FC-413E-AA50-9B4156FC452E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sketch_Desert", "Projects\Others\Sketches\Sketch_Desert\Sketch_Desert.vcxproj", "{350C52C4-2669-470D-8690-DCE554C2A088}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -60,6 +64,14 @@ Global
 		{46710742-4294-42C1-81D4-780415CB5EEE}.Debug|Win32.Build.0 = Debug|Win32
 		{46710742-4294-42C1-81D4-780415CB5EEE}.Release|Win32.ActiveCfg = Release|Win32
 		{46710742-4294-42C1-81D4-780415CB5EEE}.Release|Win32.Build.0 = Release|Win32
+		{0309D42D-75FC-413E-AA50-9B4156FC452E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0309D42D-75FC-413E-AA50-9B4156FC452E}.Debug|Win32.Build.0 = Debug|Win32
+		{0309D42D-75FC-413E-AA50-9B4156FC452E}.Release|Win32.ActiveCfg = Release|Win32
+		{0309D42D-75FC-413E-AA50-9B4156FC452E}.Release|Win32.Build.0 = Release|Win32
+		{350C52C4-2669-470D-8690-DCE554C2A088}.Debug|Win32.ActiveCfg = Debug|Win32
+		{350C52C4-2669-470D-8690-DCE554C2A088}.Debug|Win32.Build.0 = Debug|Win32
+		{350C52C4-2669-470D-8690-DCE554C2A088}.Release|Win32.ActiveCfg = Release|Win32
+		{350C52C4-2669-470D-8690-DCE554C2A088}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,5 +85,7 @@ Global
 		{A8DB9FD8-B943-4AFA-AD65-0E68E069B12B} = {CE3D9D4A-C69D-4B3E-8104-E4473CE375F6}
 		{F2D70179-17CD-4194-AC72-FE4422DAA71F} = {1B76DF98-9B07-45AF-857F-96CCDEE0ACB8}
 		{46710742-4294-42C1-81D4-780415CB5EEE} = {8E5F34B7-41B9-482B-8410-DE435C6A927B}
+		{0309D42D-75FC-413E-AA50-9B4156FC452E} = {8E5F34B7-41B9-482B-8410-DE435C6A927B}
+		{350C52C4-2669-470D-8690-DCE554C2A088} = {8E5F34B7-41B9-482B-8410-DE435C6A927B}
 	EndGlobalSection
 EndGlobal

@@ -21,6 +21,7 @@
 
 namespace GreatVEngine2
 {
+	template<class Type1_, class Type2_> using	Pair = std::pair<Type1_, Type2_>;
 	template<class Type_, Size Size_> using		Array = std::array<Type_, Size_>;
 	template<class Type_> using					Vector = std::vector<Type_>;
 	template<class Type_> using					List = std::list<Type_>;

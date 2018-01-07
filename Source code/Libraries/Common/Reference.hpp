@@ -62,6 +62,12 @@ template<class Type_>	inline bool operator != (const GreatVEngine2::UniquePointe
 template<class Type_>	inline bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_);
 template<class Type_>	inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_);
 
+// StrongPointer
+template<class Type_>	inline bool operator == (const GreatVEngine2::StrongPointer<Type_>& pointer_, const GreatVEngine2::Null&);
+template<class Type_>	inline bool operator != (const GreatVEngine2::StrongPointer<Type_>& pointer_, const GreatVEngine2::Null&);
+template<class Type_>	inline bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::StrongPointer<Type_>& pointer_);
+template<class Type_>	inline bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::StrongPointer<Type_>& pointer_);
+
 // WeakPointer
 template<class Type_>	inline bool operator == (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&);
 template<class Type_>	inline bool operator != (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&);
@@ -238,6 +244,13 @@ namespace GreatVEngine2
 		inline StrongPointer&							operator = (const WeakPointer<Type_>& source_);
 		inline StrongPointer&							operator = (StrongPointer&& source_);
 	public:
+		inline bool										operator == (const StrongPointer& source_) const;
+		inline bool										operator != (const StrongPointer& source_) const;
+		inline bool										operator < (const StrongPointer& source_) const;
+		inline bool										operator > (const StrongPointer& source_) const;
+		inline bool										operator <= (const StrongPointer& source_) const;
+		inline bool										operator >= (const StrongPointer& source_) const;
+	public:
 		inline const Value								operator -> () const;
 		inline Value									operator -> ();
 		inline const Type_&								operator * () const;
@@ -276,6 +289,10 @@ namespace GreatVEngine2
 	public:
 		inline bool				operator == (const WeakPointer& source_) const;
 		inline bool				operator != (const WeakPointer& source_) const;
+		inline bool				operator < (const WeakPointer& source_) const;
+		inline bool				operator > (const WeakPointer& source_) const;
+		inline bool				operator <= (const WeakPointer& source_) const;
+		inline bool				operator >= (const WeakPointer& source_) const;
 	public:
 		inline const Value		operator -> () const;
 		inline Value			operator -> ();
@@ -287,7 +304,6 @@ namespace GreatVEngine2
 		inline bool				IsExpired() const;
 		inline Value			GetValue() const;
 	};
-
 
 	template<class Type_> class SharedPointer<Type_>::Exception
 	{
@@ -301,6 +317,30 @@ namespace GreatVEngine2
 		public Exception
 	{
 		// TODO
+	};
+
+	template<class Type_> class This
+	{
+	protected:
+		const WeakPointer<Type_> self;
+	public:
+		inline This(const StrongPointer<Type_>& this_):
+			self(this_)
+		{
+		}
+		inline This(const This&) = delete;
+		inline ~This() = default;
+	public:
+		inline This& operator = (const This&) = delete;
+	public:
+		template<class Derived_> inline StrongPointer<Derived_> GetThis() const
+		{
+			return Move(StaticCast<Derived_>(MakeStrong(self)));
+		}
+		template<class Derived_> inline WeakPointer<Derived_> GetWeak() const
+		{
+			return Move(StaticCast<Derived_>(self));
+		}
 	};
 
 
@@ -712,6 +752,31 @@ template<class Type_> GreatVEngine2::StrongPointer<Type_>& GreatVEngine2::Strong
 	return *this;
 }
 
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator == (const StrongPointer& source_) const
+{
+	return value == source_.value;
+}
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator != (const StrongPointer& source_) const
+{
+	return value != source_.value;
+}
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator < (const StrongPointer& source_) const
+{
+	return value < source_.value;
+}
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator > (const StrongPointer& source_) const
+{
+	return value > source_.value;
+}
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator <= (const StrongPointer& source_) const
+{
+	return value <= source_.value;
+}
+template<class Type_> bool GreatVEngine2::StrongPointer<Type_>::operator >= (const StrongPointer& source_) const
+{
+	return value >= source_.value;
+}
+
 template<class Type_> typename const GreatVEngine2::StrongPointer<Type_>::Value GreatVEngine2::StrongPointer<Type_>::operator -> () const
 {
 #if __GVE2_REFERENCE_ERROR_CHECK__
@@ -863,6 +928,22 @@ template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator == (const
 template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator != (const WeakPointer& source_) const
 {
 	return value != source_.value;
+}
+template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator < (const WeakPointer& source_) const
+{
+	return value < source_.value;
+}
+template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator >(const WeakPointer& source_) const
+{
+	return value > source_.value;
+}
+template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator <= (const WeakPointer& source_) const
+{
+	return value <= source_.value;
+}
+template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::operator >= (const WeakPointer& source_) const
+{
+	return value >= source_.value;
 }
 
 template<class Type_> typename const GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::operator -> () const
@@ -1082,6 +1163,24 @@ template<class Type_>
 bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer<Type_>& pointer_)
 {
 	return nullptr != pointer_.GetValue();
+}
+
+// StrongPointer
+template<class Type_> bool operator == (const GreatVEngine2::StrongPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+{
+	return pointer_.GetValue() == nullptr;
+}
+template<class Type_> bool operator != (const GreatVEngine2::StrongPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+{
+	return pointer_.GetValue() != nullptr;
+}
+template<class Type_> bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::StrongPointer<Type_>& pointer_)
+{
+	return pointer_ == nullptr;
+}
+template<class Type_> bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::StrongPointer<Type_>& pointer_)
+{
+	return pointer_ != nullptr;
 }
 
 // WeakPointer

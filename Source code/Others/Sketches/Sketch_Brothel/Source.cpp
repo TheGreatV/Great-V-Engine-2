@@ -310,8 +310,9 @@ namespace Brothel
 	protected:
 		Sections																	sections;
 		Rooms																		rooms;
+		Guests																		guests;
 		Guests																		guestsQueue;
-		Guests																		guestsInProgress;
+		// Guests																		guestsInProgress;
 	public:
 		inline																		Building(const GVE::StrongPointer<Building>& this_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
 		inline																		Building(const GVE::StrongPointer<Building>& this_, Sections&& sections_, const GVE::StrongPointer<City>& city_, const GVE::StrongPointer<Game>& game_);
@@ -991,17 +992,14 @@ GVE::WeakPointer<Room_> Brothel::Building::CreateRoom(Arguments_&&... arguments_
 
 	return GVE::Move(weak);
 }
-// template<class Room_>
-// GVE::WeakPointer<Room_> Brothel::Building::CreateRoom()
-// {
-// 	// TODO
-// }
 GVE::WeakPointer<Brothel::Guest> Brothel::Building::CreateGuest()
 {
 	auto ownedGame = GetGame();
 	auto ownedThis = GetThis<Building>();
 
 	auto guest = GVE::Make<Guest>(ownedThis, ownedGame);
+
+	guests.push_back(guest);
 
 	guestsQueue.push_back(guest);
 
@@ -1035,7 +1033,7 @@ void Brothel::Building::PerformWhiteroomGuests()
 		Place(guest, seat);
 
 		guestsQueue.pop_front();
-		guestsInProgress.push_back(guest);
+		// guestsInProgress.push_back(guest);
 	}
 }
 
@@ -1860,7 +1858,7 @@ Brothel::Seat::Seat(const GVE::StrongPointer<Seat>& this_, const GVE::StrongPoin
 }
 Brothel::Seat::~Seat()
 {
-	if (guest != nullptr)
+	if (guest != nullptr && !guest.IsExpired())
 	{
 		Displace(guest);
 	}
