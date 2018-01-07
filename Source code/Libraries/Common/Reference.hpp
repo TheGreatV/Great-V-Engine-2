@@ -285,6 +285,7 @@ namespace GreatVEngine2
 		template<class OtherType_> inline operator WeakPointer<OtherType_>() const;
 	public:
 		inline bool				IsExpired() const;
+		inline Value			GetValue() const;
 	};
 
 
@@ -652,7 +653,7 @@ template<class Type_> GreatVEngine2::StrongPointer<Type_>::StrongPointer(const W
 {
 }
 template<class Type_> GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer& source_):
-	StrongPointer(sourve_.value, source_.holder)
+	StrongPointer(source_.value, source_.holder)
 {
 	IncreaseStrongCounter();
 }
@@ -890,6 +891,10 @@ template<class Type_> bool GreatVEngine2::WeakPointer<Type_>::IsExpired() const
 {
 	return holder->GetStrongCounter() == 0;
 }
+template<class Type_> typename GreatVEngine2::WeakPointer<Type_>::Value GreatVEngine2::WeakPointer<Type_>::GetValue() const
+{
+	return value;
+}
 
 #pragma endregion
 
@@ -1080,25 +1085,21 @@ bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::UniquePointer
 }
 
 // WeakPointer
-template<class Type_>
-bool operator == (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+template<class Type_> bool operator == (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
-	return pointer_.holder == &GreatVEngine2::WeakPointer<Type_>::nullHolder;
+	return pointer_.GetValue() == nullptr;
 }
-template<class Type_>
-bool operator != (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
+template<class Type_> bool operator != (const GreatVEngine2::WeakPointer<Type_>& pointer_, const GreatVEngine2::Null&)
 {
-	return pointer_.holder != &GreatVEngine2::WeakPointer<Type_>::nullHolder;
+	return pointer_.GetValue() != nullptr;
 }
-template<class Type_>
-bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
+template<class Type_> bool operator == (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
 {
-	return pointer_.holder == &GreatVEngine2::WeakPointer<Type_>::nullHolder;
+	return pointer_ == nullptr;
 }
-template<class Type_>
-bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
+template<class Type_> bool operator != (const GreatVEngine2::Null&, const GreatVEngine2::WeakPointer<Type_>& pointer_)
 {
-	return pointer_.holder != &GreatVEngine2::WeakPointer<Type_>::nullHolder;
+	return pointer_ != nullptr;
 }
 
 
