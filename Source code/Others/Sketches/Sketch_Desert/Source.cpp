@@ -9,14 +9,23 @@ namespace GVE = GreatVEngine2;
 
 namespace Desert
 {
+	enum class CargoRotation
+	{
+		Front,
+		Right,
+		Back,
+		Left,
+	};
+
 	class Exception;
 	class Entity;
 	class Game;
-	class Hold;
+	class Hold; class HoldDependent;
 	class HoldPlace;
-	class Cargo;
+	class Cargo; class CargoDependent;
 	class CargoPart;
-	class Ship;
+	class Hardpoint;
+	class Ship; class ShipDependent;
 	namespace Ships
 	{
 		class Test;
@@ -26,6 +35,10 @@ namespace Desert
 	{
 		class Test;
 	}
+
+
+	inline void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_);
+	inline void Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_);
 
 
 	class Exception
@@ -75,31 +88,45 @@ namespace Desert
 		public Entity
 	{
 	public:
-		class Dependent;
+		using Hardpoints = GVE::Vector<GVE::StrongPointer<Hardpoint>>;
+		using Mass = float;
 	protected:
 		const GVE::StrongPointer<Hold> hold;
+		const Hardpoints hardpoints;
 	public:
-		inline Ship(const GVE::StrongPointer<Ship>& this_, const GVE::StrongPointer<Hold>& hold_, const GVE::StrongPointer<Game>& game_);
+		inline Ship(const GVE::StrongPointer<Ship>& this_, const GVE::StrongPointer<Hold>& hold_, Hardpoints&& hardpoints_, const GVE::StrongPointer<Game>& game_);
 		inline virtual ~Ship() override = default;
 	public:
 		virtual void Update(const Delta& delta_) override;
 	public:
+		inline Mass GetTotalMass() const;
+		inline virtual Mass GetMass() const;
 		inline GVE::StrongPointer<Hold> GetHold() const;
 	};
-	class Ship::Dependent
+	class ShipDependent
 	{
 	protected:
 		const GVE::WeakPointer<Ship> ship;
 	public:
-		inline Dependent(const GVE::StrongPointer<Ship>& ship_);
+		inline ShipDependent(const GVE::StrongPointer<Ship>& ship_);
 	public:
 		inline GVE::StrongPointer<Ship> GetShip() const;
+	};
+	class Hardpoint:
+		public Entity,
+		public ShipDependent
+	{
+	public:
+		inline Hardpoint(const GVE::StrongPointer<Hardpoint>& this_, const GVE::StrongPointer<Ship>& ship_, const GVE::StrongPointer<Game>& game_);
+		inline virtual ~Hardpoint() override = default;
 	};
 	namespace Ships
 	{
 		class Test:
 			public Ship
 		{
+		protected:
+			static inline Hardpoints GenerateHardpoints(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<Game>& game_);
 		public:
 			inline Test(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<Game>& game_);
 			inline virtual ~Test() override = default;
@@ -110,12 +137,14 @@ namespace Desert
 	{
 	public:
 		using Places = GVE::Vector<GVE::StrongPointer<HoldPlace>>;
+		using Cargos = GVE::Set<GVE::StrongPointer<Cargo>>;
 	public:
 		class Dependent;
 	protected:
 		static inline Places GeneratePlaces(const GVE::StrongPointer<Hold>& this_, const GVE::StrongPointer<Game>& game_);
 	protected:
 		const Places places;
+		Cargos cargos;
 	public:
 		inline Hold(const GVE::StrongPointer<Hold>& this_, const GVE::StrongPointer<Game>& game_);
 		inline Hold(const GVE::StrongPointer<Hold>& this_, Places&& places_, const GVE::StrongPointer<Game>& game_);
@@ -125,63 +154,22 @@ namespace Desert
 	public:
 		inline const Places& GetPlaces() const;
 	};
-	class Hold::Dependent
+	class HoldDependent
 	{
 	protected:
 		const GVE::WeakPointer<Hold> hold;
 	public:
-		inline Dependent(const GVE::StrongPointer<Hold>& hold_);
+		inline HoldDependent(const GVE::StrongPointer<Hold>& hold_);
 	public:
 		inline GVE::StrongPointer<Hold> GetHold() const;
 	};
-	class Cargo:
-		public Entity
-	{
-	public:
-		using Parts = GVE::Vector<GVE::StrongPointer<CargoPart>>;
-	public:
-		enum class Rotation
-		{
-			Front,
-			Right,
-			Back,
-			Left,
-		};
-	public:
-		static inline Parts GenerateParts(const GVE::StrongPointer<Cargo>& this_, const GVE::StrongPointer<Game>& game_);
-	public:
-		class Dependent;
-	protected:
-		const Parts parts;
-	public:
-		inline Cargo(const GVE::StrongPointer<Cargo>& this_, const GVE::StrongPointer<Game>& game_);
-		inline Cargo(const GVE::StrongPointer<Cargo>& this_, Parts&& patrs_, const GVE::StrongPointer<Game>& game_);
-	public:
-		inline const Parts& GetParts() const;
-	};
-
-
-	inline void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_);
-	inline void Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_);
-
-
-	class Cargo::Dependent
-	{
-	protected:
-		const GVE::WeakPointer<Cargo> cargo;
-	public:
-		inline Dependent(const GVE::StrongPointer<Cargo>& cargo_);
-	public:
-		inline GVE::StrongPointer<Cargo> GetCargo() const;
-	};
 	class HoldPlace:
 		public Entity,
-		public Hold::Dependent
+		public HoldDependent
 	{
-		friend void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_);
+		friend void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_);
 		friend void Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_);
 	public:
-		using Rotation = Cargo::Rotation;
 		using Fastening = GVE::StrongPointer<HoldPlace>;
 	protected:
 		Fastening left	= Fastening(nullptr);
@@ -194,20 +182,47 @@ namespace Desert
 		inline virtual ~HoldPlace() override = default;
 	public:
 		inline GVE::StrongPointer<CargoPart> GetPart() const;
-		inline Fastening GetLeft(const Rotation& rotation_) const;
-		inline Fastening GetRight(const Rotation& rotation_) const;
-		inline Fastening GetBack(const Rotation& rotation_) const;
-		inline Fastening GetFront(const Rotation& rotation_) const;
+		inline Fastening GetLeft(const CargoRotation& rotation_) const;
+		inline Fastening GetRight(const CargoRotation& rotation_) const;
+		inline Fastening GetBack(const CargoRotation& rotation_) const;
+		inline Fastening GetFront(const CargoRotation& rotation_) const;
 		inline void SetLeft(Fastening& fastening_);
 		inline void SetRight(Fastening& fastening_);
 		inline void SetBack(Fastening& fastening_);
 		inline void SetFront(Fastening& fastening_);
 	};
+	class Cargo:
+		public Entity
+	{
+	public:
+		using Parts = GVE::Vector<GVE::StrongPointer<CargoPart>>;
+	public:
+		static inline Parts GenerateParts(const GVE::StrongPointer<Cargo>& this_, const GVE::StrongPointer<Game>& game_);
+	public:
+		class Dependent;
+	protected:
+		const Parts parts;
+		GVE::WeakPointer<Hold> hold = GVE::WeakPointer<Hold>(nullptr);
+	public:
+		inline Cargo(const GVE::StrongPointer<Cargo>& this_, const GVE::StrongPointer<Game>& game_);
+		inline Cargo(const GVE::StrongPointer<Cargo>& this_, Parts&& patrs_, const GVE::StrongPointer<Game>& game_);
+	public:
+		inline const Parts& GetParts() const;
+	};
+	class CargoDependent
+	{
+	protected:
+		const GVE::WeakPointer<Cargo> cargo;
+	public:
+		inline CargoDependent(const GVE::StrongPointer<Cargo>& cargo_);
+	public:
+		inline GVE::StrongPointer<Cargo> GetCargo() const;
+	};
 	class CargoPart:
 		public Entity,
-		public Cargo::Dependent
+		public CargoDependent
 	{
-		friend void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_);
+		friend void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_);
 		friend void Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_);
 	public:
 		using Fastening = GVE::StrongPointer<CargoPart>;
@@ -251,7 +266,7 @@ namespace Desert
 	}
 
 
-	inline bool IsConnectPossible(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_);
+	inline bool IsConnectPossible(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_);
 }
 
 
@@ -323,21 +338,6 @@ void Desert::Entity::Update(const Delta& delta_)
 
 #pragma region Hold
 
-#pragma region Dependent
-
-Desert::Hold::Dependent::Dependent(const GVE::StrongPointer<Hold>& hold_):
-	hold(hold_)
-{
-}
-
-GVE::StrongPointer<Desert::Hold> Desert::Hold::Dependent::GetHold() const
-{
-	return GVE::Move(GVE::MakeStrong(hold));
-}
-
-#pragma endregion
-
-
 Desert::Hold::Places Desert::Hold::GeneratePlaces(const GVE::StrongPointer<Hold>& this_, const GVE::StrongPointer<Game>& game_)
 {
 	Places places;
@@ -388,11 +388,25 @@ const Desert::Hold::Places& Desert::Hold::GetPlaces() const
 
 #pragma endregion
 
+#pragma region HoldDependent
+
+Desert::HoldDependent::HoldDependent(const GVE::StrongPointer<Hold>& hold_):
+	hold(hold_)
+{
+}
+
+GVE::StrongPointer<Desert::Hold> Desert::HoldDependent::GetHold() const
+{
+	return GVE::Move(GVE::MakeStrong(hold));
+}
+
+#pragma endregion
+
 #pragma region HoldPlace
 
 Desert::HoldPlace::HoldPlace(const GVE::StrongPointer<HoldPlace>& this_, const GVE::StrongPointer<Hold>& hold_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
-	Hold::Dependent(hold_)
+	HoldDependent(hold_)
 {
 }
 
@@ -400,21 +414,21 @@ GVE::StrongPointer<Desert::CargoPart> Desert::HoldPlace::GetPart() const
 {
 	return GVE::MakeStrong(part);
 }
-Desert::HoldPlace::Fastening Desert::HoldPlace::GetLeft(const Rotation& rotation_) const
+Desert::HoldPlace::Fastening Desert::HoldPlace::GetLeft(const CargoRotation& rotation_) const
 {
-	if (rotation_ == Rotation::Front)
+	if (rotation_ == CargoRotation::Front)
 	{
 		return left;
 	}
-	else if (rotation_ == Rotation::Right)
+	else if (rotation_ == CargoRotation::Right)
 	{
 		return front;
 	}
-	else if (rotation_ == Rotation::Back)
+	else if (rotation_ == CargoRotation::Back)
 	{
 		return right;
 	}
-	else if (rotation_ == Rotation::Left)
+	else if (rotation_ == CargoRotation::Left)
 	{
 		return back;
 	}
@@ -423,21 +437,21 @@ Desert::HoldPlace::Fastening Desert::HoldPlace::GetLeft(const Rotation& rotation
 		throw Exception(); // TODO
 	}
 }
-Desert::HoldPlace::Fastening Desert::HoldPlace::GetRight(const Rotation& rotation_) const
+Desert::HoldPlace::Fastening Desert::HoldPlace::GetRight(const CargoRotation& rotation_) const
 {
-	if (rotation_ == Rotation::Front)
+	if (rotation_ == CargoRotation::Front)
 	{
 		return right;
 	}
-	else if (rotation_ == Rotation::Right)
+	else if (rotation_ == CargoRotation::Right)
 	{
 		return back;
 	}
-	else if (rotation_ == Rotation::Back)
+	else if (rotation_ == CargoRotation::Back)
 	{
 		return left;
 	}
-	else if (rotation_ == Rotation::Left)
+	else if (rotation_ == CargoRotation::Left)
 	{
 		return front;
 	}
@@ -446,21 +460,21 @@ Desert::HoldPlace::Fastening Desert::HoldPlace::GetRight(const Rotation& rotatio
 		throw Exception(); // TODO
 	}
 }
-Desert::HoldPlace::Fastening Desert::HoldPlace::GetFront(const Rotation& rotation_) const
+Desert::HoldPlace::Fastening Desert::HoldPlace::GetFront(const CargoRotation& rotation_) const
 {
-	if (rotation_ == Rotation::Front)
+	if (rotation_ == CargoRotation::Front)
 	{
 		return front;
 	}
-	else if (rotation_ == Rotation::Right)
+	else if (rotation_ == CargoRotation::Right)
 	{
 		return right;
 	}
-	else if (rotation_ == Rotation::Back)
+	else if (rotation_ == CargoRotation::Back)
 	{
 		return back;
 	}
-	else if (rotation_ == Rotation::Left)
+	else if (rotation_ == CargoRotation::Left)
 	{
 		return left;
 	}
@@ -469,21 +483,21 @@ Desert::HoldPlace::Fastening Desert::HoldPlace::GetFront(const Rotation& rotatio
 		throw Exception(); // TODO
 	}
 }
-Desert::HoldPlace::Fastening Desert::HoldPlace::GetBack(const Rotation& rotation_) const
+Desert::HoldPlace::Fastening Desert::HoldPlace::GetBack(const CargoRotation& rotation_) const
 {
-	if (rotation_ == Rotation::Front)
+	if (rotation_ == CargoRotation::Front)
 	{
 		return back;
 	}
-	else if (rotation_ == Rotation::Right)
+	else if (rotation_ == CargoRotation::Right)
 	{
 		return left;
 	}
-	else if (rotation_ == Rotation::Back)
+	else if (rotation_ == CargoRotation::Back)
 	{
 		return front;
 	}
-	else if (rotation_ == Rotation::Left)
+	else if (rotation_ == CargoRotation::Left)
 	{
 		return right;
 	}
@@ -553,21 +567,6 @@ void Desert::HoldPlace::SetFront(Fastening& fastening_)
 
 #pragma region Cargo
 
-#pragma region Dependent
-
-Desert::Cargo::Dependent::Dependent(const GVE::StrongPointer<Cargo>& cargo_):
-	cargo(cargo_)
-{
-}
-
-GVE::StrongPointer<Desert::Cargo> Desert::Cargo::Dependent::GetCargo() const
-{
-	return GVE::Move(GVE::MakeStrong(cargo));
-}
-
-#pragma endregion
-
-
 Desert::Cargo::Parts Desert::Cargo::GenerateParts(const GVE::StrongPointer<Cargo>& this_, const GVE::StrongPointer<Game>& game_)
 {
 	Parts parts;
@@ -600,11 +599,25 @@ const Desert::Cargo::Parts& Desert::Cargo::GetParts() const
 
 #pragma endregion
 
+#pragma region CargoDependent
+
+Desert::CargoDependent::CargoDependent(const GVE::StrongPointer<Cargo>& cargo_):
+	cargo(cargo_)
+{
+}
+
+GVE::StrongPointer<Desert::Cargo> Desert::CargoDependent::GetCargo() const
+{
+	return GVE::Move(GVE::MakeStrong(cargo));
+}
+
+#pragma endregion
+
 #pragma region CargoPart
 
 Desert::CargoPart::CargoPart(const GVE::StrongPointer<CargoPart>& this_, const GVE::StrongPointer<Cargo>& cargo_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
-	Cargo::Dependent(cargo_)
+	CargoDependent(cargo_)
 {
 }
 
@@ -687,32 +700,42 @@ void Desert::CargoPart::SetBack(Fastening& fastening_)
 
 #pragma endregion
 
-#pragma region Ship
+#pragma region Hardpoint
 
-#pragma region Dependent
-
-Desert::Ship::Dependent::Dependent(const GVE::StrongPointer<Ship>& ship_):
-	ship(ship_)
+Desert::Hardpoint::Hardpoint(const GVE::StrongPointer<Hardpoint>& this_, const GVE::StrongPointer<Ship>& ship_, const GVE::StrongPointer<Game>& game_):
+	Entity(this_, game_),
+	ShipDependent(ship_)
 {
-}
-
-GVE::StrongPointer<Desert::Ship> Desert::Ship::Dependent::GetShip() const
-{
-	return GVE::Move(GVE::MakeStrong(ship));
 }
 
 #pragma endregion
 
+#pragma region Ship
 
-Desert::Ship::Ship(const GVE::StrongPointer<Ship>& this_, const GVE::StrongPointer<Hold>& hold_, const GVE::StrongPointer<Game>& game_):
+Desert::Ship::Ship(const GVE::StrongPointer<Ship>& this_, const GVE::StrongPointer<Hold>& hold_, Hardpoints&& hardpoints_, const GVE::StrongPointer<Game>& game_):
 	Entity(this_, game_),
-	hold(hold_)
+	hold(hold_),
+	hardpoints(hardpoints_)
 {
 }
 
 void Desert::Ship::Update(const Delta& delta_)
 {
 	hold->Update(delta_);
+}
+
+Desert::Ship::Mass Desert::Ship::GetTotalMass() const
+{
+	Mass mass = 0.0f;
+
+	for (auto &hardpoint : hardpoints)
+	{
+		// TODO
+	}
+}
+Desert::Ship::Mass Desert::Ship::GetMass() const
+{
+	return 1.0f;
 }
 
 GVE::StrongPointer<Desert::Hold> Desert::Ship::GetHold() const
@@ -722,12 +745,35 @@ GVE::StrongPointer<Desert::Hold> Desert::Ship::GetHold() const
 
 #pragma endregion
 
+#pragma region ShipDependent
+
+Desert::ShipDependent::ShipDependent(const GVE::StrongPointer<Ship>& ship_):
+	ship(ship_)
+{
+}
+
+GVE::StrongPointer<Desert::Ship> Desert::ShipDependent::GetShip() const
+{
+	return GVE::Move(GVE::MakeStrong(ship));
+}
+
+#pragma endregion
+
 #pragma region Ships
 
 #pragma region Test
 
+Desert::Ship::Hardpoints Desert::Ships::Test::GenerateHardpoints(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<Game>& game_)
+{
+	Hardpoints hardpoints;
+
+	hardpoints.push_back(GVE::Make<Hardpoint>(this_, game_));
+
+	return GVE::Move(hardpoints);
+}
+
 Desert::Ships::Test::Test(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<Game>& game_):
-	Ship(this_, GVE::Make<Hold>(game_), game_)
+	Ship(this_, GVE::Make<Hold>(game_), GenerateHardpoints(this_, game_), game_)
 {
 }
 
@@ -764,7 +810,7 @@ Desert::Equipments::Test::Test(const GVE::StrongPointer<Test>& this_, const GVE:
 #pragma endregion
 
 
-bool Desert::IsConnectPossible(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_)
+bool Desert::IsConnectPossible(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_)
 {
 	GVE::Set<GVE::Pair<GVE::StrongPointer<CargoPart>, GVE::StrongPointer<HoldPlace>>> pending = {{cargoPart_, holdPlace_}};
 	GVE::Set<GVE::StrongPointer<CargoPart>> checked;
@@ -856,7 +902,7 @@ bool Desert::IsConnectPossible(const GVE::StrongPointer<CargoPart>& cargoPart_, 
 
 	return true;
 }
-void Desert::Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const Cargo::Rotation& rotation_)
+void Desert::Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_)
 {
 	GVE::Set<GVE::Pair<GVE::StrongPointer<CargoPart>, GVE::StrongPointer<HoldPlace>>> pending = {{cargoPart_, holdPlace_}};
 	GVE::Set<GVE::StrongPointer<CargoPart>> checked;

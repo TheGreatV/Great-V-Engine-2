@@ -6,6 +6,13 @@
 
 
 #pragma region Macros
+
+#if _DEBUG
+#define __GREAT_V_ENGINE_2__DEBUG__ 1
+#else
+#define __GREAT_V_ENGINE_2__DEBUG__ 0
+#endif
+
 #pragma endregion
 
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <../Common/Common.hpp>
+#include <../Graphics/Graphics.hpp>
 
 #pragma endregion
 
@@ -16,14 +16,13 @@ namespace GreatVEngine2
 {
 	namespace Graphics
 	{
-		class Engine;
-		class EngineDependent;
-		class View;
-		class Camera;
-		class Scene;
-		class Object;
-		class Material;
-		class Model;
+		namespace APIs
+		{
+			namespace OpenGL
+			{
+				class Engine;
+			}
+		}
 	}
 }
 
@@ -31,6 +30,14 @@ namespace GreatVEngine2
 #pragma region GreatVEngine2
 
 #pragma region Graphics
+
+#pragma region APIs
+
+#pragma region OpenGL
+
+#pragma endregion
+
+#pragma endregion
 
 #pragma endregion
 
