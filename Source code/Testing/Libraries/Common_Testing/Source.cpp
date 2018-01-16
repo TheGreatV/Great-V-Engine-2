@@ -1153,6 +1153,27 @@ void Reference_StrongPointer_Cast()
 
 	Check(DynamicInheritanceCheckerDerived::destructorCallsCounter == 1);
 }
+void Reference_StrongPointer_Regression_Copy()
+{
+	// assignment
+	CallChecker::Reset();
+	{
+		auto p1 = GVE::MakeStrong<CallChecker>();
+		{
+			auto p2 = p1;
+		}
+	}
+
+	Check(
+		constructorCallsCounter == 1 &&
+		copyCallsCounter == 0 &&
+		moveCopyCallsCounter == 0 &&
+		destructorCallsCounter == 1 &&
+		assignmentCallsCounter == 0 &&
+		moveAssignmentCallsCounter == 0
+	);
+}
+
 
 void Reference_WeakPointer_CreationAndDestroying()
 {
@@ -1409,6 +1430,7 @@ void main()
 	Reference_StrongPointer_Move();
 	Reference_StrongPointer_Weak();
 	Reference_StrongPointer_Cast();
+	Reference_StrongPointer_Regression_Copy();
 
 	Reference_WeakPointer_CreationAndDestroying();
 	Reference_WeakPointer_Usage();

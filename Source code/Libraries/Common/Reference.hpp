@@ -695,7 +695,6 @@ template<class Type_> GreatVEngine2::StrongPointer<Type_>::StrongPointer(const W
 template<class Type_> GreatVEngine2::StrongPointer<Type_>::StrongPointer(const StrongPointer& source_):
 	StrongPointer(source_.value, source_.holder)
 {
-	IncreaseStrongCounter();
 }
 template<class Type_> GreatVEngine2::StrongPointer<Type_>::StrongPointer(StrongPointer&& source_):
 	StrongPointer(source_.value, source_.holder, InitializedTag())
@@ -863,7 +862,7 @@ template<class Type_> GreatVEngine2::WeakPointer<Type_>::WeakPointer(const Null&
 {
 }
 template<class Type_> GreatVEngine2::WeakPointer<Type_>::WeakPointer(const StrongPointer<Type_>& source_):
-	WeakPointer(source_.value, source_.holder)
+	WeakPointer(source_.value, source_.holder, InitializedTag())
 {
 }
 template<class Type_> GreatVEngine2::WeakPointer<Type_>::WeakPointer(const WeakPointer& source_):
@@ -1027,9 +1026,9 @@ GreatVEngine2::StrongPointer<Type_> GreatVEngine2::Make(Arguments_&&... argument
 			Type_(this_, Forward<Arguments_&&>(arguments_)...)
 		{
 		}
-		void operator delete (GVE::Memory<void> rawMemory_)
+		void operator delete (Memory<void> rawMemory_)
 		{
-			auto memory = static_cast<GVE::Memory<Holder>>(rawMemory_);
+			auto memory = static_cast<Memory<Holder>>(rawMemory_);
 			
 			ReleaseMemory(memory);
 		}
