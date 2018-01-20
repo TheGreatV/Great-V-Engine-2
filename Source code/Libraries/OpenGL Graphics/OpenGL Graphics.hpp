@@ -21,34 +21,26 @@ namespace GreatVEngine2
 		{
 			namespace OpenGL
 			{
-				class Shader
+				class Output:
+					public Graphics::Output
 				{
-					// TODO
-				};
-				class Mesh
-				{
-					// TODO
+				public:
+					inline Output() = delete;
+					inline Output(const StrongPointer<Output>& this_);
+					inline Output(const Output&) = delete;
+					inline virtual ~Output() = default;
+				public:
+					inline Output& operator = (const Output&) = delete;
+				protected:
+					inline virtual void Present(const Memory<APIs::Windows::View>& view_) = 0;
+				public:
+					inline virtual void SignalPresented(const StrongPointer<View>& view_) override;
 				};
 				class Engine:
 					public Graphics::Engine
 				{
 				protected:
-					using ObjectsTable		= Vector<Memory<Object>>;
-					using MeshesTable		= Map<Memory<Mesh>, ObjectsTable>;
-					using MeshIt			= MeshesTable::iterator;
-					using ShadersTable		= Map<Memory<Shader>, MeshesTable>;
-					using ShaderIt			= ShadersTable::iterator;
-					using ScenesTable		= Map<Memory<Scene>, ShadersTable>;
-					using SceneIt			= ScenesTable::iterator;
-					using ShadersLookup		= Map<Memory<Material>, Memory<Shader>>;
-					using MeshesLookup		= Map<Memory<Model>, Memory<Mesh>>;
-					using ScenesMemory		= Vector<Memory<Scene>>;
-					using ObjectsLookup		= Map<Memory<Object>, ScenesMemory>;
-				protected:
-					ScenesTable scenesTable;
-					ShadersLookup shadersLookup;
-					MeshesLookup meshesLookup;
-					ObjectsLookup objectsLookup;
+					StrongPointer<Method> method = Make<Methods::Forward>();
 				public:
 					inline Engine() = delete;
 					inline Engine(const StrongPointer<Engine>& this_);
@@ -56,43 +48,93 @@ namespace GreatVEngine2
 					inline virtual ~Engine() = default;
 				public:
 					inline Engine& operator = (const Engine&) = delete;
-				protected:
-					inline SceneIt FindOrCreate(const Memory<Scene>& sceneMemory_);
-					inline ShaderIt FindOrCreate(const SceneIt& sceneIt_, const Memory<Material>& materialMemory_);
-					inline MeshIt FindOrCreate(const ShaderIt& shaderIt_, const Memory<Model>& modelMemory_);
-					inline Memory<Shader> FindOrCreate(const Memory<Material>& materialMemory_);
-					inline Memory<Mesh> FindOrCreate(const Memory<Model>& modelMemory_);
-					
-					inline SceneIt Find(const Memory<Scene>& sceneMemory_);
-					inline ShaderIt Find(const SceneIt& sceneIt_, const Memory<Shader>& shaderMemory_);
-					inline MeshIt Find(const ShaderIt& shaderIt_, const Memory<Mesh>& meshMemory_);
-					inline Memory<Shader> Find(const Memory<Material>& materialMemory_);
-					inline Memory<Mesh> Find(const Memory<Model>& modelMemory_);
-
-					inline void DeleteIfEmpty(const Memory<Model>& modelMemory_, const Memory<Mesh>& meshMemory_, const MeshIt& meshIt_, const ObjectsTable& objectsTable_, MeshesTable& meshesTable_);
-					inline void DeleteIfEmpty(const Memory<Material>& materialMemory_, const Memory<Shader>& shaderMemory_, const ShaderIt& shaderIt_, const MeshesTable& meshesTable_, ShadersTable& shadersTable_);
-					inline void DeleteIfEmpty(const SceneIt& sceneIt_, const ShadersTable& shadersTable_);
-
-					inline bool Has(const Memory<Object>& objectMemory_) const;
-					inline bool Has(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_) const;
-					
-					inline void Add(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_);
-					inline void Add(const Memory<Object>& objectMemory_, ObjectsTable& objectsTable_, const Memory<Scene>& sceneMemory_);
-
-					inline void Remove(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_);
-					inline void Remove(const Memory<Object>& objectMemory_, ObjectsTable& objectsTable_, const Memory<Scene>& sceneMemory_);
-				protected:
-					inline void AddObjectToScene(const Memory<Object>& objectMemory_, const Memory<Scene>& sceneMemory_);
-					inline void RemoveObjectFromScene(const Memory<Object>& objectMemory_, const Memory<Scene>& sceneMemory_);
 				public:
-					inline virtual void SignalMaterialDestroyed(const Memory<Material>& materialMemory_) override;
-					inline virtual void SignalModelDestroyed(const Memory<Model>& modelMemory_) override;
-
-					inline virtual void SignalObjectAdded(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_) override;
-					inline virtual void SignalObjectRemoved(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_) override;
-					
-					inline virtual void SignalSceneRendered(const Memory<Scene>& sceneMemory_, const StrongPointer<View>& view_, const StrongPointer<Camera>& camera_) override;
+					inline virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
 				};
+
+				class Method:
+					public This<Method>
+				{
+				public:
+					inline Method() = delete;
+					inline Method(const StrongPointer<Method>& this_);
+					inline Method(const Method&) = delete;
+					inline virtual ~Method() = default;
+				public:
+					inline Method& operator = (const Method&) = delete;
+				public:
+					inline virtual StrongPointer<OpenGL::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) = 0;
+				};
+				namespace Methods
+				{
+					class Forward:
+						public Method
+					{
+					protected:
+						class Output; friend Output;
+						class Renderer; friend Renderer;
+					protected:
+						using RenderersLookup = Map<Memory<Scene>, StrongPointer<Renderer>>;
+						using RendererIt = RenderersLookup::iterator;
+					protected:
+						RenderersLookup renderersLookup;
+					protected:
+						using RenderContextsLookup = Map<Memory<APIs::Windows::View>, HGLRC>;
+					protected:
+						RenderContextsLookup renderContextsLookup;
+						HGLRC renderContext = 0;
+					public:
+						inline Forward() = delete;
+						inline Forward(const StrongPointer<Forward>& this_);
+						inline Forward(const Forward&) = delete;
+						inline virtual ~Forward() = default;
+					public:
+						inline Forward& operator = (const Forward&) = delete;
+					protected:
+						inline RendererIt FindOrCreate(const Memory<Scene>& sceneMemory_);
+					public:
+						inline virtual StrongPointer<OpenGL::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
+					protected:
+						HGLRC FindOrCreate(const Memory<APIs::Windows::View>& view_);
+					protected:
+						inline void PresentOn(const Memory<APIs::Windows::View>& view_);
+					};
+#pragma region Forward::Output
+					class Forward::Output:
+						public OpenGL::Output
+					{
+					protected:
+						const Memory<Renderer> renderer;
+					public:
+						inline Output() = delete;
+						inline Output(const StrongPointer<Output>& this_, const Memory<Renderer>& renderer_);
+						inline Output(const Output&) = delete;
+						inline virtual ~Output() = default;
+					public:
+						inline Output& operator = (const Output&) = delete;
+					protected:
+						inline virtual void Present(const Memory<APIs::Windows::View>& view_) override;
+					};
+#pragma endregion
+#pragma region Forward::Renderer
+					class Forward::Renderer:
+						public This<Renderer>
+					{
+						friend Output;
+					protected:
+						const Memory<Forward> method;
+					public:
+						inline Renderer() = delete;
+						inline Renderer(const StrongPointer<Renderer>& this_, const Memory<Forward>& method_);
+						inline Renderer(const Renderer&) = delete;
+						inline virtual ~Renderer() = default;
+					public:
+						inline Renderer& operator = (const Renderer&) = delete;
+					public:
+						inline StrongPointer<Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_);
+					};
+#pragma endregion
+				}
 			}
 		}
 	}
@@ -107,6 +149,23 @@ namespace GreatVEngine2
 
 #pragma region OpenGL
 
+#pragma region Output
+
+GreatVEngine2::Graphics::APIs::OpenGL::Output::Output(const StrongPointer<Output>& this_):
+	Graphics::Output(this_)
+{
+}
+
+void GreatVEngine2::Graphics::APIs::OpenGL::Output::SignalPresented(const StrongPointer<View>& view_)
+{
+	if (auto windowsView = DynamicCast<APIs::Windows::View>(view_))
+	{
+		Present(windowsView.GetValue());
+	}
+}
+
+#pragma endregion
+
 #pragma region Engine
 
 GreatVEngine2::Graphics::APIs::OpenGL::Engine::Engine(const StrongPointer<Engine>& this_):
@@ -114,401 +173,242 @@ GreatVEngine2::Graphics::APIs::OpenGL::Engine::Engine(const StrongPointer<Engine
 {
 }
 
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::SceneIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::FindOrCreate(const Memory<Scene>& sceneMemory_)
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::Output> GreatVEngine2::Graphics::APIs::OpenGL::Engine::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
 {
-	auto it = scenesTable.find(sceneMemory_);
+	return method->Render(scene_, camera_);
+}
 
-	if (it == scenesTable.end())
+#pragma endregion
+
+#pragma region Method
+
+GreatVEngine2::Graphics::APIs::OpenGL::Method::Method(const StrongPointer<Method>& this_):
+	This(this_)
+{
+}
+
+#pragma endregion
+
+#pragma region Methods
+
+#pragma region Forward
+
+#pragma region Output
+
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Output::Output(const StrongPointer<Output>& this_, const Memory<Renderer>& renderer_):
+	OpenGL::Output(this_),
+	renderer(renderer_)
+{
+}
+
+void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Output::Present(const Memory<APIs::Windows::View>& view_)
+{
+	renderer->method->PresentOn(view_);
+}
+
+#pragma endregion
+
+#pragma region Renderer
+
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::Renderer(const StrongPointer<Renderer>& this_, const Memory<Forward>& method_):
+	This(this_),
+	method(method_)
+{
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Output> GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
+{
+	auto output = Make<Output>(this);
+
+	return Move(output);
+}
+
+#pragma endregion
+
+
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Forward(const StrongPointer<Forward>& this_):
+	Method(this_)
+{
+}
+
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::RendererIt GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::FindOrCreate(const Memory<Scene>& sceneMemory_)
+{
+	auto it = renderersLookup.find(sceneMemory_);
+
+	if (it == renderersLookup.end())
 	{
-		auto &result = scenesTable.emplace(sceneMemory_, ShadersTable()); // result.second is always true
-		auto &nIt = result.first;
+		auto nIt = renderersLookup.insert({sceneMemory_, Make<Renderer>(this)});
 
-		return nIt;
+		return nIt.first;
 	}
 	else
 	{
 		return it;
 	}
 }
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::ShaderIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::FindOrCreate(const SceneIt& sceneIt_, const Memory<Material>& materialMemory_)
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::OpenGL::Output> GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
 {
-	auto shaderMemory = FindOrCreate(materialMemory_);
-	auto &shadersTable = (*sceneIt_).second;
-	auto it = shadersTable.find(shaderMemory);
+	auto sceneMemory = scene_.GetValue();
+	auto rendererIt = FindOrCreate(sceneMemory);
+	auto renderer = (*rendererIt).second;
 
-	if (it == shadersTable.end())
-	{
-		auto &result = shadersTable.emplace(shaderMemory, MeshesTable()); // result.second is always true
-		auto &nIt = result.first;
-
-		return nIt;
-	}
-	else
-	{
-		return it;
-	}
-}
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::MeshIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::FindOrCreate(const ShaderIt& shaderIt_, const Memory<Model>& modelMemory_)
-{
-	auto meshMemory = FindOrCreate(modelMemory_);
-	auto &meshesTable = (*shaderIt_).second;
-	auto it = meshesTable.find(meshMemory);
-
-	if (it == meshesTable.end())
-	{
-		auto &result = meshesTable.emplace(meshMemory, ObjectsTable()); // result.second is always true
-		auto &nIt = result.first;
-
-		return nIt;
-	}
-	else
-	{
-		return it;
-	}
-}
-GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Shader> GreatVEngine2::Graphics::APIs::OpenGL::Engine::FindOrCreate(const Memory<Material>& materialMemory_)
-{
-	auto shaderMemoryIt = shadersLookup.find(materialMemory_);
-
-	if (shaderMemoryIt == shadersLookup.end())
-	{
-		auto shaderMemory = new Shader();
-
-		shadersLookup[materialMemory_] = shaderMemory;
-
-		return shaderMemory;
-	}
-	else
-	{
-		auto shaderMemory = (*shaderMemoryIt).second;
-
-		return shaderMemory;
-	}
-}
-GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Mesh> GreatVEngine2::Graphics::APIs::OpenGL::Engine::FindOrCreate(const Memory<Model>& modelMemory_)
-{
-	auto meshMemoryIt = meshesLookup.find(modelMemory_);
-
-	if (meshMemoryIt == meshesLookup.end())
-	{
-		auto meshMemory = new Mesh();
-
-		meshesLookup[modelMemory_] = meshMemory;
-
-		return meshMemory;
-	}
-	else
-	{
-		auto meshMemory = (*meshMemoryIt).second;
-
-		return meshMemory;
-	}
+	return renderer->Render(scene_, camera_);
 }
 
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::SceneIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::Find(const Memory<Scene>& sceneMemory_)
+HGLRC GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::FindOrCreate(const Memory<APIs::Windows::View>& view_)
 {
-	auto it = scenesTable.find(sceneMemory_);
+	/*auto it = renderContextsLookup.find(view_);
 
-	if (it != scenesTable.end())
+	if (it == renderContextsLookup.end())
 	{
-		return it;
+		const GLint attribs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, //WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0, 0
+		};
+
+		auto deviceContextHandle = view_->GetDeviceContextHandle();
+		auto renderContext = GreatVEngine2::OpenGL::wglCreateContextAttribsARB(deviceContextHandle, nullptr, attribs);
+
+		renderContextsLookup.insert({view_, renderContext});
+
+		return renderContext;
 	}
 	else
 	{
-		throw Exception(); // TODO
+		auto renderContext = (*it).second;
+
+		return renderContext;
+	}*/
+
+	if (renderContext == 0)
+	{
+		const GLint attribs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+			WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, //WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+			0, 0
+		};
+
+		auto deviceContextHandle = view_->GetDeviceContextHandle();
+		
+		renderContext = GreatVEngine2::OpenGL::wglCreateContextAttribsARB(deviceContextHandle, nullptr, attribs);
 	}
+
+	return renderContext;
 }
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::ShaderIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::Find(const SceneIt& sceneIt_, const Memory<Shader>& shaderMemory_)
-{
-	auto &shadersTable = (*sceneIt_).second;
-	auto it = shadersTable.find(shaderMemory_);
 
-	if (it != shadersTable.end())
-	{
-		return it;
-	}
-	else
+void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::PresentOn(const Memory<APIs::Windows::View>& view_)
+{
+	auto deviceContextHandle = view_->GetDeviceContextHandle();
+	auto renderContext = FindOrCreate(view_);
+
+	using namespace GreatVEngine2::OpenGL;
+
+	if (!wglMakeCurrent(deviceContextHandle, renderContext))
 	{
 		throw Exception();
 	}
-}
-GreatVEngine2::Graphics::APIs::OpenGL::Engine::MeshIt GreatVEngine2::Graphics::APIs::OpenGL::Engine::Find(const ShaderIt& shaderIt_, const Memory<Mesh>& meshMemory_)
-{
-	auto &meshesTable = (*shaderIt_).second;
-	auto it = meshesTable.find(meshMemory_);
 
-	if (it != meshesTable.end())
+
+	auto vbo = GenBuffer();
 	{
-		return it;
+		Vector<float> data = {-0.5f, -0.5f, +0.5f, -0.5f, +0.0f, +0.5f};
+
+		BindBuffer(BufferType::Array, vbo);
+		BufferData(BufferType::Array, sizeof(float)* data.size(), data.data(), BufferUsage::Static);
 	}
-	else
+	auto program = CreateProgram();
 	{
-		throw Exception(); // TODO
-	}
-}
-GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Shader> GreatVEngine2::Graphics::APIs::OpenGL::Engine::Find(const Memory<Material>& materialMemory_)
-{
-	auto shaderMemoryIt = shadersLookup.find(materialMemory_);
-
-	if (shaderMemoryIt != shadersLookup.end())
-	{
-		auto shaderMemory = (*shaderMemoryIt).second;
-
-		return shaderMemory;
-	}
-	else
-	{
-		throw Exception();
-	}
-}
-GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Mesh> GreatVEngine2::Graphics::APIs::OpenGL::Engine::Find(const Memory<Model>& modelMemory_)
-{
-	auto meshMemoryIt = meshesLookup.find(modelMemory_);
-
-	if (meshMemoryIt != meshesLookup.end())
-	{
-		auto meshMemory = (*meshMemoryIt).second;
-
-		return meshMemory;
-	}
-	else
-	{
-		throw Exception();
-	}
-}
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::DeleteIfEmpty(const Memory<Model>& modelMemory_, const Memory<Mesh>& meshMemory_, const MeshIt& meshIt_, const ObjectsTable& objectsTable_, MeshesTable& meshesTable_)
-{
-	if (objectsTable_.empty())
-	{
-		meshesTable_.erase(meshIt_);
-	}
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::DeleteIfEmpty(const Memory<Material>& materialMemory_, const Memory<Shader>& shaderMemory_, const ShaderIt& shaderIt_, const MeshesTable& meshesTable_, ShadersTable& shadersTable_)
-{
-	if (meshesTable_.empty())
-	{
-		shadersTable_.erase(shaderIt_);
-	}
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::DeleteIfEmpty(const SceneIt& sceneIt_, const ShadersTable& shadersTable_)
-{
-	if (shadersTable_.empty())
-	{
-		scenesTable.erase(sceneIt_);
-	}
-}
-
-bool GreatVEngine2::Graphics::APIs::OpenGL::Engine::Has(const Memory<Object>& objectMemory_) const
-{
-	auto it = objectsLookup.find(objectMemory_);
-
-	return it != objectsLookup.end();
-}
-bool GreatVEngine2::Graphics::APIs::OpenGL::Engine::Has(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_) const
-{
-	auto it = objectsLookup.find(objectMemory_);
-
-	if (it != objectsLookup.end())
-	{
-		auto &scenes = (*it).second;
-
-		auto it2 = std::find(scenes.begin(), scenes.end(), sceneMemory_);
-
-		return it2 != scenes.end();
-	}
-
-	return false;
-}
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::Add(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_)
-{
-	auto &result = objectsLookup.insert({objectMemory_, ScenesMemory()});
-	auto &it = result.first;
-	auto &scenes = (*it).second;
-
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (std::find(scenes.begin(), scenes.end(), sceneMemory_) != scenes.end())
-	{
-		throw Exception(); // TODO
-	}
-#endif
-
-	scenes.push_back(sceneMemory_);
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::Add(const Memory<Object>& objectMemory_, ObjectsTable& objectsTable_, const Memory<Scene>& sceneMemory_)
-{
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (std::find(objectsTable_.begin(), objectsTable_.end(), objectMemory_) != objectsTable_.end())
-	{
-		throw Exception(); // TODO
-	}
-#endif
-
-	objectsTable_.push_back(objectMemory_);
-	
-	Add(sceneMemory_, objectMemory_);
-}
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::Remove(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_)
-{
-	auto it = objectsLookup.find(objectMemory_);
-
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (it == objectsLookup.end())
-	{
-		throw Exception(); // TODO
-	}
-#endif
-
-	auto &scenes = (*it).second;
-	auto it2 = std::find(scenes.begin(), scenes.end(), sceneMemory_);
-
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (it2 == scenes.end())
-	{
-		throw Exception(); // TODO
-	}
-#endif
-
-	scenes.erase(it2);
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::Remove(const Memory<Object>& objectMemory_, ObjectsTable& objectsTable_, const Memory<Scene>& sceneMemory_)
-{
-	auto it = std::find(objectsTable_.begin(), objectsTable_.end(), objectMemory_);
-
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (it == objectsTable_.end())
-	{
-		throw Exception(); // TODO
-	}
-#endif
-
-	objectsTable_.erase(it);
-
-	Remove(sceneMemory_, objectMemory_);
-}
-
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::AddObjectToScene(const Memory<Object>& objectMemory_, const Memory<Scene>& sceneMemory_)
-{
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (Has(sceneMemory_, objectMemory_))
-	{
-		throw Exception(); // TODO: already exist
-	}
-#endif
-
-	auto material = objectMemory_->GetMaterial();
-	auto model = objectMemory_->GetModel();
-
-	auto materialMemory = material.GetValue();
-	auto modelMemory = model.GetValue();
-
-	auto sceneIt = FindOrCreate(sceneMemory_);
-	auto shaderIt = FindOrCreate(sceneIt, materialMemory);
-	auto meshIt = FindOrCreate(shaderIt, modelMemory);
-	auto &objectsTable = (*meshIt).second;
-
-	Add(objectMemory_, objectsTable, sceneMemory_);
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::RemoveObjectFromScene(const Memory<Object>& objectMemory_, const Memory<Scene>& sceneMemory_)
-{
-#if __GREAT_V_ENGINE_2__DEBUG__
-	if (!Has(sceneMemory_, objectMemory_))
-	{
-		throw Exception(); // TODO: does not exist
-	}
-#endif
-
-	auto material = objectMemory_->GetMaterial();
-	auto model = objectMemory_->GetModel();
-
-	auto materialMemory = material.GetValue();
-	auto modelMemory = model.GetValue();
-
-	auto sceneIt = Find(sceneMemory_);
-	auto shaderMemory = Find(materialMemory);
-	auto shaderIt = Find(sceneIt, shaderMemory);
-	auto meshMemory = Find(modelMemory);
-	auto meshIt = Find(shaderIt, meshMemory);
-	auto &objectsTable = (*meshIt).second;
-
-	Remove(objectMemory_, objectsTable, sceneMemory_);
-
-	auto &meshesTable = (*shaderIt).second;
-
-	DeleteIfEmpty(modelMemory, meshMemory, meshIt, objectsTable, meshesTable);
-
-	auto &shadersTable = (*sceneIt).second;
-
-	DeleteIfEmpty(materialMemory, shaderMemory, shaderIt, meshesTable, shadersTable);
-	DeleteIfEmpty(sceneIt, shadersTable);
-}
-
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::SignalMaterialDestroyed(const Memory<Material>& materialMemory_)
-{
-	auto it = shadersLookup.find(materialMemory_);
-
-	if (it != shadersLookup.end())
-	{
-		auto &shaderMemory = (*it).second;
-
-		delete shaderMemory;
-
-		shadersLookup.erase(it);
-	}
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::SignalModelDestroyed(const Memory<Model>& modelMemory_)
-{
-	auto it = meshesLookup.find(modelMemory_);
-
-	if (it != meshesLookup.end())
-	{
-		auto &meshMemory = (*it).second;
-
-		delete meshMemory;
-
-		meshesLookup.erase(it);
-	}
-}
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::SignalObjectAdded(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_)
-{
-	AddObjectToScene(objectMemory_, sceneMemory_);
-}
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::SignalObjectRemoved(const Memory<Scene>& sceneMemory_, const Memory<Object>& objectMemory_)
-{
-	RemoveObjectFromScene(objectMemory_, sceneMemory_);
-}
-
-void GreatVEngine2::Graphics::APIs::OpenGL::Engine::SignalSceneRendered(const Memory<Scene>& sceneMemory_, const StrongPointer<View>& view_, const StrongPointer<Camera>& camera_)
-{
-	auto it = scenesTable.find(sceneMemory_);
-
-	if (it != scenesTable.end())
-	{
-		auto &shadersTable = (*it).second;
-
-		for (auto &shaderIt : shadersTable)
+		auto vs = CreateShader(ShaderType::Vertex);
 		{
-			auto &shaderMemory = shaderIt.first;
-			auto &meshesTable = shaderIt.second;
+			String source = "#version 330\nin vec2 vPos; void main() { gl_Position = vec4(vPos,0.0f,1.0f); }";
 
-			for (auto &meshIt : meshesTable)
+			ShaderSource(vs, {source});
+			CompileShader(vs);
+
+			if (!GetShaderCompileStatus(vs))
 			{
-				auto &meshMemory = meshIt.first;
-				auto &objectsTable = meshIt.second;
+				auto log = GetShaderInfoLog(vs);
 
-				for (auto &objectMemory : objectsTable)
-				{
-					// TODO: render objectMemory
-				}
+				throw Exception("Error while compiling shader: " + log);
 			}
 		}
+		auto fs = CreateShader(ShaderType::Fragment);
+		{
+			std::string source = "#version 330\nout vec4 oColor; void main() { oColor = vec4(1.0f); }";
+
+			ShaderSource(fs, {source});
+			CompileShader(fs);
+
+			if (!GetShaderCompileStatus(fs))
+			{
+				auto log = GetShaderInfoLog(fs);
+
+				throw Exception("Error while compiling shader: " + log);
+			}
+		}
+
+		AttachShader(program, vs);
+		AttachShader(program, fs);
+
+		LinkProgram(program);
+
+		if (!GetProgramLinkStatus(program))
+		{
+			auto log = GetProgramInfoLog(program);
+
+			throw Exception("Error while linking program: " + log);
+		}
+
+		DeleteShader(vs);
+		DeleteShader(fs);
 	}
+	auto vao = GenVertexArray();
+	{
+		BindVertexArray(vao);
+
+		UseProgram(program);
+		BindBuffer(BufferType::Array, vbo);
+
+		auto l1 = GetAttribLocation(program, "vPos");
+
+		VertexAttribPointer(l1, 2, ComponentType::Float, false, sizeof(float)* 2, 0);
+		EnableVertexAttribArray(l1);
+	}
+
+	glViewport(0, 0, 800, 600);
+	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	ValidateProgram(program);
+	{
+		if (!GetProgramValidateStatus(program))
+		{
+			auto log = GetProgramInfoLog(program);
+
+			throw Exception("Error while validating program: " + log);
+		}
+	}
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glFlush();
+
+	SwapBuffers(deviceContextHandle);
+
+	UnbindVertexArray(); DeleteVertexArray(vao);
+	UnuseProgram(); DeleteProgram(program);
+	UnbindBuffer(BufferType::Array); DeleteBuffer(vbo);
+
+	wglMakeCurrent(nullptr, nullptr);
 }
+
+#pragma endregion
 
 #pragma endregion
 

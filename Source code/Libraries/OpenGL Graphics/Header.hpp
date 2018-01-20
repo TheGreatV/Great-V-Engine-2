@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <../OpenGL/OpenGL.hpp>
 #include <../Graphics/Graphics.hpp>
+#include <../Windows Graphics/Windows Graphics.hpp>
 
 #pragma endregion
 
@@ -20,7 +22,14 @@ namespace GreatVEngine2
 		{
 			namespace OpenGL
 			{
+				class Output;
 				class Engine;
+
+				class Method;
+				namespace Methods
+				{
+					class Forward;
+				}
 			}
 		}
 	}

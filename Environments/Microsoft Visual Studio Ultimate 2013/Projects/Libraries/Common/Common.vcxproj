@@ -70,20 +70,26 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Collection.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Common.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Exception.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Header.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Mathematics.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Memory.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Move.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Reference.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Size.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Collection.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Common.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Exception.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Header.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Mathematics.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Memory.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Move.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Reference.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Size.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\String.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,6 +4,8 @@
 
 #include <../Common/Common.hpp>
 
+#include <limits>
+
 #pragma endregion
 
 
@@ -16,6 +18,8 @@ namespace GreatVEngine2
 {
 	namespace Graphics
 	{
+		class Exception;
+
 		class Engine;
 		class EngineDependent;
 		class View;

@@ -13,7 +13,11 @@
 #define __GREAT_V_ENGINE_2__DEBUG__ 0
 #endif
 
-#pragma endregion
+#define __GREAT_V_ENGINE_2__PLATFORM_UNDEFINED__	0
+#define __GREAT_V_ENGINE_2__PLATFORM_WINDOWS__		1
+#define __GREAT_V_ENGINE_2__PLATFORM_LINUX__		2
+
+#define __GREAT_V_ENGINE_2__PLATFORM__				__GREAT_V_ENGINE_2__PLATFORM_WINDOWS__
 
 
 namespace GreatVEngine2

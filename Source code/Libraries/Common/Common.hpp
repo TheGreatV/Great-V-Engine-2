@@ -6,7 +6,10 @@
 #include "Memory.hpp"
 #include "Move.hpp"
 #include "Reference.hpp"
+#include "String.hpp"
 #include "Collection.hpp"
+#include "Exception.hpp"
+#include "Mathematics.hpp"
 
 #pragma endregion
 
