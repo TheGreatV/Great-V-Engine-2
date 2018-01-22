@@ -58,13 +58,14 @@ namespace GreatVEngine2
 		protected:
 			using Objects = Vector<Memory<Object>>;
 			using ObjectIt = Objects::size_type;
+		public:
 			using Version = Size;
 		protected:
 			static inline ObjectIt EmptyIt()
 			{
 				return std::numeric_limits<Scene::ObjectIt>::max();
 			}
-		protected:
+		public: // protected: // TODO: do something with that
 			Objects objects;
 			Version version;
 		public:
@@ -79,10 +80,12 @@ namespace GreatVEngine2
 			inline void SignalObjectDestroyed(const Memory<Object>& objectMemory_);
 		protected:
 			inline void UpdateVersion();
+		public:
 			inline Version GetVersion() const;
 		};
 		class Object:
-			public This<Object>
+			public This<Object>,
+			public Helpers::Transformation::D3::HierarchyMatrix
 		{
 			friend Scene;
 		protected:
@@ -116,17 +119,22 @@ namespace GreatVEngine2
 		class Model:
 			public This<Model>
 		{
+		protected:
+			const StrongPointer<Geometry> geometry;
 		public:
 			inline Model() = delete;
-			inline Model(const StrongPointer<Model>& this_);
+			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_);
 			inline Model(const Model&) = delete;
 			inline ~Model() = default;
 		public:
 			inline Model& operator = (const Model&) = delete;
+		public:
+			inline StrongPointer<Geometry> GetGeometry() const;
 		};
 		
 		class Camera:
-			public This<Camera>
+			public This<Camera>,
+			public Helpers::Transformation::D3::ViewMatrix
 		{
 		public:
 			inline Camera() = delete;
@@ -141,6 +149,8 @@ namespace GreatVEngine2
 			public This<View>
 		{
 		public:
+			class ViewportRange;
+		public:
 			inline View() = delete;
 			inline View(const StrongPointer<View>& this_);
 			inline View(const View&) = delete;
@@ -149,6 +159,35 @@ namespace GreatVEngine2
 			inline View& operator = (const View&) = delete;
 		public:
 			inline virtual void Present(const StrongPointer<Output>& renderResult_) = 0;
+		public:
+			inline virtual ViewportRange GetViewportRange() const = 0;
+		};
+		class View::ViewportRange
+		{
+		protected:
+			IVec2 position;
+			Size2 size;
+		public:
+			inline ViewportRange(const IVec2& position_, const Size2& size_):
+				position(position_),
+				size(size_)
+			{
+			}
+			inline ViewportRange(const ViewportRange&) = default;
+			inline ~ViewportRange() = default;
+		public:
+			inline IVec2 GetPosition() const
+			{
+				return position;
+			}
+			inline Size2 GetSize() const
+			{
+				return size;
+			}
+			inline Float32 GetAspect() const
+			{
+				return static_cast<Float32>(size.x) / static_cast<Float32>(size.y);
+			}
 		};
 	}
 }
@@ -237,6 +276,7 @@ GreatVEngine2::Graphics::Scene::Version GreatVEngine2::Graphics::Scene::GetVersi
 
 GreatVEngine2::Graphics::Object::Object(const StrongPointer<Object>& this_, const StrongPointer<Material>& material_, const StrongPointer<Model>& model_, const StrongPointer<Scene>& scene_):
 	This(this_),
+	HierarchyMatrix(Vec3(0.0f), Vec3(0.0f), Vec3(1.0f)),
 	material(material_),
 	model(model_),
 	scene(scene_.GetValue())
@@ -277,9 +317,15 @@ GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_
 
 #pragma region Model
 
-GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_):
-	This(this_)
+GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_):
+	This(this_),
+	geometry(geometry_)
 {
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Graphics::Model::GetGeometry() const
+{
+	return geometry;
 }
 
 #pragma endregion
@@ -287,7 +333,8 @@ GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_):
 #pragma region Camera
 
 GreatVEngine2::Graphics::Camera::Camera(const StrongPointer<Camera>& this_):
-	This(this_)
+	This(this_),
+	ViewMatrix(Vec3(0.0f), Vec3(0.0f))
 {
 }
 

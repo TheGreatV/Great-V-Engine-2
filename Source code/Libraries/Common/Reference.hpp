@@ -350,6 +350,7 @@ namespace GreatVEngine2
 	template<class Type_> inline UniquePointer<Type_>											MakeUnique();
 	template<class Type_, class... Arguments> inline StrongPointer<Type_>						MakeStrong(Arguments&&... arguments_);
 	template<class Type_> inline StrongPointer<Type_>											MakeStrong();
+	template<class Type_> inline StrongPointer<Type_>											MakeStrong(const Memory<Type_>& memory_);
 	template<class Type_> inline StrongPointer<Type_>											MakeStrong(const WeakPointer<Type_>& source_);
 	template<class Type_> inline WeakPointer<Type_>												MakeWeak(const StrongPointer<Type_>& source_);
 
@@ -1008,6 +1009,10 @@ template<class Type_> typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2
 template<class Type_> typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong<Type_>(const WeakPointer<Type_>& source_)
 {
 	return Move(StrongPointer<Type_>(source_));
+}
+template<class Type_> typename GreatVEngine2::StrongPointer<Type_> GreatVEngine2::MakeStrong(const Memory<Type_>& memory_)
+{
+	return StrongPointer<Type_>(memory_);
 }
 
 template<class Type_> typename GreatVEngine2::WeakPointer<Type_> GreatVEngine2::MakeWeak<Type_>(const StrongPointer<Type_>& source_)

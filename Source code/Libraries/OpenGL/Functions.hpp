@@ -335,6 +335,101 @@ namespace GreatVEngine2
 		extern PFNGLGENVERTEXARRAYSPROC												glGenVertexArrays;
 		extern PFNGLISVERTEXARRAYPROC												glIsVertexArray;
 
+		// Version 3.1
+		extern PFNGLDRAWARRAYSINSTANCEDPROC											glDrawArraysInstanced;
+		extern PFNGLDRAWELEMENTSINSTANCEDPROC										glDrawElementsInstanced;
+		extern PFNGLTEXBUFFERPROC													glTexBuffer;
+		extern PFNGLPRIMITIVERESTARTINDEXPROC										glPrimitiveRestartIndex;
+		extern PFNGLCOPYBUFFERSUBDATAPROC											glCopyBufferSubData;
+		extern PFNGLGETUNIFORMINDICESPROC											glGetUniformIndices;
+		extern PFNGLGETACTIVEUNIFORMSIVPROC											glGetActiveUniformsiv;
+		extern PFNGLGETACTIVEUNIFORMNAMEPROC										glGetActiveUniformName;
+		extern PFNGLGETUNIFORMBLOCKINDEXPROC										glGetUniformBlockIndex;
+		extern PFNGLGETACTIVEUNIFORMBLOCKIVPROC										glGetActiveUniformBlockiv;
+		extern PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC									glGetActiveUniformBlockName;
+		extern PFNGLUNIFORMBLOCKBINDINGPROC											glUniformBlockBinding;
+
+		// Version 3.2
+		extern PFNGLDRAWELEMENTSBASEVERTEXPROC										glDrawElementsBaseVertex;
+		extern PFNGLDRAWRANGEELEMENTSBASEVERTEXPROC									glDrawRangeElementsBaseVertex;
+		extern PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC								glDrawElementsInstancedBaseVertex;
+		extern PFNGLMULTIDRAWELEMENTSBASEVERTEXPROC									glMultiDrawElementsBaseVertex;
+		extern PFNGLPROVOKINGVERTEXPROC												glProvokingVertex;
+		extern PFNGLFENCESYNCPROC													glFenceSync;
+		extern PFNGLISSYNCPROC														glIsSync;
+		extern PFNGLDELETESYNCPROC													glDeleteSync;
+		extern PFNGLCLIENTWAITSYNCPROC												glClientWaitSync;
+		extern PFNGLWAITSYNCPROC													glWaitSync;
+		extern PFNGLGETINTEGER64VPROC												glGetInteger64v;
+		extern PFNGLGETSYNCIVPROC													glGetSynciv;
+		extern PFNGLGETINTEGER64I_VPROC												glGetInteger64i_v;
+		extern PFNGLGETBUFFERPARAMETERI64VPROC										glGetBufferParameteri64v;
+		extern PFNGLFRAMEBUFFERTEXTUREPROC											glFramebufferTexture;
+		extern PFNGLTEXIMAGE2DMULTISAMPLEPROC										glTexImage2DMultisample;
+		extern PFNGLTEXIMAGE3DMULTISAMPLEPROC										glTexImage3DMultisample;
+		extern PFNGLGETMULTISAMPLEFVPROC											glGetMultisamplefv;
+		extern PFNGLSAMPLEMASKIPROC													glSampleMaski;
+
+		// Version 3.3
+		extern PFNGLBINDFRAGDATALOCATIONINDEXEDPROC									glBindFragDataLocationIndexed;
+		extern PFNGLGETFRAGDATAINDEXPROC											glGetFragDataIndex;
+		extern PFNGLGENSAMPLERSPROC													glGenSamplers;
+		extern PFNGLDELETESAMPLERSPROC												glDeleteSamplers;
+		extern PFNGLISSAMPLERPROC													glIsSampler;
+		extern PFNGLBINDSAMPLERPROC													glBindSampler;
+		extern PFNGLSAMPLERPARAMETERIPROC											glSamplerParameteri;
+		extern PFNGLSAMPLERPARAMETERIVPROC											glSamplerParameteriv;
+		extern PFNGLSAMPLERPARAMETERFPROC											glSamplerParameterf;
+		extern PFNGLSAMPLERPARAMETERFVPROC											glSamplerParameterfv;
+		extern PFNGLSAMPLERPARAMETERIIVPROC											glSamplerParameterIiv;
+		extern PFNGLSAMPLERPARAMETERIUIVPROC										glSamplerParameterIuiv;
+		extern PFNGLGETSAMPLERPARAMETERIVPROC										glGetSamplerParameteriv;
+		extern PFNGLGETSAMPLERPARAMETERIIVPROC										glGetSamplerParameterIiv;
+		extern PFNGLGETSAMPLERPARAMETERFVPROC										glGetSamplerParameterfv;
+		extern PFNGLGETSAMPLERPARAMETERIUIVPROC										glGetSamplerParameterIuiv;
+		extern PFNGLQUERYCOUNTERPROC												glQueryCounter;
+		extern PFNGLGETQUERYOBJECTI64VPROC											glGetQueryObjecti64v;
+		extern PFNGLGETQUERYOBJECTUI64VPROC											glGetQueryObjectui64v;
+		extern PFNGLVERTEXATTRIBDIVISORPROC											glVertexAttribDivisor;
+		extern PFNGLVERTEXATTRIBP1UIPROC											glVertexAttribP1ui;
+		extern PFNGLVERTEXATTRIBP1UIVPROC											glVertexAttribP1uiv;
+		extern PFNGLVERTEXATTRIBP2UIPROC											glVertexAttribP2ui;
+		extern PFNGLVERTEXATTRIBP2UIVPROC											glVertexAttribP2uiv;
+		extern PFNGLVERTEXATTRIBP3UIPROC											glVertexAttribP3ui;
+		extern PFNGLVERTEXATTRIBP3UIVPROC											glVertexAttribP3uiv;
+		extern PFNGLVERTEXATTRIBP4UIPROC											glVertexAttribP4ui;
+		extern PFNGLVERTEXATTRIBP4UIVPROC											glVertexAttribP4uiv;
+		extern PFNGLVERTEXP2UIPROC													glVertexP2ui;
+		extern PFNGLVERTEXP2UIVPROC													glVertexP2uiv;
+		extern PFNGLVERTEXP3UIPROC													glVertexP3ui;
+		extern PFNGLVERTEXP3UIVPROC													glVertexP3uiv;
+		extern PFNGLVERTEXP4UIPROC													glVertexP4ui;
+		extern PFNGLVERTEXP4UIVPROC													glVertexP4uiv;
+		extern PFNGLTEXCOORDP1UIPROC												glTexCoordP1ui;
+		extern PFNGLTEXCOORDP1UIVPROC												glTexCoordP1uiv;
+		extern PFNGLTEXCOORDP2UIPROC												glTexCoordP2ui;
+		extern PFNGLTEXCOORDP2UIVPROC												glTexCoordP2uiv;
+		extern PFNGLTEXCOORDP3UIPROC												glTexCoordP3ui;
+		extern PFNGLTEXCOORDP3UIVPROC												glTexCoordP3uiv;
+		extern PFNGLTEXCOORDP4UIPROC												glTexCoordP4ui;
+		extern PFNGLTEXCOORDP4UIVPROC												glTexCoordP4uiv;
+		extern PFNGLMULTITEXCOORDP1UIPROC											glMultiTexCoordP1ui;
+		extern PFNGLMULTITEXCOORDP1UIVPROC											glMultiTexCoordP1uiv;
+		extern PFNGLMULTITEXCOORDP2UIPROC											glMultiTexCoordP2ui;
+		extern PFNGLMULTITEXCOORDP2UIVPROC											glMultiTexCoordP2uiv;
+		extern PFNGLMULTITEXCOORDP3UIPROC											glMultiTexCoordP3ui;
+		extern PFNGLMULTITEXCOORDP3UIVPROC											glMultiTexCoordP3uiv;
+		extern PFNGLMULTITEXCOORDP4UIPROC											glMultiTexCoordP4ui;
+		extern PFNGLMULTITEXCOORDP4UIVPROC											glMultiTexCoordP4uiv;
+		extern PFNGLNORMALP3UIPROC													glNormalP3ui;
+		extern PFNGLNORMALP3UIVPROC													glNormalP3uiv;
+		extern PFNGLCOLORP3UIPROC													glColorP3ui;
+		extern PFNGLCOLORP3UIVPROC													glColorP3uiv;
+		extern PFNGLCOLORP4UIPROC													glColorP4ui;
+		extern PFNGLCOLORP4UIVPROC													glColorP4uiv;
+		extern PFNGLSECONDARYCOLORP3UIPROC											glSecondaryColorP3ui;
+		extern PFNGLSECONDARYCOLORP3UIVPROC											glSecondaryColorP3uiv;
+
 
 		inline void Init();
 	}
@@ -511,12 +606,47 @@ namespace GreatVEngine2
 				return &value;
 			}
 		};
+		class UniformLocation
+		{
+		public:
+			using Value = GLint;
+		protected:
+			Value value;
+		public:
+			inline UniformLocation() = default;
+			inline explicit UniformLocation(const Value& value_):
+				value(value_)
+			{
+			}
+			inline UniformLocation(const UniformLocation&) = default;
+			inline ~UniformLocation() = default;
+		public:
+			inline UniformLocation& operator = (const UniformLocation&) = default;
+		public:
+			inline operator Value() const
+			{
+				return value;
+			}
+			inline operator Value&()
+			{
+				return value;
+			}
+			inline operator Value*()
+			{
+				return &value;
+			}
+			inline operator const Value*() const
+			{
+				return &value;
+			}
+		};
 
 		
 		// enums
 		enum class BufferType: GLenum
 		{
 			Array				= GL_ARRAY_BUFFER,
+			ElementArray		= GL_ELEMENT_ARRAY_BUFFER,
 		};
 		enum class BufferUsage: GLenum
 		{
@@ -734,7 +864,7 @@ namespace GreatVEngine2
 				? static_cast<Size>(result)
 				: throw Exception("Unexpected \"glGetProgramiv\" + \"GL_INFO_LOG_LENGTH\" result: " + ToString(static_cast<Size>(result)));
 #else
-			return stati_cast<Size>(result);
+			return static_cast<Size>(result);
 #endif
 		}
 		inline String GetProgramInfoLog(const ProgramHandle& programHandle_)
@@ -754,7 +884,7 @@ namespace GreatVEngine2
 			return Move(text);
 		}
 
-		inline AttributeLocation GetAttribLocation(const ProgramHandle& programHandle_, const String& attributeName_)
+		inline AttributeLocation GetAttributeLocation(const ProgramHandle& programHandle_, const String& attributeName_)
 		{
 			auto value = glGetAttribLocation(programHandle_, attributeName_.c_str());
 
@@ -788,6 +918,26 @@ namespace GreatVEngine2
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
+#endif
+		}
+		inline UniformLocation GetUniformLocation(const ProgramHandle& programHandle_, const String& uniformName_)
+		{
+			auto value = glGetUniformLocation(programHandle_, uniformName_.c_str());
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			auto uniformLocation = UniformLocation(value);
+
+			return uniformLocation;
+		}
+		inline void UniformMatrix(const UniformLocation& uniformLocation_, const Mat4& mat_, const bool& isTransposed_ = false)
+		{
+			glUniformMatrix4fv(uniformLocation_, 1, isTransposed_ ? GL_TRUE : GL_FALSE, reinterpret_cast<const GLfloat*>(&mat_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+				Error::Check();
 #endif
 		}
 
@@ -894,7 +1044,7 @@ namespace GreatVEngine2
 				? static_cast<Size>(result)
 				: throw Exception("Unexpected \"glGetShaderiv\" + \"GL_INFO_LOG_LENGTH\" result: " + ToString(static_cast<Size>(result)));
 #else
-			return stati_cast<Size>(result);
+			return static_cast<Size>(result);
 #endif
 		}
 		inline String GetShaderInfoLog(const ShaderHandle& shaderHandle_)

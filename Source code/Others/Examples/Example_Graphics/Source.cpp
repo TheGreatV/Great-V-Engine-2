@@ -4,168 +4,30 @@
 #include <../OpenGL/OpenGL.hpp>
 #include <../Graphics/Graphics.hpp>
 #include <../OpenGL Graphics/OpenGL Graphics.hpp>
+#include <../DirectX Graphics/DirectX Graphics.hpp>
+#include <../Vulkan Graphics/Vulkan Graphics.hpp>
 #include <../Windows Graphics/Windows Graphics.hpp>
 namespace GVE = GreatVEngine2;
 using namespace GVE;
-
-
-void render_windows_opengl()
-{
-	while (true) // main loop
-	{
-		// wglMakeCurrent(window device context handle, opengl device context handle);
-		// render stuff
-		// SwapBuffers(window device context handle);
-	}
-}
-void render_windows_vulkan()
-{
-	while (true) // main loop
-	{
-		// vkAcquireNextImageKHR
-		// render stuff
-		// vkQueuePresentKHR
-	}
-}
-
-
-namespace GreatVEngine2
-{
-	namespace Graphics
-	{
-		namespace Windows
-		{
-			class View:
-				public Graphics::View
-			{
-			public:
-				inline View(const StrongPointer<View>& this_): Graphics::View(this_)
-				{
-				}
-			public:
-				inline virtual void Present(const StrongPointer<Output>& renderResult_) override
-				{
-					renderResult_->SignalPresented(GetThis<View>());
-				}
-			};
-		}
-		
-		namespace OpenGL
-		{
-			class Output:
-				public Graphics::Output
-			{
-			public:
-				Output(const StrongPointer<Output>& this_): Graphics::Output(this_)
-				{
-				}
-			protected:
-				inline void PresendOn(const Memory<Windows::View>& view_)
-				{
-				}
-			public:
-				inline virtual void SignalPresented(const StrongPointer<View>& view_) override
-				{
-					if (auto windowsView = DynamicCast<Windows::View>(view_))
-					{
-						PresendOn(windowsView.GetValue());
-					}
-				}
-			};
-			class Engine:
-				public Graphics::Engine
-			{
-			public:
-				inline Engine(const StrongPointer<Engine>& this_): Graphics::Engine(this_)
-				{
-				}
-			public:
-				virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Graphics::Scene>& scene_, const StrongPointer<Graphics::Camera>& camera_) override
-				{
-					auto renderResult = Make<Output>();
-
-					// TODO
-
-					return renderResult;
-				}
-			};
-		}
-	}
-}
-
-
-void stressTest_objectsAddingAndRemoving()
-{
-	auto engine = Make<Graphics::OpenGL::Engine>();
-
-	auto material = Make<Graphics::Material>();
-	auto model = Make<Graphics::Model>();
-
-	auto scene = Make<Graphics::Scene>();
-
-	std::chrono::microseconds average = std::chrono::microseconds::zero();
-	Size m = 10;
-
-	for (Size i = 0; i < m; ++i)
-	{
-		Vector<StrongPointer<Graphics::Object>> objects(1000000);
-
-		auto timeBegin = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now());
-
-		for (auto &object : objects)
-		{
-			object = Make<Graphics::Object>(material, model, scene);
-		}
-
-		objects.clear();
-
-		auto timeEnd = std::chrono::time_point_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now());
-		auto timeDifference = timeEnd - timeBegin;
-
-		std::cout << "time: " << timeDifference.count() << " microseconds" << std::endl;
-
-		average += timeDifference;
-	}
-
-	average /= m;
-
-	std::cout << "average: " << average.count() << " microseconds" << std::endl;
-}
-
-
-/*void main()
-{
-	auto engine = Make<Graphics::APIs::OpenGL::Engine>(); // Make<Graphics::Engine>();
-
-	auto material = Make<Graphics::Material>();
-	auto model = Make<Graphics::Model>();
-
-	auto scene = Make<Graphics::Scene>();
-
-	auto object = Make<Graphics::Object>(material, model, scene);
-
-	auto camera = Make<Graphics::Camera>();
-
-	auto result = engine->Render(scene, camera);
-
-	auto view = Make<Graphics::APIs::Windows::View>();
-
-	view->Present(result);
-
-	std::system("pause");
-}*/
 
 
 class TView:
 	public Graphics::APIs::Windows::View
 {
 protected:
+	const ViewportRange viewportRange;
 	const DeviceContextHandle deviceContextHandle;
 public:
-	inline TView(const StrongPointer<TView>& this_, const DeviceContextHandle& deviceContextHandle_):
+	inline TView(const StrongPointer<TView>& this_, const ViewportRange& viewportRange_, const DeviceContextHandle& deviceContextHandle_):
 		View(this_),
+		viewportRange(viewportRange_),
 		deviceContextHandle(deviceContextHandle_)
 	{
+	}
+public:
+	inline virtual ViewportRange GetViewportRange() const override
+	{
+		return viewportRange;
 	}
 public:
 	inline virtual DeviceContextHandle GetDeviceContextHandle() const override
@@ -173,6 +35,7 @@ public:
 		return deviceContextHandle;
 	}
 };
+
 
 void main()
 {
@@ -197,135 +60,176 @@ void main()
 		}
 	}
 
-	HWND windowHandle = CreateWindowA(
-		windowClassName.c_str(),
-		"window",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		0, 0, 800, 600,
-		NULL,
-		NULL,
-		instanceHandle,
-		NULL
-	);
-
-	if (!windowHandle)
+	auto createWindow = [&](String t, int x, int y, int w, int h)
 	{
-		throw Exception();
-	}
+		auto style = (WS_OVERLAPPEDWINDOW | WS_VISIBLE) & ~WS_THICKFRAME;
 
-	auto deviceContextHandle = GetDC(windowHandle);
-
-	if (!deviceContextHandle)
-	{
-		throw Exception();
-	}
-
-	PIXELFORMATDESCRIPTOR pixelFormatDescriptorInfo;
-	{
-		memset(&pixelFormatDescriptorInfo, 0, sizeof(pixelFormatDescriptorInfo));
-
-		pixelFormatDescriptorInfo.nSize = sizeof(pixelFormatDescriptorInfo);
-		pixelFormatDescriptorInfo.nVersion = 1;
-		pixelFormatDescriptorInfo.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-		pixelFormatDescriptorInfo.iPixelType = PFD_TYPE_RGBA;
-		pixelFormatDescriptorInfo.cColorBits = 32;
-		pixelFormatDescriptorInfo.cDepthBits = 32;
-		pixelFormatDescriptorInfo.cStencilBits = 0;
-
-		auto pixelFormat = ChoosePixelFormat(deviceContextHandle, &pixelFormatDescriptorInfo);
-		if (!pixelFormat)
+		// ClientToScreen(handle, &p); ErrorTest();
+		RECT rect;
+		{
+			rect.left = x;
+			rect.right = x + w;
+			rect.top = y;
+			rect.bottom = y + h;
+		}
+		if (!AdjustWindowRect(&rect, style, NULL))
 		{
 			throw Exception();
 		}
 
-		if (!SetPixelFormat(deviceContextHandle, pixelFormat, &pixelFormatDescriptorInfo))
-		{
-			throw Exception();
-		}
-	}
-
-
-	HWND windowHandle2 = CreateWindowA(
-		windowClassName.c_str(),
-		"window2",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		0, 0, 800, 600,
-		NULL,
-		NULL,
-		instanceHandle,
-		NULL
+		HWND windowHandle = CreateWindowA(
+			windowClassName.c_str(),
+			t.c_str(), // "window",
+			style,
+			rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
+			NULL,
+			NULL,
+			instanceHandle,
+			NULL
 		);
 
-	if (!windowHandle2)
-	{
-		throw Exception();
-	}
-
-	auto deviceContextHandle2 = GetDC(windowHandle2);
-
-	if (!deviceContextHandle2)
-	{
-		throw Exception();
-	}
-
-	PIXELFORMATDESCRIPTOR pixelFormatDescriptorInfo2;
-	{
-		memset(&pixelFormatDescriptorInfo2, 0, sizeof(pixelFormatDescriptorInfo2));
-
-		pixelFormatDescriptorInfo2.nSize = sizeof(pixelFormatDescriptorInfo2);
-		pixelFormatDescriptorInfo2.nVersion = 1;
-		pixelFormatDescriptorInfo2.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-		pixelFormatDescriptorInfo2.iPixelType = PFD_TYPE_RGBA;
-		pixelFormatDescriptorInfo2.cColorBits = 32;
-		pixelFormatDescriptorInfo2.cDepthBits = 32;
-		pixelFormatDescriptorInfo2.cStencilBits = 0;
-
-		auto pixelFormat = ChoosePixelFormat(deviceContextHandle2, &pixelFormatDescriptorInfo2);
-		if (!pixelFormat)
+		if (!windowHandle)
 		{
 			throw Exception();
 		}
 
-		if (!SetPixelFormat(deviceContextHandle2, pixelFormat, &pixelFormatDescriptorInfo2))
+		return windowHandle;
+	};
+	auto createView = [&](HWND windowHandle)
+	{
+		auto deviceContextHandle = GetDC(windowHandle);
+
+		if (!deviceContextHandle)
 		{
 			throw Exception();
 		}
-	}
+
+		PIXELFORMATDESCRIPTOR pixelFormatDescriptorInfo;
+		{
+			memset(&pixelFormatDescriptorInfo, 0, sizeof(pixelFormatDescriptorInfo));
+
+			pixelFormatDescriptorInfo.nSize = sizeof(pixelFormatDescriptorInfo);
+			pixelFormatDescriptorInfo.nVersion = 1;
+			pixelFormatDescriptorInfo.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+			pixelFormatDescriptorInfo.iPixelType = PFD_TYPE_RGBA;
+			pixelFormatDescriptorInfo.cColorBits = 32;
+			pixelFormatDescriptorInfo.cDepthBits = 32;
+			pixelFormatDescriptorInfo.cStencilBits = 0;
+
+			auto pixelFormat = ChoosePixelFormat(deviceContextHandle, &pixelFormatDescriptorInfo);
+			if (!pixelFormat)
+			{
+				throw Exception();
+			}
+
+			if (!SetPixelFormat(deviceContextHandle, pixelFormat, &pixelFormatDescriptorInfo))
+			{
+				throw Exception();
+			}
+		}
+		
+		auto view = Make<TView>(Graphics::View::ViewportRange(IVec2(0), Size2(300,200)), deviceContextHandle);
+
+		return Move(view);
+	};
+
+	auto openGLWindow1Handle = createWindow("OpenGL #1", 50, 50, 300, 200);
+	auto openGLWindow1View = createView(openGLWindow1Handle);
+
+	auto openGLWindow2Handle = createWindow("OpenGL #2", 50, 50 + (200 + 50), 300, 200);
+	auto openGLWindow2View = createView(openGLWindow2Handle);
+
+	auto directXWindow1Handle = createWindow("DirectX #1", 50 + (300 + 50), 50, 300, 200);
+
+	auto directXWindow2Handle = createWindow("DirectX #2", 50 + (300 + 50), 50 + (200 + 50), 300, 200);
+
+	auto vulkanWindow1Handle = createWindow("Vulkan #1", 50 + (300 + 50 + 300 + 50), 50, 300, 200);
+
+	auto vulkanWindow2Handle = createWindow("Vulkan #2", 50 + (300 + 50 + 300 + 50), 50 + (200 + 50), 300, 200);
 
 
-	auto engine = Make<Graphics::APIs::OpenGL::Engine>();
+	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>();
+	auto vulkanEngine = Make<Graphics::APIs::Vulkan::Engine>();
 
+	auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
+	auto geometry2 = Geometry::CreateSphere(0.5f, Vec2(1.0f), UVec2(32, 16));
+
+	auto model = Make<Graphics::Model>(geometry);
+	auto model2 = Make<Graphics::Model>(geometry2);
 	auto material = Make<Graphics::Material>();
-	auto model = Make<Graphics::Model>();
 
 	auto scene = Make<Graphics::Scene>();
 
 	auto object = Make<Graphics::Object>(material, model, scene);
+	auto object2 = Make<Graphics::Object>(material, model, scene);
+	{
+		object2->SetLocalPosition(Vec3(2.0f, 0.0f, 0.0f));
+	}
+	auto object3 = Make<Graphics::Object>(material, model2, scene);
+	{
+		object3->SetLocalPosition(Vec3(-2.0f, 0.0f, 0.0f));
+	}
 
 	auto camera = Make<Graphics::Camera>();
-
-	auto view = Make<TView>(deviceContextHandle);
-	auto view2 = Make<TView>(deviceContextHandle2);
+	{
+		camera->SetPosition(Vec3(0.0f, 0.0f, -5.0f));
+	}
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
 		MSG msg;
 		{
-			while (PeekMessageA(&msg, windowHandle, 0, 0, PM_REMOVE))
+			auto performWindow = [&](HWND windowHandle)
 			{
-				TranslateMessage(&msg);
-				DispatchMessageA(&msg);
-			}
-			while (PeekMessageA(&msg, windowHandle2, 0, 0, PM_REMOVE))
-			{
-				TranslateMessage(&msg);
-				DispatchMessageA(&msg);
-			}
+				while (PeekMessageA(&msg, windowHandle, 0, 0, PM_REMOVE))
+				{
+					TranslateMessage(&msg);
+					DispatchMessageA(&msg);
+				}
+			};
+
+			performWindow(openGLWindow1Handle);
+			performWindow(openGLWindow2Handle);
+			performWindow(directXWindow1Handle);
+			performWindow(directXWindow2Handle);
+			performWindow(vulkanWindow1Handle);
+			performWindow(vulkanWindow2Handle);
 		}
 
-		auto result = engine->Render(scene, camera);
+		Float32 movingSpeed = 0.1f;
+		if (GetAsyncKeyState('D'))
+		{
+			camera->Move(Vec3(+movingSpeed, 0.0f, 0.0f));
+		}
+		if (GetAsyncKeyState('A'))
+		{
+			camera->Move(Vec3(-movingSpeed, 0.0f, 0.0f));
+		}
+		if (GetAsyncKeyState('W'))
+		{
+			camera->Move(Vec3(0.0f, 0.0f, +movingSpeed));
+		}
+		if (GetAsyncKeyState('S'))
+		{
+			camera->Move(Vec3(0.0f, 0.0f, -movingSpeed));
+		}
 
-		view->Present(result);
-		view2->Present(result);
+		Float32 rotatingSpeed = 5.0f;
+		if (GetAsyncKeyState(VK_RIGHT))
+		{
+			camera->Rotate(Vec3(0.0, +rotatingSpeed, 0.0f));
+		}
+		if (GetAsyncKeyState(VK_LEFT))
+		{
+			camera->Rotate(Vec3(0.0f, -rotatingSpeed, 0.0f));
+		}
+
+		auto openGLRenderResult = openGLEngine->Render(scene, camera);
+		auto vulkanRenderResult = vulkanEngine->Render(scene, camera);
+
+		openGLWindow1View->Present(openGLRenderResult);
+		openGLWindow2View->Present(openGLRenderResult);
+
+		Sleep(1000 / 60);
 	}
 }

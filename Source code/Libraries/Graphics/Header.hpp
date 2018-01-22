@@ -3,6 +3,7 @@
 #pragma once
 
 #include <../Common/Common.hpp>
+#include <../Geometry/Geometry.hpp>
 
 #include <limits>
 
