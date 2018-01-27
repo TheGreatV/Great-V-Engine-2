@@ -3,6 +3,7 @@
 #pragma once
 
 #include <../Graphics/Graphics.hpp>
+#include <../Vulkan/Vulkan.hpp>
 #include <../Windows Graphics/Windows Graphics.hpp>
 
 #pragma endregion

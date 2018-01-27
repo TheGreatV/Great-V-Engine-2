@@ -16,11 +16,15 @@ class TView:
 {
 protected:
 	const ViewportRange viewportRange;
+	const InstanceHandle instanceHandle;
+	const WindowHandle windowHandle;
 	const DeviceContextHandle deviceContextHandle;
 public:
-	inline TView(const StrongPointer<TView>& this_, const ViewportRange& viewportRange_, const DeviceContextHandle& deviceContextHandle_):
+	inline TView(const StrongPointer<TView>& this_, const ViewportRange& viewportRange_, const InstanceHandle instanceHandle_, const WindowHandle& windowHandle_, const DeviceContextHandle& deviceContextHandle_):
 		View(this_),
 		viewportRange(viewportRange_),
+		instanceHandle(instanceHandle_),
+		windowHandle(windowHandle_),
 		deviceContextHandle(deviceContextHandle_)
 	{
 	}
@@ -30,6 +34,14 @@ public:
 		return viewportRange;
 	}
 public:
+	inline virtual InstanceHandle GetInstanceHandle() const override
+	{
+		return instanceHandle;
+	}
+	inline virtual WindowHandle GetWindowHandle() const override
+	{
+		return windowHandle;
+	}
 	inline virtual DeviceContextHandle GetDeviceContextHandle() const override
 	{
 		return deviceContextHandle;
@@ -128,7 +140,7 @@ void main()
 			}
 		}
 		
-		auto view = Make<TView>(Graphics::View::ViewportRange(IVec2(0), Size2(300,200)), deviceContextHandle);
+		auto view = Make<TView>(Graphics::View::ViewportRange(IVec2(0), Size2(300, 200)), instanceHandle, windowHandle, deviceContextHandle);
 
 		return Move(view);
 	};
@@ -144,8 +156,10 @@ void main()
 	auto directXWindow2Handle = createWindow("DirectX #2", 50 + (300 + 50), 50 + (200 + 50), 300, 200);
 
 	auto vulkanWindow1Handle = createWindow("Vulkan #1", 50 + (300 + 50 + 300 + 50), 50, 300, 200);
+	auto vulkanWindow1View = createView(vulkanWindow1Handle);
 
 	auto vulkanWindow2Handle = createWindow("Vulkan #2", 50 + (300 + 50 + 300 + 50), 50 + (200 + 50), 300, 200);
+	auto vulkanWindow2View = createView(vulkanWindow2Handle);
 
 
 	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>();
@@ -197,6 +211,14 @@ void main()
 		}
 
 		Float32 movingSpeed = 0.1f;
+		if (GetAsyncKeyState(VK_SHIFT))
+		{
+			movingSpeed *= 5.0f;
+		}
+		if (GetAsyncKeyState(VK_MENU))
+		{
+			movingSpeed /= 5.0f;
+		}
 		if (GetAsyncKeyState('D'))
 		{
 			camera->Move(Vec3(+movingSpeed, 0.0f, 0.0f));
@@ -213,6 +235,14 @@ void main()
 		{
 			camera->Move(Vec3(0.0f, 0.0f, -movingSpeed));
 		}
+		if (GetAsyncKeyState(VK_SPACE))
+		{
+			camera->Move(Vec3(0.0f, +movingSpeed, 0.0f));
+		}
+		if (GetAsyncKeyState(VK_CONTROL))
+		{
+			camera->Move(Vec3(0.0f, -movingSpeed, 0.0f));
+		}
 
 		Float32 rotatingSpeed = 5.0f;
 		if (GetAsyncKeyState(VK_RIGHT))
@@ -223,12 +253,31 @@ void main()
 		{
 			camera->Rotate(Vec3(0.0f, -rotatingSpeed, 0.0f));
 		}
+		if (GetAsyncKeyState(VK_UP))
+		{
+			camera->Rotate(Vec3(+rotatingSpeed, 0.0, 0.0f));
+		}
+		if (GetAsyncKeyState(VK_DOWN))
+		{
+			camera->Rotate(Vec3(-rotatingSpeed, 0.0f, 0.0f));
+		}
+		if (GetAsyncKeyState('E'))
+		{
+			camera->Rotate(Vec3(0.0, 0.0f, +rotatingSpeed));
+		}
+		if (GetAsyncKeyState('Q'))
+		{
+			camera->Rotate(Vec3(0.0f, 0.0f, -rotatingSpeed));
+		}
 
 		auto openGLRenderResult = openGLEngine->Render(scene, camera);
 		auto vulkanRenderResult = vulkanEngine->Render(scene, camera);
 
 		openGLWindow1View->Present(openGLRenderResult);
 		openGLWindow2View->Present(openGLRenderResult);
+
+		vulkanWindow1View->Present(vulkanRenderResult);
+		vulkanWindow2View->Present(vulkanRenderResult);
 
 		Sleep(1000 / 60);
 	}

@@ -24,6 +24,8 @@ namespace GreatVEngine2
 					public Graphics::View
 				{
 				public:
+					using InstanceHandle = HINSTANCE;
+					using WindowHandle = HWND;
 					using DeviceContextHandle = HDC;
 				public:
 					inline View() = delete;
@@ -35,6 +37,8 @@ namespace GreatVEngine2
 				public:
 					inline virtual void Present(const StrongPointer<Output>& renderResult_) override;
 				public:
+					inline virtual InstanceHandle GetInstanceHandle() const;
+					inline virtual WindowHandle GetWindowHandle() const;
 					inline virtual DeviceContextHandle GetDeviceContextHandle() const;
 				};
 			}
@@ -63,6 +67,14 @@ void GreatVEngine2::Graphics::APIs::Windows::View::Present(const StrongPointer<O
 	renderResult_->SignalPresented(GetThis<View>());
 }
 
+GreatVEngine2::Graphics::APIs::Windows::View::InstanceHandle GreatVEngine2::Graphics::APIs::Windows::View::GetInstanceHandle() const
+{
+	return 0;
+}
+GreatVEngine2::Graphics::APIs::Windows::View::WindowHandle GreatVEngine2::Graphics::APIs::Windows::View::GetWindowHandle() const
+{
+	return 0;
+}
 GreatVEngine2::Graphics::APIs::Windows::View::DeviceContextHandle GreatVEngine2::Graphics::APIs::Windows::View::GetDeviceContextHandle() const
 {
 	return 0;

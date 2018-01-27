@@ -322,7 +322,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 					}
 					auto fs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Fragment);
 					{
-						String source = "#version 330\nout vec4 oColor; void main() { oColor = vec4(1.0f); }";
+						String source = "#version 330\nout vec4 oColor; void main() { oColor = vec4(vec3(gl_FragCoord.z), 1.0f); }";
 
 						GreatVEngine2::OpenGL::ShaderSource(fs, {source});
 						GreatVEngine2::OpenGL::CompileShader(fs);
@@ -510,7 +510,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 	auto aspect = viewport.GetAspect();
 
 	glViewport(viewport.GetPosition().x, viewport.GetPosition().y, viewport.GetSize().x, viewport.GetSize().y);
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -557,7 +557,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			{
 				auto modelMatrix = objectMemory->GetMMat();
 				auto viewMatrix = camera_->GetVMat();
-				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 1000.0f) * Scale4(Vec3(1.0f, 1.0f, 1.0f)) * viewMatrix;
+				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 10.0f) * viewMatrix;
 				auto mat = viewProjectionMatrix * modelMatrix;
 
 				auto u1 = GetUniformLocation(programHandle, "modelViewProjectionMatrix");

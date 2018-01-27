@@ -6,6 +6,7 @@ using namespace GVE;
 
 #include <../../Direct3D/include/d3d9.h>
 #include <../../Direct3D/include/d3dx9.h>
+#include <../../Direct3D/Include/d3dx9shader.h>
 
 
 void main()
@@ -147,6 +148,52 @@ void main()
 		}
 	}
 
+	IDirect3DVertexDeclaration9* vertexDeclaration;
+	{
+		Vector<D3DVERTEXELEMENT9> vertexFormat = {
+			{
+				0,										// WORD    Stream;     // Stream index
+				0,										// WORD    Offset;     // Offset in the stream in bytes
+				_D3DDECLTYPE::D3DDECLTYPE_FLOAT2,		// BYTE    Type;       // Data type
+				_D3DDECLMETHOD::D3DDECLMETHOD_DEFAULT,	// BYTE    Method;     // Processing method
+				_D3DDECLUSAGE::D3DDECLUSAGE_POSITION,	// BYTE    Usage;      // Semantics
+				0,										// BYTE    UsageIndex; // Semantic index
+			},
+			D3DDECL_END(),
+		};
+		
+		if (device->CreateVertexDeclaration(vertexFormat.data(), &vertexDeclaration) != D3D_OK)
+		{
+			throw Exception();
+		}
+	}
+
+	IDirect3DVertexBuffer9* verticesBuffer;
+	{
+		if (device->CreateVertexBuffer(sizeof(float)* 2 * 3, 0, (DWORD)0, D3DPOOL_DEFAULT, &verticesBuffer, NULL) != D3D_OK)
+		{
+			throw Exception();
+		}
+	}
+
+	// D3DXCompileShaderFromResource
+
+	// D3DXCreateEffectFromFile
+
+	/*LPD3DXEFFECT effect;
+	if (D3DXCreateEffectFromFile(device, "Media/Shaders/HLSL/1.fx", NULL, NULL, D3DXSHADER_ENABLE_BACKWARDS_COMPATIBILITY, NULL, &effect, NULL) != D3D_OK)
+	{
+		throw Exception();
+	}*/
+
+	if (device->SetStreamSource(0, verticesBuffer, 0, sizeof(float)* 2) != D3D_OK)
+	{
+		throw Exception();
+	}
+	if (device->SetVertexDeclaration(vertexDeclaration) != D3D_OK)
+	{
+		throw Exception();
+	}
 
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
@@ -160,7 +207,7 @@ void main()
 			}
 		}
 
-		device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255, 0, 0), 1.0f, 0);
+		device->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(127, 127, 255), 1.0f, 0);
 		device->BeginScene();
 		
 		// TODO

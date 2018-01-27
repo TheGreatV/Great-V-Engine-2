@@ -22,6 +22,10 @@ namespace GreatVEngine2
 
 
 	inline String ToString(const Size& value_);
+	inline bool Has(const String& source_, const String& value_)
+	{
+		return source_.find(value_) != String::npos;
+	}
 }
 
 
