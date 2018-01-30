@@ -22,8 +22,14 @@ namespace GreatVEngine2
 		{
 			namespace Vulkan
 			{
+				class Driver;
+				class Device;
+				
 				class Output;
 				class Engine;
+				
+				class Method;
+				class ForwardMethod; // fukin VS2013 cant compile Methods::Forward inside Make<>
 			}
 		}
 	}

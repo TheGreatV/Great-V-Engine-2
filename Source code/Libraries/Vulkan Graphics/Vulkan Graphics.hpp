@@ -20,6 +20,106 @@ namespace GreatVEngine2
 		{
 			namespace Vulkan
 			{
+				namespace Vk = GreatVEngine2::Vulkan;
+
+				class SurfaceHolder
+				{
+				public:
+					const WeakPointer<Driver> driver;
+					const VkSurfaceKHR vk_surface;
+				public:
+					inline SurfaceHolder(const HINSTANCE& instanceHandle_, const HWND& windowHandle_, const StrongPointer<Driver>& driver_);
+					inline ~SurfaceHolder();
+				};
+				class SurfaceInfo
+				{
+				public:
+					const VkSurfaceCapabilitiesKHR vk_surfaceCapabilities;
+					const Vector<VkSurfaceFormatKHR> vk_surfaceFormats;
+				public:
+					inline SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const VkSurfaceKHR& vk_surface_);
+				};
+				class SwapchainHolder
+				{
+				protected:
+					static inline Vector<VkImageView> ObtainSwapchainImageViews(const VkDevice& vk_device_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const Vector<VkImage>& vk_swapchainImages_);
+				public:
+					const VkDevice vk_device;
+					const VkSwapchainKHR vk_swapchain;
+					const Vector<VkImage> vk_swapchainImages;
+					const Vector<VkImageView> vk_swapchainImageViews;
+				public:
+					inline SwapchainHolder(const VkDevice& vk_device_, const VkSurfaceKHR& vk_surface_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const uint32_t& imagesCount_, const VkExtent2D& size_);
+					inline ~SwapchainHolder();
+				};
+
+				class Driver:
+					public This<Driver>
+				{
+				public:
+					using Devices = Vector<StrongPointer<Device>>;
+				protected:
+					using SurfaceLookup = Map<Memory<View>, StrongPointer<SurfaceHolder>>;
+				protected:
+					static inline VkInstance ObtainInstance();
+					static inline Devices ObtainDevices(const StrongPointer<Driver>& driver_);
+				public: // protected:
+					const VkInstance vk_instance;
+					const Devices devices;
+					SurfaceLookup surfaceLookup;
+				public:
+					inline Driver() = delete;
+					inline Driver(const StrongPointer<Driver>& this_);
+					inline Driver(const Driver&) = delete;
+					inline virtual ~Driver() = default;
+				public:
+					inline Driver& operator = (const Driver&) = delete;
+				public:
+					inline Devices GetDevices() const;
+					inline StrongPointer<SurfaceHolder> GetSurface(const StrongPointer<View>& view_);
+				};
+				class Device:
+					public This<Device>
+				{
+				public:
+					class SurfaceFormatComparator
+					{
+					public:
+						inline bool operator()(const VkSurfaceFormatKHR& a_, const VkSurfaceFormatKHR& b_)
+						{
+							return a_.colorSpace < b_.colorSpace || a_.format < b_.format;
+						}
+					};
+				protected:
+					using SurfaceInfoLookup = Map<Memory<SurfaceHolder>, StrongPointer<SurfaceInfo>>;
+					using SwapchainFormatLookup = std::map<VkSurfaceFormatKHR, StrongPointer<SwapchainHolder>, SurfaceFormatComparator>;//  Map<VkSurfaceFormatKHR, StrongPointer<SwapchainHolder>>;
+					using SwapchainsLookup = Map<Memory<SurfaceInfo>, SwapchainFormatLookup>;
+				protected:
+					static inline VkDevice ObtainDevice(const VkPhysicalDevice& vk_physicalDevice_);
+				public: // protected:
+					const WeakPointer<Driver> driver;
+				public: // protected:
+					const VkPhysicalDevice vk_physicalDevice;
+					const VkPhysicalDeviceProperties vk_physicalDeviceProperties;
+					const Vector<VkQueueFamilyProperties> vk_physicalDeviceQueueFamilyProperties;
+					const VkPhysicalDeviceMemoryProperties vk_physicalDeviceMemoryProperties;
+					const VkDevice vk_device;
+				public: // protected:
+					const bool isPresentationSupported;
+					SurfaceInfoLookup surfaceInfoLookup;
+					SwapchainsLookup swapchainsLookup;
+				public:
+					inline Device() = delete;
+					inline Device(const StrongPointer<Device>& this_, const VkPhysicalDevice& vk_physicalDevice_, const StrongPointer<Driver>& driver_);
+					inline Device(const Device&) = delete;
+					inline virtual ~Device() = default;
+				public:
+					inline Device& operator = (const Device&) = delete;
+				public:
+					inline StrongPointer<SurfaceInfo> GetSurfaceInfo(const Memory<SurfaceHolder>& surfaceHolderMemory_);
+					inline StrongPointer<SwapchainHolder> GetSwapchain(const Memory<SurfaceHolder>& surfaceHolderMemory_, const StrongPointer<SurfaceInfo>& surfaceInfo_, const VkSurfaceFormatKHR& format_);
+				};
+
 				class Output:
 					public Graphics::Output
 				{
@@ -45,9 +145,12 @@ namespace GreatVEngine2
 					class Context;
 				protected:
 					const ConstantPointer<Context> context;
+				public: // protected: // can't use friend due to firward declaration
+					const WeakPointer<Device> device;
+					const StrongPointer<Method> method;
 				public:
 					inline Engine() = delete;
-					inline Engine(const StrongPointer<Engine>& this_);
+					inline Engine(const StrongPointer<Engine>& this_, const StrongPointer<Device>& device_);
 					inline Engine(const Engine&) = delete;
 					inline virtual ~Engine() = default;
 				public:
@@ -84,12 +187,129 @@ namespace GreatVEngine2
 						{
 						}
 					};
+					struct SurfaceHolder
+					{
+						VkSurfaceKHR vk_surface;
+						VkSurfaceCapabilitiesKHR vk_surfaceCapabilities;
+						Vector<VkSurfaceFormatKHR> vk_surfaceFormats;
+
+						// SurfaceHolder(const StrongPointer<APIs::Windows::View>& view_, const VkPhysicalDevice& vk_physicalDevice_)
+						// {
+						// 	if (auto isPresentationSupported = Vk::Boolean(Vk::GetPhysicalDeviceWin32PresentationSupportKHR(vk_physicalDevice_, 0))); else
+						// 	{
+						// 		throw Exception(); // TODO
+						// 	}
+						// 	auto vk_surface = Vk::CreateWin32SurfaceKHR(vk_instance, Vk::Win32SurfaceCreateInfoKHR(win_instanceHandle, win_windowHandle));
+						// 	{
+						// 		if (auto isSufraceSupported = Vk::Boolean(Vk::GetPhysicalDeviceSurfaceSupportKHR(vk_physicalDevice, 0, vk_surface))); else
+						// 		{
+						// 			throw Exception(); // TODO
+						// 		}
+						// 	}
+						// 
+						// }
+						SurfaceHolder(const VkSurfaceKHR& vk_surface_, const VkPhysicalDevice& vk_physicalDevice_)
+						{
+							if (auto isSufraceSupported = Vk::Boolean(Vk::GetPhysicalDeviceSurfaceSupportKHR(vk_physicalDevice_, 0, vk_surface))); else
+							{
+								throw Exception(); // TODO
+							}
+
+							vk_surface = vk_surface_;
+							
+							vk_surfaceCapabilities = Vk::GetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physicalDevice_, vk_surface);
+							vk_surfaceFormats = Move(Vk::GetPhysicalDeviceSurfaceFormatsKHR(vk_physicalDevice_, vk_surface));
+						}
+					};
 				public:
 					VkInstance vk_instance;
 					Vector<DeviceInfo> devicesInfos;
 				public:
 					inline Context();
 					inline ~Context();
+				};
+#pragma endregion
+
+				class Method:
+					public This<Method>
+				{
+				protected:
+					const WeakPointer<Engine> engine;
+				public:
+					inline Method() = delete;
+					inline Method(const StrongPointer<Method>& this_, const StrongPointer<Engine>& engine_);
+					inline Method(const Method&) = delete;
+					inline virtual ~Method() = default;
+				public:
+					inline Method& operator = (const Method&) = delete;
+				public:
+					inline virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) = 0;
+				};
+				class ForwardMethod:
+					public Method
+				{
+				protected:
+					class Output;
+					class Renderer;
+				protected:
+					using RenderersLookup = Map<Memory<Scene>, StrongPointer<Renderer>>;
+					using RendererIt = RenderersLookup::iterator;
+				protected:
+					RenderersLookup renderersLookup;
+				public:
+					inline ForwardMethod() = delete;
+					inline ForwardMethod(const StrongPointer<ForwardMethod>& this_, const StrongPointer<Engine>& engine_);
+					inline ForwardMethod(const ForwardMethod&) = delete;
+					inline virtual ~ForwardMethod() override = default;
+				public:
+					inline ForwardMethod& operator = (const ForwardMethod&) = delete;
+				protected:
+					inline RendererIt FindOrCreate(const Memory<Scene>& sceneMemory_);
+				public:
+					inline virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
+				};
+#pragma region ForwardMethod::Output
+				class ForwardMethod::Output:
+					public Graphics::Output
+				{
+				protected:
+					const StrongPointer<Renderer> renderer;
+					const StrongPointer<Camera> camera;
+				public:
+					inline Output() = delete;
+					inline Output(const StrongPointer<Output>& this_, const StrongPointer<Renderer>& renderer_, const StrongPointer<Camera>& camera_);
+					inline Output(const Output&) = delete;
+					inline virtual ~Output() = default;
+				public:
+					inline Output& operator = (const Output&) = delete;
+				public:
+					inline virtual void SignalPresented(const StrongPointer<View>& view_) override;
+				};
+#pragma endregion
+#pragma region ForwardMethod::Renderer
+				class ForwardMethod::Renderer:
+					public This<Renderer>
+				{
+					friend Output;
+				protected:
+					const Memory<ForwardMethod> method;
+					const Memory<Scene> scene;
+				protected:
+					Scene::Version sceneVersion;
+				public:
+					inline Renderer() = delete;
+					inline Renderer(const StrongPointer<Renderer>& this_, const Memory<Scene>& scene_, const Memory<ForwardMethod>& method_);
+					inline Renderer(const Renderer&) = delete;
+					inline virtual ~Renderer() = default;
+				public:
+					inline Renderer& operator = (const Renderer&) = delete;
+				protected:
+					inline void UpdateSceneGraph();
+					inline void ForceUpdateSceneGraph();
+				protected:
+					inline void PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_);
+				public:
+					inline StrongPointer<Output> Render(const StrongPointer<Camera>& camera_);
 				};
 #pragma endregion
 			}
@@ -105,6 +325,304 @@ namespace GreatVEngine2
 #pragma region APIs
 
 #pragma region Vulkan
+
+#pragma region SurfaceHolder
+
+GreatVEngine2::Graphics::APIs::Vulkan::SurfaceHolder::SurfaceHolder(const HINSTANCE& instanceHandle_, const HWND& windowHandle_, const StrongPointer<Driver>& driver_):
+	driver(driver_),
+	vk_surface(Vk::CreateWin32SurfaceKHR(driver_->vk_instance, Vk::Win32SurfaceCreateInfoKHR(instanceHandle_, windowHandle_)))
+{
+	// if (auto isSufraceSupported = Vk::Boolean(Vk::GetPhysicalDeviceSurfaceSupportKHR(vk_physicalDevice, 0, vk_surface))); else
+	// {
+	// 	throw Exception(); // TODO
+	// }
+}
+GreatVEngine2::Graphics::APIs::Vulkan::SurfaceHolder::~SurfaceHolder()
+{
+	Vk::DestroySurfaceKHR(driver->vk_instance, vk_surface);
+}
+
+#pragma endregion
+
+#pragma region SurfaceInfo
+
+GreatVEngine2::Graphics::APIs::Vulkan::SurfaceInfo::SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const VkSurfaceKHR& vk_surface_):
+	vk_surfaceCapabilities(Vk::GetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physicalDevice_, vk_surface_)),
+	vk_surfaceFormats(Move(Vk::GetPhysicalDeviceSurfaceFormatsKHR(vk_physicalDevice_, vk_surface_)))
+{
+}
+
+#pragma endregion
+
+#pragma region SwapchainHolder
+
+GreatVEngine2::Vector<VkImageView> GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::ObtainSwapchainImageViews(const VkDevice& vk_device_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const Vector<VkImage>& vk_swapchainImages_)
+{
+	auto vk_swapchainImageViews = Vector<VkImageView>(vk_swapchainImages_.size());
+
+	for (auto &i : Range(vk_swapchainImages_.size()))
+	{
+		auto &vk_swapchainImage = vk_swapchainImages_[i];
+		auto &vk_swapchainImageView = vk_swapchainImageViews[i];
+
+		// vk_swapchainImageView = CreateImageView(vk_device, )
+		vk_swapchainImageView = Vk::CreateImageView(vk_device_, Vk::ImageViewCreateInfo(
+			0, vk_swapchainImage, VkImageViewType::VK_IMAGE_VIEW_TYPE_2D, vk_surfaceFormat_.format,
+			Vk::ComponentMapping(
+				VkComponentSwizzle::VK_COMPONENT_SWIZZLE_R,
+				VkComponentSwizzle::VK_COMPONENT_SWIZZLE_G,
+				VkComponentSwizzle::VK_COMPONENT_SWIZZLE_B,
+				VkComponentSwizzle::VK_COMPONENT_SWIZZLE_A
+			),
+			Vk::ImageSubresourceRange(VkImageAspectFlagBits::VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1)
+		));
+	}
+	return Move(vk_swapchainImageViews);
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::SwapchainHolder(const VkDevice& vk_device_, const VkSurfaceKHR& vk_surface_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const uint32_t& imagesCount_, const VkExtent2D& size_):
+	vk_device(vk_device_),
+	vk_swapchain(Vk::CreateSwapchainKHR(vk_device, Vk::SwapchainCreateInfoKHR(
+		0,
+		vk_surface_,
+		imagesCount_, // std::max<uint32_t>(vk_surfaceCapabilities.minImageCount, 2),
+		vk_surfaceFormat_.format,
+		vk_surfaceFormat_.colorSpace,
+		size_, // windowSize,
+		1,
+		VkImageUsageFlagBits::VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,
+		{},
+		VkSurfaceTransformFlagBitsKHR::VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR,
+		VkCompositeAlphaFlagBitsKHR::VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR,
+		VK_FALSE,
+		VK_NULL_HANDLE
+	))),
+	vk_swapchainImages(Move(Vk::GetSwapchainImagesKHR(vk_device, vk_swapchain))),
+	vk_swapchainImageViews(Move(ObtainSwapchainImageViews(vk_device, vk_surfaceFormat_, vk_swapchainImages)))
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::~SwapchainHolder()
+{
+	Vk::DestroySwapchainKHR(vk_device, vk_swapchain);
+}
+
+#pragma endregion
+
+#pragma region Driver
+
+VkInstance GreatVEngine2::Graphics::APIs::Vulkan::Driver::ObtainInstance()
+{
+	auto vk_instanceLayersProperties = Vk::EnumerateInstanceLayerProperties(); // TODO
+	
+	Vector<const char*> vk_instanceLayersNames =
+#if __GREAT_V_ENGINE_2__DEBUG__
+	{
+		"VK_LAYER_LUNARG_api_dump",
+		"VK_LAYER_LUNARG_core_validation",
+		// "VK_LAYER_LUNARG_device_simulation",
+		"VK_LAYER_LUNARG_monitor",
+		"VK_LAYER_LUNARG_object_tracker",
+		"VK_LAYER_LUNARG_parameter_validation",
+		"VK_LAYER_LUNARG_screenshot",
+		// "VK_LAYER_LUNARG_standard_validation",
+		"VK_LAYER_GOOGLE_threading",
+		"VK_LAYER_GOOGLE_unique_objects",
+		// "VK_LAYER_LUNARG_vktrace",
+		"VK_LAYER_RENDERDOC_Capture",
+	};
+#else
+	{};
+#endif
+
+	auto vk_instanceLayersExtensionsProperties = Vk::EnumerateInstanceExtensionsProperties(vk_instanceLayersNames + static_cast<const char*>("")); // TODO
+	
+	Vector<const char*> vk_instanceLayersExtensionsNames = {
+		VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
+		VK_KHR_SURFACE_EXTENSION_NAME,
+		VK_KHR_WIN32_SURFACE_EXTENSION_NAME,
+	};
+	
+	auto vk_instance = Vk::CreateInstance(Vk::InstanceCreateInfo(
+		Vk::ApplicationInfo("Application Name", 0, "Engine Name", 0, VK_MAKE_VERSION(1, 0, 65)),
+		vk_instanceLayersNames,
+		vk_instanceLayersExtensionsNames
+	));
+
+	return vk_instance;
+}
+GreatVEngine2::Graphics::APIs::Vulkan::Driver::Devices GreatVEngine2::Graphics::APIs::Vulkan::Driver::ObtainDevices(const StrongPointer<Driver>& driver_)
+{
+	auto vk_instance = driver_->vk_instance;
+	auto vk_physicalDevices = Move(Vk::EnumeratePhysicalDevices(vk_instance));
+
+	Devices devices(vk_physicalDevices.size());
+
+	for (auto i : Range(devices.size()))
+	{
+		auto &vk_physicalDevice = vk_physicalDevices[i];
+
+		devices[i] = Make<Device>(vk_physicalDevice, driver_);
+	}
+
+	return Move(devices);
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::Driver::Driver(const StrongPointer<Driver>& this_):
+	This(this_),
+	vk_instance(ObtainInstance()),
+	devices(ObtainDevices(this_))
+{
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::Driver::Devices GreatVEngine2::Graphics::APIs::Vulkan::Driver::GetDevices() const
+{
+	return devices;
+}
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::SurfaceHolder> GreatVEngine2::Graphics::APIs::Vulkan::Driver::GetSurface(const StrongPointer<View>& view_)
+{
+	auto viewMemory = view_.GetValue();
+	auto it = surfaceLookup.find(viewMemory);
+
+	if (it == surfaceLookup.end())
+	{
+		auto surfaceHolder = [&]()
+		{
+			if (auto windowsView = DynamicCast<APIs::Windows::View>(view_))
+			{
+				auto holder = MakeStrong<SurfaceHolder>(windowsView->GetInstanceHandle(), windowsView->GetWindowHandle(), GetThis<Driver>());
+
+				return holder;
+			}
+
+			throw NotImplementedException();
+		}();
+
+		surfaceLookup.insert({viewMemory, surfaceHolder});
+
+		return surfaceHolder;
+	}
+	else
+	{
+		auto surfaceHolder = (*it).second;
+
+		return surfaceHolder;
+	}
+}
+
+#pragma endregion
+
+#pragma region Device
+
+VkDevice GreatVEngine2::Graphics::APIs::Vulkan::Device::ObtainDevice(const VkPhysicalDevice& vk_physicalDevice_)
+{
+	// Device
+	auto vk_deviceLayersProperties = Vk::EnumerateDeviceLayerProperties(vk_physicalDevice_); // TODO
+
+	Vector<const char*> vk_deviceLayersNames = {
+	};
+	
+	auto vk_deviceLayersExtensionsProperties = Vk::EnumerateDeviceExtensionsProperties(vk_physicalDevice_, vk_deviceLayersNames + static_cast<const char*>("")); // TODO
+
+	Vector<const char*> vk_deviceLayersExtensionsNames = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+	};
+
+	auto vk_device = Vk::CreateDevice(vk_physicalDevice_, Vk::DeviceCreateInfo(
+		{ Vk::DeviceQueueCreateInfo(0, {1.0f}), },
+		vk_deviceLayersNames,
+		vk_deviceLayersExtensionsNames,
+		Vk::PhysicalDeviceFeatures(Initializer<Vk::PhysicalDeviceFeatures::Feature>({
+		}))
+	));
+
+	return vk_device;
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::Device::Device(const StrongPointer<Device>& this_, const VkPhysicalDevice& vk_physicalDevice_, const StrongPointer<Driver>& driver_):
+	This(this_),
+	driver(driver_),
+	vk_physicalDevice(vk_physicalDevice_),
+	vk_physicalDeviceProperties(Vk::GetPhysicalDeviceProperties(vk_physicalDevice)),
+	vk_physicalDeviceQueueFamilyProperties(Move(Vk::GetPhysicalDeviceQueueFamilyProperties(vk_physicalDevice))),
+	vk_physicalDeviceMemoryProperties(Vk::GetPhysicalDeviceMemoryProperties(vk_physicalDevice)),
+	vk_device(ObtainDevice(vk_physicalDevice)),
+	isPresentationSupported(Vk::Boolean(Vk::GetPhysicalDeviceWin32PresentationSupportKHR(vk_physicalDevice, 0)))
+{
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::SurfaceInfo> GreatVEngine2::Graphics::APIs::Vulkan::Device::GetSurfaceInfo(const Memory<SurfaceHolder>& surfaceHolderMemory_)
+{
+	auto it = surfaceInfoLookup.find(surfaceHolderMemory_);
+
+	if (it == surfaceInfoLookup.end())
+	{
+		if (auto isSufraceSupported = Vk::Boolean(Vk::GetPhysicalDeviceSurfaceSupportKHR(vk_physicalDevice, 0, surfaceHolderMemory_->vk_surface))); else // TODO: replace 0 with queue index
+		{
+			throw Exception(); // TODO
+		}
+
+		auto surfaceInfo = MakeStrong<SurfaceInfo>(vk_physicalDevice, surfaceHolderMemory_->vk_surface);
+
+		surfaceInfoLookup.insert({surfaceHolderMemory_, surfaceInfo});
+
+		return surfaceInfo;
+	}
+	else
+	{
+		auto surfaceInfo = (*it).second;
+
+		return surfaceInfo;
+	}
+}
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder> GreatVEngine2::Graphics::APIs::Vulkan::Device::GetSwapchain(const Memory<SurfaceHolder>& surfaceHolderMemory_, const StrongPointer<SurfaceInfo>& surfaceInfo_, const VkSurfaceFormatKHR& format_)
+{
+	auto surfaceInfoMemory = surfaceInfo_.GetValue();
+	auto swapchainFormatsIt = [&]()
+	{
+		auto it = swapchainsLookup.find(surfaceInfoMemory);
+
+		if (it == swapchainsLookup.end())
+		{
+			auto nIt = swapchainsLookup.insert({surfaceInfoMemory, SwapchainFormatLookup()});
+
+			return nIt.first;
+		}
+		else
+		{
+			return it;
+		}
+	}();
+	auto &swapchainFormats = (*swapchainFormatsIt).second;
+	auto swapchainIt = [&]
+	{
+		auto it = swapchainFormats.find(format_);
+
+		if (it == swapchainFormats.end())
+		{
+			auto holder = MakeStrong<SwapchainHolder>(
+				vk_device,
+				surfaceHolderMemory_->vk_surface,
+				format_, 
+				std::max<uint32_t>(surfaceInfo_->vk_surfaceCapabilities.minImageCount, 2),
+				surfaceInfo_->vk_surfaceCapabilities.currentExtent
+			);
+			auto nIt = swapchainFormats.insert({format_, holder});
+
+			return nIt.first;
+		}
+		else
+		{
+			return it;
+		}
+	}();
+	auto &swapchainHolder = (*swapchainIt).second;
+
+	return swapchainHolder;
+}
+
+#pragma endregion
 
 #pragma region Output
 
@@ -1203,8 +1721,10 @@ GreatVEngine2::Graphics::APIs::Vulkan::Engine::Context::~Context()
 #pragma endregion
 
 
-GreatVEngine2::Graphics::APIs::Vulkan::Engine::Engine(const StrongPointer<Engine>& this_):
+GreatVEngine2::Graphics::APIs::Vulkan::Engine::Engine(const StrongPointer<Engine>& this_, const StrongPointer<Device>& device_):
 	Graphics::Engine(this_),
+	device(device_),
+	method(Make<ForwardMethod>(this_)),
 	context(MakeConstant<Context>())
 {
 }
@@ -1216,10 +1736,220 @@ GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::Vulkan::Engine::Context> Gr
 
 GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::Output> GreatVEngine2::Graphics::APIs::Vulkan::Engine::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
 {
-	auto output = Make<Output>(scene_, camera_, this);
-
+	auto output = method->Render(scene_, camera_);
+	
 	return Move(output);
 }
+
+#pragma endregion
+
+#pragma region Method
+
+GreatVEngine2::Graphics::APIs::Vulkan::Method::Method(const StrongPointer<Method>& this_, const StrongPointer<Engine>& engine_):
+	This(this_),
+	engine(engine_)
+{
+}
+
+#pragma endregion
+
+#pragma region Methods
+
+#pragma region Forward
+
+#pragma region Output
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Output::Output(const StrongPointer<Output>& this_, const StrongPointer<Renderer>& renderer_, const StrongPointer<Camera>& camera_):
+	Graphics::Output(this_),
+	renderer(renderer_),
+	camera(camera_)
+{
+}
+
+void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Output::SignalPresented(const StrongPointer<View>& view_)
+{
+	if (auto windowsView = DynamicCast<APIs::Windows::View>(view_))
+	{
+		auto viewMemory = windowsView.GetValue();
+
+		renderer->PresentOn(viewMemory, camera);
+	}
+	else
+	{
+		throw NotImplementedException();
+	}
+}
+
+#pragma endregion
+
+#pragma region Renderer
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::Renderer(const StrongPointer<Renderer>& this_, const Memory<Scene>& scene_, const Memory<ForwardMethod>& method_):
+	This(this_),
+	method(method_),
+	scene(scene_),
+	sceneVersion(scene_->GetVersion())
+{
+	ForceUpdateSceneGraph();
+}
+
+void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::ForceUpdateSceneGraph()
+{
+	// TODO
+}
+void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::UpdateSceneGraph()
+{
+	auto currentSceneVersion = scene->GetVersion();
+
+	if (currentSceneVersion != sceneVersion)
+	{
+		ForceUpdateSceneGraph();
+
+		sceneVersion = currentSceneVersion;
+	}
+}
+
+void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_)
+{
+	if (!method->engine->device->isPresentationSupported)
+	{
+		throw Exception();
+	}
+
+	UpdateSceneGraph();
+
+	auto surfaceHoder = method->engine->device->driver->GetSurface(view_->GetThis<View>());
+	auto surfaceHolderMemory = surfaceHoder.GetValue();
+	auto surfaceInfo = method->engine->device->GetSurfaceInfo(surfaceHolderMemory);
+	auto &vk_surfaceCapabilities = surfaceInfo->vk_surfaceCapabilities;
+	auto &vk_surfaceFormats = surfaceInfo->vk_surfaceFormats;
+	auto vk_surfaceFormat = vk_surfaceFormats[0]; // TODO: do something with thit
+	auto swapchainHolder = method->engine->device->GetSwapchain(surfaceHolderMemory, surfaceInfo, vk_surfaceFormat);
+	
+	// Global objects
+	auto vk_device = method->engine->device->vk_device;
+	auto vk_surface = surfaceHoder->vk_surface;
+	auto vk_swapchain = swapchainHolder->vk_swapchain;
+	auto &vk_swapchainImageViews = swapchainHolder->vk_swapchainImageViews;
+
+
+	// RenderPass
+	auto vk_renderPass = Vk::CreateRenderPass(vk_device, Vk::RenderPassCreateInfo(
+		{
+			Vk::AttachmentDescription(
+				vk_surfaceFormat.format,
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
+				VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+			),
+		},
+		{
+			Vk::SubpassDescription(VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS, {
+				Vk::AttachmentReference(0, VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+			})
+		}
+	));
+
+	// Fence
+	auto vk_fence = Vk::CreateFence(vk_device, Vk::FenceCreateInfo(0));
+
+	// Current image
+	auto vk_nextImageIndex = Vk::AcquireNextImageKHR(vk_device, vk_swapchain, UINT64_MAX, VK_NULL_HANDLE, vk_fence);
+
+	Vk::WaitForFences(vk_device, {vk_fence}, VK_FALSE, UINT64_MAX);
+	Vk::ResetFences(vk_device, {vk_fence});
+
+	Vk::DestroyFence(vk_device, vk_fence);
+
+	// Image View
+	auto vk_swapchainImageView = vk_swapchainImageViews[vk_nextImageIndex];
+
+	// Framebuffer
+	auto vk_framebuffer = Vk::CreateFramebuffer(vk_device, Vk::FramebufferCreateInfo(vk_renderPass, {vk_swapchainImageView}, vk_surfaceCapabilities.currentExtent.width, vk_surfaceCapabilities.currentExtent.height, 1));
+
+	// Queue
+	auto vk_queue = Vk::GetDeviceQueue(vk_device, 0, 0);
+
+	// Command Pool
+	auto vk_commandPool = Vk::CreateCommandPool(vk_device, Vk::CommandPoolCreateInfo(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, 0));
+	{
+		Vk::ResetCommandPool(vk_device, vk_commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+	}
+
+	// Command Buffer
+	auto vk_commandBuffer = Vk::AllocateCommandBuffer(vk_device, vk_commandPool, VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	{
+		Vk::ResetCommandBuffer(vk_commandBuffer, VkCommandBufferResetFlagBits::VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+		Vk::BeginCommandBuffer(vk_commandBuffer, Vk::CommandBufferBeginInfo(0));
+		Vk::CmdBeginRenderPass(vk_commandBuffer, Vk::RenderPassBeginInfo(
+			vk_renderPass,
+			vk_framebuffer,
+			Vk::Rect2D(Vk::Offset2D(0, 0), vk_surfaceCapabilities.currentExtent), {
+				Vk::ClearValue::Color(1.0f, 0.0f, 0.0f, 1.0f),
+			}),
+			VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE
+		);
+		Vk::CmdEndRenderPass(vk_commandBuffer);
+		Vk::EndCommandBuffer(vk_commandBuffer);
+	}
+
+	Vk::QueueSubmit(vk_queue, {Vk::SubmitInfo({vk_commandBuffer})});
+	Vk::QueueWaitIdle(vk_queue);
+	Vk::QueuePresentKHR(vk_queue, Vk::PresentInfoKHR({}, {vk_swapchain}, {vk_nextImageIndex}));
+
+	Vk::FreeCommandBuffer(vk_device, vk_commandPool, vk_commandBuffer);
+	Vk::DestroyCommandPool(vk_device, vk_commandPool);
+	Vk::DestroyFramebuffer(vk_device, vk_framebuffer);
+	Vk::DestroyRenderPass(vk_device, vk_renderPass);
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Output> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::Render(const StrongPointer<Camera>& camera_)
+{
+	auto output = Make<Output>(GetThis<Renderer>(), camera_);
+	
+	return Move(output);
+}
+
+#pragma endregion
+
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::ForwardMethod(const StrongPointer<ForwardMethod>& this_, const StrongPointer<Engine>& engine_):
+	Method(this_, engine_)
+{
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RendererIt GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FindOrCreate(const Memory<Scene>& sceneMemory_)
+{
+	auto it = renderersLookup.find(sceneMemory_);
+	
+	if (it == renderersLookup.end())
+	{
+		auto nIt = renderersLookup.insert({sceneMemory_, Make<Renderer>(sceneMemory_, this)});
+	
+		return nIt.first;
+	}
+	else
+	{
+		return it;
+	}
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::Output> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
+{
+	auto sceneMemory = scene_.GetValue();
+	auto rendererIt = FindOrCreate(sceneMemory);
+	auto renderer = (*rendererIt).second;
+	
+	auto output = renderer->Render(camera_);
+	
+	return Move(output);
+}
+
+#pragma endregion
 
 #pragma endregion
 

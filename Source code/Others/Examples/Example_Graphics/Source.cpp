@@ -163,7 +163,10 @@ void main()
 
 
 	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>();
-	auto vulkanEngine = Make<Graphics::APIs::Vulkan::Engine>();
+	
+	auto vulkanDriver = Make<Graphics::APIs::Vulkan::Driver>();
+	auto vulkanDevice = vulkanDriver->GetDevices()[0];
+	auto vulkanEngine = Make<Graphics::APIs::Vulkan::Engine>(vulkanDevice);
 
 	auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
 	auto geometry2 = Geometry::CreateSphere(0.5f, Vec2(1.0f), UVec2(32, 16));
