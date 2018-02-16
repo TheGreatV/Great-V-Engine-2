@@ -22,6 +22,15 @@ namespace GreatVEngine2
 			{
 				namespace Vk = GreatVEngine2::Vulkan;
 
+				class SurfaceFormatComparator
+				{
+				public:
+					inline bool operator()(const VkSurfaceFormatKHR& a_, const VkSurfaceFormatKHR& b_)
+					{
+						return a_.colorSpace < b_.colorSpace || a_.format < b_.format;
+					}
+				};
+				
 				class SurfaceHolder
 				{
 				public:
@@ -34,22 +43,28 @@ namespace GreatVEngine2
 				class SurfaceInfo
 				{
 				public:
+					const Memory<SurfaceHolder> surfaceHolderMemory;
 					const VkSurfaceCapabilitiesKHR vk_surfaceCapabilities;
 					const Vector<VkSurfaceFormatKHR> vk_surfaceFormats;
 				public:
-					inline SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const VkSurfaceKHR& vk_surface_);
+					inline SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const Memory<SurfaceHolder>& surfaceHolderMemory_);
 				};
 				class SwapchainHolder
 				{
 				protected:
 					static inline Vector<VkImageView> ObtainSwapchainImageViews(const VkDevice& vk_device_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const Vector<VkImage>& vk_swapchainImages_);
 				public:
+					const Memory<SurfaceInfo> surfaceInfoMemory;
 					const VkDevice vk_device;
 					const VkSwapchainKHR vk_swapchain;
 					const Vector<VkImage> vk_swapchainImages;
 					const Vector<VkImageView> vk_swapchainImageViews;
+					const VkFormat vk_swapchainDepthFormat;
+					const VkImage vk_swapchainDepthImage;
+					const VkDeviceMemory vk_swapchainDepthImageMemory;
+					const VkImageView vk_swapchainDepthImageView;
 				public:
-					inline SwapchainHolder(const VkDevice& vk_device_, const VkSurfaceKHR& vk_surface_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const uint32_t& imagesCount_, const VkExtent2D& size_);
+					inline SwapchainHolder(const Memory<Device>& device_, const Memory<SurfaceInfo>& surfaceInfoMemory_, const VkSurfaceFormatKHR& vk_surfaceFormat_);
 					inline ~SwapchainHolder();
 				};
 
@@ -81,15 +96,6 @@ namespace GreatVEngine2
 				class Device:
 					public This<Device>
 				{
-				public:
-					class SurfaceFormatComparator
-					{
-					public:
-						inline bool operator()(const VkSurfaceFormatKHR& a_, const VkSurfaceFormatKHR& b_)
-						{
-							return a_.colorSpace < b_.colorSpace || a_.format < b_.format;
-						}
-					};
 				protected:
 					using SurfaceInfoLookup = Map<Memory<SurfaceHolder>, StrongPointer<SurfaceInfo>>;
 					using SwapchainFormatLookup = std::map<VkSurfaceFormatKHR, StrongPointer<SwapchainHolder>, SurfaceFormatComparator>;//  Map<VkSurfaceFormatKHR, StrongPointer<SwapchainHolder>>;
@@ -118,6 +124,23 @@ namespace GreatVEngine2
 				public:
 					inline StrongPointer<SurfaceInfo> GetSurfaceInfo(const Memory<SurfaceHolder>& surfaceHolderMemory_);
 					inline StrongPointer<SwapchainHolder> GetSwapchain(const Memory<SurfaceHolder>& surfaceHolderMemory_, const StrongPointer<SurfaceInfo>& surfaceInfo_, const VkSurfaceFormatKHR& format_);
+					inline uint32_t GetMemoryIndex(const VkMemoryPropertyFlags& properties, const uint32_t& memoryTypeBits)
+					{
+						for (uint32_t i = 0; i < vk_physicalDeviceMemoryProperties.memoryTypeCount; ++i)
+						{
+							if (((1 << i) & memoryTypeBits) != 0)
+							{
+								auto &memoryType = vk_physicalDeviceMemoryProperties.memoryTypes[i];
+
+								if ((memoryType.propertyFlags & properties) == properties)
+								{
+									return i;
+								}
+							}
+						}
+
+						throw Exception(); // TODO
+					}
 				};
 
 				class Output:
@@ -251,11 +274,18 @@ namespace GreatVEngine2
 				protected:
 					class Output;
 					class Renderer;
+					class ModelHolder;
+					class MaterialHolder;
+					class RenderPassHolder;
+					class FramebufferHolder;
 				protected:
 					using RenderersLookup = Map<Memory<Scene>, StrongPointer<Renderer>>;
 					using RendererIt = RenderersLookup::iterator;
+					using RenderPassesLookup = std::map<VkSurfaceFormatKHR, StrongPointer<RenderPassHolder>, SurfaceFormatComparator>;
+					// using 
 				protected:
 					RenderersLookup renderersLookup;
+					RenderPassesLookup renderPassesLookup;
 				public:
 					inline ForwardMethod() = delete;
 					inline ForwardMethod(const StrongPointer<ForwardMethod>& this_, const StrongPointer<Engine>& engine_);
@@ -265,6 +295,7 @@ namespace GreatVEngine2
 					inline ForwardMethod& operator = (const ForwardMethod&) = delete;
 				protected:
 					inline RendererIt FindOrCreate(const Memory<Scene>& sceneMemory_);
+					inline Memory<RenderPassHolder> FindOrCreate(const VkSurfaceFormatKHR& vk_surfaceFormat_);
 				public:
 					inline virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
 				};
@@ -292,24 +323,131 @@ namespace GreatVEngine2
 				{
 					friend Output;
 				protected:
+					class CommandBuffersHolder;
+				protected:
+					using CommandBuffersLookup = Map<Memory<FramebufferHolder>, StrongPointer<CommandBuffersHolder>>;
+				protected:
 					const Memory<ForwardMethod> method;
 					const Memory<Scene> scene;
 				protected:
+					CommandBuffersLookup commandBuffersLookup;
+				protected:
 					Scene::Version sceneVersion;
+				public:
+					const VkCommandPool vk_commandPool;
+					const VkDescriptorPool vk_descriptorPool;
+					const VkDescriptorSetLayout vk_descriptorSetLayout;
 				public:
 					inline Renderer() = delete;
 					inline Renderer(const StrongPointer<Renderer>& this_, const Memory<Scene>& scene_, const Memory<ForwardMethod>& method_);
 					inline Renderer(const Renderer&) = delete;
-					inline virtual ~Renderer() = default;
+					inline virtual ~Renderer();
 				public:
 					inline Renderer& operator = (const Renderer&) = delete;
 				protected:
 					inline void UpdateSceneGraph();
 					inline void ForceUpdateSceneGraph();
 				protected:
+					inline StrongPointer<CommandBuffersHolder> GetCommandBuffers(const StrongPointer<FramebufferHolder>& framebufferHolder_);
+				protected:
 					inline void PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_);
 				public:
 					inline StrongPointer<Output> Render(const StrongPointer<Camera>& camera_);
+				};
+
+#pragma region CommandBuffersHolder
+				class ForwardMethod::Renderer::CommandBuffersHolder
+				{
+				protected:
+					static inline Vector<VkCommandBuffer> ObtainClearCommandBuffers(const Memory<Renderer>& renderer_, const Memory<FramebufferHolder>& framebufferHolder_);
+				protected:
+					const Memory<Renderer> renderer;
+				public:
+					const Vector<VkCommandBuffer> vk_clearCommandBuffers;
+				public:
+					inline CommandBuffersHolder(const Memory<Renderer>& renderer_, const Memory<FramebufferHolder>& framebufferHolder_);
+					inline ~CommandBuffersHolder();
+				};
+#pragma endregion
+#pragma endregion
+#pragma region ForwardMethod::ModelHolder
+				class ForwardMethod::ModelHolder
+				{
+				protected:
+					const Memory<ForwardMethod> method;
+				public:
+					const VkBuffer vk_verticesBuffer;
+					const VkDeviceMemory vk_verticesDeviceMemory;
+					const VkBuffer vk_indicesBuffer;
+					const VkDeviceMemory vk_indicesDeviceMemory;
+				public:
+					inline ModelHolder() = delete;
+					inline ModelHolder(const Memory<ForwardMethod>& method_, const StrongPointer<Geometry>& geometry_);
+					inline ModelHolder(const ModelHolder&) = delete;
+					inline ~ModelHolder();
+				public:
+					inline ModelHolder& operator = (const ModelHolder&) = delete;
+				};
+#pragma endregion
+#pragma region ForwardMethod::MaterialHolder
+				class ForwardMethod::MaterialHolder
+				{
+				protected:
+					const Memory<ForwardMethod> method;
+				public:
+					const VkPipelineLayout vk_pipelineLayout;
+					const VkPipeline vk_pipeline;
+				public:
+					inline MaterialHolder() = delete;
+					inline MaterialHolder(const Memory<ForwardMethod>& method_, const VkDescriptorSetLayout& vk_descriptorSetLayout_, const VkExtent2D& viewport_, const VkRenderPass& vk_renderPass_);
+					inline MaterialHolder(const MaterialHolder&) = delete;
+					inline ~MaterialHolder();
+				public:
+					inline MaterialHolder& operator = (const MaterialHolder&) = delete;
+				};
+#pragma endregion
+#pragma region ForwardMethod::RenderPassHolder
+				class ForwardMethod::RenderPassHolder
+				{
+				protected:
+					using FramebuffersLookup = Map<Memory<SwapchainHolder>, StrongPointer<FramebufferHolder>>;
+				public:
+					const Memory<ForwardMethod> method;
+				protected:
+					FramebuffersLookup framebuffersLookup;
+				public:
+					VkRenderPass vk_clearRenderPass;
+					VkRenderPass vk_drawRenderPass;
+				public:
+					inline RenderPassHolder() = delete;
+					inline RenderPassHolder(const Memory<ForwardMethod>& method_, const VkFormat& vk_colorFormat_, const VkFormat& vk_depthFormat_);
+					inline RenderPassHolder(const RenderPassHolder&) = delete;
+					inline ~RenderPassHolder();
+				public:
+					inline RenderPassHolder& operator = (const RenderPassHolder&) = delete;
+				public:
+					inline StrongPointer<FramebufferHolder> GetFramebuffer(const StrongPointer<SwapchainHolder>& swapchainHolder_);
+				};
+#pragma endregion
+#pragma region ForwardMethod::FramebufferHolder
+				class ForwardMethod::FramebufferHolder
+				{
+				protected:
+					static inline Vector<VkFramebuffer> ObtainClearFramebuffers(const Memory<RenderPassHolder>& renderPassHolder_, const Memory<SwapchainHolder>& swapchainHolder_);
+					static inline Vector<VkFramebuffer> ObtainDrawFramebuffers(const Memory<RenderPassHolder>& renderPassHolder_, const Memory<SwapchainHolder>& swapchainHolder_);
+				public:
+					const Memory<RenderPassHolder> renderPassHolder;
+					const Memory<SwapchainHolder> swapchainHolder;
+				public:
+					Vector<VkFramebuffer> vk_clearFramebuffers;
+					Vector<VkFramebuffer> vk_drawFramebuffers;
+				public:
+					inline FramebufferHolder() = delete;
+					inline FramebufferHolder(const Memory<RenderPassHolder>& renderPassHolder_, const Memory<SwapchainHolder>& swapchainHolder_);
+					inline FramebufferHolder(const RenderPassHolder&) = delete;
+					inline ~FramebufferHolder();
+				public:
+					inline FramebufferHolder& operator = (const FramebufferHolder&) = delete;
 				};
 #pragma endregion
 			}
@@ -346,9 +484,10 @@ GreatVEngine2::Graphics::APIs::Vulkan::SurfaceHolder::~SurfaceHolder()
 
 #pragma region SurfaceInfo
 
-GreatVEngine2::Graphics::APIs::Vulkan::SurfaceInfo::SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const VkSurfaceKHR& vk_surface_):
-	vk_surfaceCapabilities(Vk::GetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physicalDevice_, vk_surface_)),
-	vk_surfaceFormats(Move(Vk::GetPhysicalDeviceSurfaceFormatsKHR(vk_physicalDevice_, vk_surface_)))
+GreatVEngine2::Graphics::APIs::Vulkan::SurfaceInfo::SurfaceInfo(const VkPhysicalDevice& vk_physicalDevice_, const Memory<SurfaceHolder>& surfaceHolderMemory_):
+	surfaceHolderMemory(surfaceHolderMemory_),
+	vk_surfaceCapabilities(Vk::GetPhysicalDeviceSurfaceCapabilitiesKHR(vk_physicalDevice_, surfaceHolderMemory->vk_surface)),
+	vk_surfaceFormats(Move(Vk::GetPhysicalDeviceSurfaceFormatsKHR(vk_physicalDevice_, surfaceHolderMemory->vk_surface)))
 {
 }
 
@@ -380,15 +519,16 @@ GreatVEngine2::Vector<VkImageView> GreatVEngine2::Graphics::APIs::Vulkan::Swapch
 	return Move(vk_swapchainImageViews);
 }
 
-GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::SwapchainHolder(const VkDevice& vk_device_, const VkSurfaceKHR& vk_surface_, const VkSurfaceFormatKHR& vk_surfaceFormat_, const uint32_t& imagesCount_, const VkExtent2D& size_):
-	vk_device(vk_device_),
+GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::SwapchainHolder(const Memory<Device>& device_, const Memory<SurfaceInfo>& surfaceInfoMemory_, const VkSurfaceFormatKHR& vk_surfaceFormat_):
+	surfaceInfoMemory(surfaceInfoMemory_),
+	vk_device(device_->vk_device),
 	vk_swapchain(Vk::CreateSwapchainKHR(vk_device, Vk::SwapchainCreateInfoKHR(
 		0,
-		vk_surface_,
-		imagesCount_, // std::max<uint32_t>(vk_surfaceCapabilities.minImageCount, 2),
+		surfaceInfoMemory->surfaceHolderMemory->vk_surface,
+		std::max<uint32_t>(surfaceInfoMemory->vk_surfaceCapabilities.minImageCount, 2),
 		vk_surfaceFormat_.format,
 		vk_surfaceFormat_.colorSpace,
-		size_, // windowSize,
+		surfaceInfoMemory->vk_surfaceCapabilities.currentExtent,
 		1,
 		VkImageUsageFlagBits::VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 		VkSharingMode::VK_SHARING_MODE_EXCLUSIVE,
@@ -400,11 +540,47 @@ GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::SwapchainHolder(const Vk
 		VK_NULL_HANDLE
 	))),
 	vk_swapchainImages(Move(Vk::GetSwapchainImagesKHR(vk_device, vk_swapchain))),
-	vk_swapchainImageViews(Move(ObtainSwapchainImageViews(vk_device, vk_surfaceFormat_, vk_swapchainImages)))
+	vk_swapchainImageViews(Move(ObtainSwapchainImageViews(vk_device, vk_surfaceFormat_, vk_swapchainImages))),
+	vk_swapchainDepthFormat(VkFormat::VK_FORMAT_D32_SFLOAT),
+	vk_swapchainDepthImage(Vk::CreateImage(vk_device, Vk::ImageCreateInfo(0,
+			VkImageType::VK_IMAGE_TYPE_2D, vk_swapchainDepthFormat, Vk::Extent3D(surfaceInfoMemory->vk_surfaceCapabilities.currentExtent, 1), 1, 1, VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+			VkImageTiling::VK_IMAGE_TILING_OPTIMAL, VkImageUsageFlagBits::VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED
+	))),
+	vk_swapchainDepthImageMemory([&]()
+	{
+		auto vk_memoryRequirements = Vk::GetImageMemoryRequirements(vk_device, vk_swapchainDepthImage);
+		auto vk_deviceMemory = Vk::AllocateMemory(vk_device, Vk::MemoryAllocateInfo(
+			vk_memoryRequirements.size,
+			device_->GetMemoryIndex(0, vk_memoryRequirements.memoryTypeBits)
+		));
+
+		Vk::BindImageMemory(vk_device, vk_swapchainDepthImage, vk_deviceMemory);
+
+		return vk_deviceMemory;
+	}()),
+	vk_swapchainDepthImageView(Vk::CreateImageView(vk_device, Vk::ImageViewCreateInfo(
+		0, vk_swapchainDepthImage, VkImageViewType::VK_IMAGE_VIEW_TYPE_2D, vk_swapchainDepthFormat,
+		Vk::ComponentMapping(
+			VkComponentSwizzle::VK_COMPONENT_SWIZZLE_IDENTITY,
+			VkComponentSwizzle::VK_COMPONENT_SWIZZLE_IDENTITY,
+			VkComponentSwizzle::VK_COMPONENT_SWIZZLE_IDENTITY,
+			VkComponentSwizzle::VK_COMPONENT_SWIZZLE_IDENTITY
+		),
+		Vk::ImageSubresourceRange(VkImageAspectFlagBits::VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1)
+	)))
 {
 }
 GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHolder::~SwapchainHolder()
 {
+	Vk::DestroyImageView(vk_device, vk_swapchainDepthImageView);
+	Vk::FreeMemory(vk_device, vk_swapchainDepthImageMemory);
+	Vk::DestroyImage(vk_device, vk_swapchainDepthImage);
+
+	for (auto &vk_swapchainImageView : vk_swapchainImageViews)
+	{
+		Vk::DestroyImageView(vk_device, vk_swapchainImageView);
+	}
+
 	Vk::DestroySwapchainKHR(vk_device, vk_swapchain);
 }
 
@@ -419,18 +595,18 @@ VkInstance GreatVEngine2::Graphics::APIs::Vulkan::Driver::ObtainInstance()
 	Vector<const char*> vk_instanceLayersNames =
 #if __GREAT_V_ENGINE_2__DEBUG__
 	{
-		"VK_LAYER_LUNARG_api_dump",
-		"VK_LAYER_LUNARG_core_validation",
-		// "VK_LAYER_LUNARG_device_simulation",
-		"VK_LAYER_LUNARG_monitor",
-		"VK_LAYER_LUNARG_object_tracker",
-		"VK_LAYER_LUNARG_parameter_validation",
-		"VK_LAYER_LUNARG_screenshot",
-		// "VK_LAYER_LUNARG_standard_validation",
-		"VK_LAYER_GOOGLE_threading",
-		"VK_LAYER_GOOGLE_unique_objects",
-		// "VK_LAYER_LUNARG_vktrace",
-		"VK_LAYER_RENDERDOC_Capture",
+		// "VK_LAYER_LUNARG_api_dump",
+		// "VK_LAYER_LUNARG_core_validation",
+		// // "VK_LAYER_LUNARG_device_simulation",
+		// "VK_LAYER_LUNARG_monitor",
+		// "VK_LAYER_LUNARG_object_tracker",
+		// "VK_LAYER_LUNARG_parameter_validation",
+		// "VK_LAYER_LUNARG_screenshot",
+		// // "VK_LAYER_LUNARG_standard_validation",
+		// "VK_LAYER_GOOGLE_threading",
+		// "VK_LAYER_GOOGLE_unique_objects",
+		// // "VK_LAYER_LUNARG_vktrace",
+		// "VK_LAYER_RENDERDOC_Capture",
 	};
 #else
 	{};
@@ -563,7 +739,7 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::SurfaceInfo>
 			throw Exception(); // TODO
 		}
 
-		auto surfaceInfo = MakeStrong<SurfaceInfo>(vk_physicalDevice, surfaceHolderMemory_->vk_surface);
+		auto surfaceInfo = MakeStrong<SurfaceInfo>(vk_physicalDevice, surfaceHolderMemory_);
 
 		surfaceInfoLookup.insert({surfaceHolderMemory_, surfaceInfo});
 
@@ -602,11 +778,9 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::SwapchainHol
 		if (it == swapchainFormats.end())
 		{
 			auto holder = MakeStrong<SwapchainHolder>(
-				vk_device,
-				surfaceHolderMemory_->vk_surface,
-				format_, 
-				std::max<uint32_t>(surfaceInfo_->vk_surfaceCapabilities.minImageCount, 2),
-				surfaceInfo_->vk_surfaceCapabilities.currentExtent
+				this,
+				surfaceInfoMemory,
+				format_
 			);
 			auto nIt = swapchainFormats.insert({format_, holder});
 
@@ -1784,13 +1958,84 @@ void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Output::SignalPresent
 
 #pragma region Renderer
 
+#pragma region CommandBuffersHolder
+
+GreatVEngine2::Vector<VkCommandBuffer> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::CommandBuffersHolder::ObtainClearCommandBuffers(const Memory<Renderer>& renderer_, const Memory<FramebufferHolder>& framebufferHolder_)
+{
+	auto vk_commandBuffers = Move(Vk::AllocateCommandBuffers(
+		renderer_->method->engine->device->vk_device,
+		Vk::CommandBufferAllocateInfo(
+			renderer_->vk_commandPool,
+			VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+			framebufferHolder_->vk_clearFramebuffers.size()
+		)
+	));
+
+	for (auto &i : Range(vk_commandBuffers.size()))
+	{
+		auto &vk_commandBuffer = vk_commandBuffers[i];
+		auto &vk_framebuffer = framebufferHolder_->vk_clearFramebuffers[i];
+
+		Vk::ResetCommandBuffer(vk_commandBuffer, VkCommandBufferResetFlagBits::VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+		Vk::BeginCommandBuffer(vk_commandBuffer, Vk::CommandBufferBeginInfo(0));
+		Vk::CmdBeginRenderPass(vk_commandBuffer,
+			Vk::RenderPassBeginInfo(
+				framebufferHolder_->renderPassHolder->vk_clearRenderPass,
+				vk_framebuffer,
+				Vk::Rect2D(Vk::Offset2D(0, 0), framebufferHolder_->swapchainHolder->surfaceInfoMemory->vk_surfaceCapabilities.currentExtent),
+				Vector<VkClearValue>({
+					Vk::ClearValue::Color(1.0f, 0.0f, 0.0f, 1.0f),
+					Vk::ClearValue::DepthStencil(1.0f, 0),
+				})
+			),
+			VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE
+		);
+		Vk::CmdEndRenderPass(vk_commandBuffer);
+		Vk::EndCommandBuffer(vk_commandBuffer);
+	}
+
+	return Move(vk_commandBuffers);
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::CommandBuffersHolder::CommandBuffersHolder(const Memory<Renderer>& renderer_, const Memory<FramebufferHolder>& framebufferHolder_):
+	renderer(renderer_),
+	vk_clearCommandBuffers(ObtainClearCommandBuffers(renderer, framebufferHolder_))
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::CommandBuffersHolder::~CommandBuffersHolder()
+{
+	Vk::FreeCommandBuffers(renderer->method->engine->device->vk_device, renderer->vk_commandPool, vk_clearCommandBuffers);
+}
+
+#pragma endregion
+
+
 GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::Renderer(const StrongPointer<Renderer>& this_, const Memory<Scene>& scene_, const Memory<ForwardMethod>& method_):
 	This(this_),
 	method(method_),
 	scene(scene_),
-	sceneVersion(scene_->GetVersion())
+	sceneVersion(scene_->GetVersion()),
+	vk_commandPool(Vk::CreateCommandPool(method->engine->device->vk_device, Vk::CommandPoolCreateInfo(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, 0))), // TODO: queue family index
+	vk_descriptorPool(Vk::CreateDescriptorPool(method->engine->device->vk_device, Vk::DescriptorPoolCreateInfo(
+		VkDescriptorPoolCreateFlagBits::VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT, 1,
+		{Vk::DescriptorPoolSize(VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)}
+	))),
+	vk_descriptorSetLayout(Vk::CreateDescriptorSetLayout(method->engine->device->vk_device, Vk::DescriptorSetLayoutCreateInfo(0, {
+		Vk::DescriptorSetLayoutBinding(0, VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT),
+	})))
 {
+	Vk::ResetCommandPool(method->engine->device->vk_device, vk_commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+	
 	ForceUpdateSceneGraph();
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::~Renderer()
+{
+	commandBuffersLookup.clear(); // Destroy buffers before command pool
+
+	Vk::DestroyDescriptorPool(method->engine->device->vk_device, vk_descriptorPool);
+	Vk::DestroyDescriptorSetLayout(method->engine->device->vk_device, vk_descriptorSetLayout);
+
+	Vk::DestroyCommandPool(method->engine->device->vk_device, vk_commandPool);
 }
 
 void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::ForceUpdateSceneGraph()
@@ -1809,6 +2054,27 @@ void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::UpdateScene
 	}
 }
 
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::CommandBuffersHolder> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::GetCommandBuffers(const StrongPointer<FramebufferHolder>& framebufferHolder_)
+{
+	auto framebufferHolderMemory = framebufferHolder_.GetValue();
+	auto it = commandBuffersLookup.find(framebufferHolderMemory);
+
+	if (it == commandBuffersLookup.end())
+	{
+		auto commandBuffersHolder = MakeStrong<CommandBuffersHolder>(this, framebufferHolderMemory);
+		
+		commandBuffersLookup.insert({framebufferHolderMemory, commandBuffersHolder});
+
+		return commandBuffersHolder;
+	}
+	else
+	{
+		auto commandBuffers = (*it).second;
+
+		return commandBuffers;
+	}
+}
+
 void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_)
 {
 	if (!method->engine->device->isPresentationSupported)
@@ -1818,6 +2084,8 @@ void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::PresentOn(c
 
 	UpdateSceneGraph();
 
+	auto aspect = view_->GetViewportRange().GetAspect();
+
 	auto surfaceHoder = method->engine->device->driver->GetSurface(view_->GetThis<View>());
 	auto surfaceHolderMemory = surfaceHoder.GetValue();
 	auto surfaceInfo = method->engine->device->GetSurfaceInfo(surfaceHolderMemory);
@@ -1825,34 +2093,20 @@ void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::PresentOn(c
 	auto &vk_surfaceFormats = surfaceInfo->vk_surfaceFormats;
 	auto vk_surfaceFormat = vk_surfaceFormats[0]; // TODO: do something with thit
 	auto swapchainHolder = method->engine->device->GetSwapchain(surfaceHolderMemory, surfaceInfo, vk_surfaceFormat);
-	
+	auto renderPassHolder = method->FindOrCreate(vk_surfaceFormat);
+	auto framebufferHolder = renderPassHolder->GetFramebuffer(swapchainHolder);
+	auto commandBuffers = GetCommandBuffers(framebufferHolder);
+
 	// Global objects
 	auto vk_device = method->engine->device->vk_device;
 	auto vk_surface = surfaceHoder->vk_surface;
 	auto vk_swapchain = swapchainHolder->vk_swapchain;
 	auto &vk_swapchainImageViews = swapchainHolder->vk_swapchainImageViews;
-
+	auto &vk_swapchainDepthImageView = swapchainHolder->vk_swapchainDepthImageView;
 
 	// RenderPass
-	auto vk_renderPass = Vk::CreateRenderPass(vk_device, Vk::RenderPassCreateInfo(
-		{
-			Vk::AttachmentDescription(
-				vk_surfaceFormat.format,
-				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
-				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
-				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
-				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
-				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
-				VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-			),
-		},
-		{
-			Vk::SubpassDescription(VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS, {
-				Vk::AttachmentReference(0, VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
-			})
-		}
-	));
+	auto &vk_clearRenderPass = renderPassHolder->vk_clearRenderPass;
+	auto &vk_drawRenderPass = renderPassHolder->vk_drawRenderPass;
 
 	// Fence
 	auto vk_fence = Vk::CreateFence(vk_device, Vk::FenceCreateInfo(0));
@@ -1865,46 +2119,131 @@ void GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::PresentOn(c
 
 	Vk::DestroyFence(vk_device, vk_fence);
 
-	// Image View
-	auto vk_swapchainImageView = vk_swapchainImageViews[vk_nextImageIndex];
-
 	// Framebuffer
-	auto vk_framebuffer = Vk::CreateFramebuffer(vk_device, Vk::FramebufferCreateInfo(vk_renderPass, {vk_swapchainImageView}, vk_surfaceCapabilities.currentExtent.width, vk_surfaceCapabilities.currentExtent.height, 1));
+	auto &vk_clearFramebuffer = framebufferHolder->vk_clearFramebuffers[vk_nextImageIndex];
+	auto &vk_drawFramebuffer = framebufferHolder->vk_drawFramebuffers[vk_nextImageIndex];
+
+	// CommandBuffers
+	auto &vk_clearCommandBuffer = commandBuffers->vk_clearCommandBuffers[vk_nextImageIndex];
 
 	// Queue
 	auto vk_queue = Vk::GetDeviceQueue(vk_device, 0, 0);
 
-	// Command Pool
-	auto vk_commandPool = Vk::CreateCommandPool(vk_device, Vk::CommandPoolCreateInfo(VkCommandPoolCreateFlagBits::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, 0));
+	// Uniforms buffer
+	Size uniformsTotalSize = sizeof(Float32) * 16;
+	auto vk_uniformBuffer = Vk::CreateBuffer(vk_device, Vk::BufferCreateInfo(0, uniformsTotalSize, VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VkSharingMode::VK_SHARING_MODE_EXCLUSIVE));
+	auto vk_uniformBufferDeviceMemory = [&]()
 	{
-		Vk::ResetCommandPool(vk_device, vk_commandPool, VkCommandPoolResetFlagBits::VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+		auto vk_memoryRequirements = Vk::GetBufferMemoryRequirements(vk_device, vk_uniformBuffer);
+		auto vk_deviceMemory = Vk::AllocateMemory(vk_device, Vk::MemoryAllocateInfo(
+			vk_memoryRequirements.size,
+			method->engine->device->GetMemoryIndex(VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vk_memoryRequirements.memoryTypeBits)
+		));
+
+		Vk::BindBufferMemory(vk_device, vk_uniformBuffer, vk_deviceMemory);
+
+		return vk_deviceMemory;
+	}();
+
+	// Descriptor Set
+	auto vk_descriptorSet = Move(Vk::AllocateDescriptorSet(vk_device, vk_descriptorPool, vk_descriptorSetLayout));
+	{
+		Vk::UpdateDescriptorSets(vk_device, {
+			Vk::WriteDescriptorSet(vk_descriptorSet, 0, 0, VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, {Vk::DescriptorBufferInfo(vk_uniformBuffer)}),
+		}, {});
 	}
 
-	// Command Buffer
-	auto vk_commandBuffer = Vk::AllocateCommandBuffer(vk_device, vk_commandPool, VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+	Map<Memory<Model>, StrongPointer<ModelHolder>> modelHoldersLookup;
 	{
-		Vk::ResetCommandBuffer(vk_commandBuffer, VkCommandBufferResetFlagBits::VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
-		Vk::BeginCommandBuffer(vk_commandBuffer, Vk::CommandBufferBeginInfo(0));
-		Vk::CmdBeginRenderPass(vk_commandBuffer, Vk::RenderPassBeginInfo(
-			vk_renderPass,
-			vk_framebuffer,
-			Vk::Rect2D(Vk::Offset2D(0, 0), vk_surfaceCapabilities.currentExtent), {
-				Vk::ClearValue::Color(1.0f, 0.0f, 0.0f, 1.0f),
-			}),
-			VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE
-		);
-		Vk::CmdEndRenderPass(vk_commandBuffer);
-		Vk::EndCommandBuffer(vk_commandBuffer);
+		for (auto &object : scene->objects)
+		{
+			auto &model = object->GetModel();
+			auto modelMemory = model.GetValue();
+
+			if (modelHoldersLookup.find(modelMemory) == modelHoldersLookup.end())
+			{
+				auto &geometry = model->GetGeometry();
+
+				auto modelHolder = MakeStrong<ModelHolder>(method, geometry);
+
+				modelHoldersLookup.insert({modelMemory, modelHolder});
+			}
+		}
 	}
 
-	Vk::QueueSubmit(vk_queue, {Vk::SubmitInfo({vk_commandBuffer})});
+	Map<Memory<Material>, StrongPointer<MaterialHolder>> materialHoldersLookup;
+	{
+		for (auto &object : scene->objects)
+		{
+			auto &material = object->GetMaterial();
+			auto materialMemory = material.GetValue();
+
+			if (materialHoldersLookup.find(materialMemory) == materialHoldersLookup.end())
+			{
+				auto materialHolder = MakeStrong<MaterialHolder>(method, vk_descriptorSetLayout, vk_surfaceCapabilities.currentExtent, vk_drawRenderPass);
+
+				materialHoldersLookup.insert({materialMemory, materialHolder});
+			}
+		}
+	}
+
+	Vk::QueueSubmit(vk_queue, {Vk::SubmitInfo({vk_clearCommandBuffer})});
 	Vk::QueueWaitIdle(vk_queue);
+
+	for (auto &object : scene->objects)
+	{
+		auto &modelHolder = modelHoldersLookup[object->GetModel().GetValue()];
+		auto &materialHolder = materialHoldersLookup[object->GetMaterial().GetValue()];
+
+		auto data = reinterpret_cast<Memory<Float32>>(Vk::MapMemory(vk_device, vk_uniformBufferDeviceMemory, 0, VK_WHOLE_SIZE, 0));
+		
+		auto modelMatrix = object->GetMMat();
+		auto viewMatrix = camera_->GetVMat();
+		auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 1000.0f) * Scale4(Vec3(1.0f, 1.0f, 1.0f)) * viewMatrix;
+		auto mat = viewProjectionMatrix * modelMatrix;
+		
+		CopyMemory(data, reinterpret_cast<Memory<Float32>>(&mat), 16);
+		
+		Vk::UnmapMemory(vk_device, vk_uniformBufferDeviceMemory);
+
+		auto vk_commandBuffer = Vk::AllocateCommandBuffer(vk_device, vk_commandPool, VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+		{
+			Vk::ResetCommandBuffer(vk_commandBuffer, VkCommandBufferResetFlagBits::VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+			Vk::BeginCommandBuffer(vk_commandBuffer, Vk::CommandBufferBeginInfo(0));
+			Vk::CmdBeginRenderPass(vk_commandBuffer, Vk::RenderPassBeginInfo(
+				vk_drawRenderPass,
+				vk_drawFramebuffer,
+				Vk::Rect2D(Vk::Offset2D(0, 0), vk_surfaceCapabilities.currentExtent), {
+					// Vk::ClearValue::Color(1.0f, 0.0f, 0.0f, 1.0f),
+				}),
+				VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE
+			);
+
+			Vk::CmdBindPipeline(vk_commandBuffer, VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS, materialHolder->vk_pipeline);
+			Vk::CmdBindVertexBuffers(vk_commandBuffer, 0, 1, {modelHolder->vk_verticesBuffer}, {0});
+			Vk::CmdBindIndexBuffer(vk_commandBuffer, modelHolder->vk_indicesBuffer, 0, VkIndexType::VK_INDEX_TYPE_UINT32);
+			Vk::CmdBindDescriptorSets(vk_commandBuffer, VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS, materialHolder->vk_pipelineLayout, 0, {vk_descriptorSet}, {});
+			Vk::CmdDrawIndexed(vk_commandBuffer, object->GetModel()->GetGeometry()->GetIndicesCount(), 1, 0, 0, 0);
+
+			Vk::CmdEndRenderPass(vk_commandBuffer);
+			Vk::EndCommandBuffer(vk_commandBuffer);
+		}
+
+		Vk::QueueSubmit(vk_queue, {Vk::SubmitInfo({vk_commandBuffer})});
+		Vk::QueueWaitIdle(vk_queue);
+
+		Vk::FreeCommandBuffer(vk_device, vk_commandPool, vk_commandBuffer);
+	}
+
 	Vk::QueuePresentKHR(vk_queue, Vk::PresentInfoKHR({}, {vk_swapchain}, {vk_nextImageIndex}));
 
-	Vk::FreeCommandBuffer(vk_device, vk_commandPool, vk_commandBuffer);
-	Vk::DestroyCommandPool(vk_device, vk_commandPool);
-	Vk::DestroyFramebuffer(vk_device, vk_framebuffer);
-	Vk::DestroyRenderPass(vk_device, vk_renderPass);
+	modelHoldersLookup.clear();
+	materialHoldersLookup.clear();
+
+	Vk::FreeDescriptorSet(vk_device, vk_descriptorPool, vk_descriptorSet);
+
+	Vk::FreeMemory(vk_device, vk_uniformBufferDeviceMemory);
+	Vk::DestroyBuffer(vk_device, vk_uniformBuffer);
 }
 
 GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Output> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::Renderer::Render(const StrongPointer<Camera>& camera_)
@@ -1912,6 +2251,347 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMetho
 	auto output = Make<Output>(GetThis<Renderer>(), camera_);
 	
 	return Move(output);
+}
+
+#pragma endregion
+
+#pragma region ModelHolder
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::ModelHolder::ModelHolder(const Memory<ForwardMethod>& method_, const StrongPointer<Geometry>& geometry_):
+	method(method_),
+	vk_verticesBuffer(Vk::CreateBuffer(
+		method->engine->device->vk_device,
+		Vk::BufferCreateInfo(0, geometry_->GetVertexSize(Geometry::VertexPackMode::Pos32F) * geometry_->GetVerticesCount(), VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
+	)),
+	vk_verticesDeviceMemory([&](){
+		auto vk_memoryRequirements = Vk::GetBufferMemoryRequirements(method->engine->device->vk_device, vk_verticesBuffer);
+		auto vk_deviceMemory = Vk::AllocateMemory(method->engine->device->vk_device, Vk::MemoryAllocateInfo(
+			vk_memoryRequirements.size,
+			method->engine->device->GetMemoryIndex(VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vk_memoryRequirements.memoryTypeBits)
+		));
+
+		auto data = reinterpret_cast<Memory<UInt8>>(Vk::MapMemory(method->engine->device->vk_device, vk_deviceMemory, 0, VK_WHOLE_SIZE, 0));
+		auto source = geometry_->GetVertices(Geometry::VertexPackMode::Pos32F);
+
+		CopyMemory(data, source.data(), source.size());
+
+		Vk::UnmapMemory(method->engine->device->vk_device, vk_deviceMemory);
+
+		Vk::BindBufferMemory(method->engine->device->vk_device, vk_verticesBuffer, vk_deviceMemory);
+
+		return vk_deviceMemory;
+	}()),
+	vk_indicesBuffer(Vk::CreateBuffer(
+		method->engine->device->vk_device,
+		Vk::BufferCreateInfo(0, geometry_->GetIndexSize(Geometry::IndexPackMode::UInt32) * geometry_->GetIndicesCount(), VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VkSharingMode::VK_SHARING_MODE_EXCLUSIVE)
+	)),
+	vk_indicesDeviceMemory([&](){
+		auto vk_memoryRequirements = Vk::GetBufferMemoryRequirements(method->engine->device->vk_device, vk_indicesBuffer);
+		auto vk_deviceMemory = Vk::AllocateMemory(method->engine->device->vk_device, Vk::MemoryAllocateInfo(
+			vk_memoryRequirements.size,
+			method->engine->device->GetMemoryIndex(VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, vk_memoryRequirements.memoryTypeBits)
+		));
+
+		auto data = reinterpret_cast<Memory<UInt8>>(Vk::MapMemory(method->engine->device->vk_device, vk_deviceMemory, 0, VK_WHOLE_SIZE, 0));
+		auto source = geometry_->GetIndices(Geometry::IndexPackMode::UInt32);
+
+		CopyMemory(data, source.data(), source.size());
+
+		Vk::UnmapMemory(method->engine->device->vk_device, vk_deviceMemory);
+
+		Vk::BindBufferMemory(method->engine->device->vk_device, vk_indicesBuffer, vk_deviceMemory);
+
+		return vk_deviceMemory;
+	}())
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::ModelHolder::~ModelHolder()
+{
+	Vk::FreeMemory(method->engine->device->vk_device, vk_verticesDeviceMemory);
+	Vk::DestroyBuffer(method->engine->device->vk_device, vk_verticesBuffer);
+	
+	Vk::FreeMemory(method->engine->device->vk_device, vk_indicesDeviceMemory);
+	Vk::DestroyBuffer(method->engine->device->vk_device, vk_indicesBuffer);
+}
+
+#pragma endregion
+
+#pragma region MaterialHolder
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::MaterialHolder::MaterialHolder(const Memory<ForwardMethod>& method_, const VkDescriptorSetLayout& vk_descriptorSetLayout_, const VkExtent2D& viewport_, const VkRenderPass& vk_renderPass_):
+	method(method_),
+	vk_pipelineLayout(Vk::CreatePipelineLayout(method->engine->device->vk_device, Vk::PipelineLayoutCreateInfo({vk_descriptorSetLayout_}, {}))),
+	vk_pipeline([&]() {
+		auto loadShader = [](const String& filename)
+		{
+			FILE* file = nullptr;
+
+			auto loadResult = fopen_s(&file, filename.c_str(), "rb");
+
+			if (loadResult != 0)
+			{
+				throw Exception("failed to load file");
+			}
+
+			fseek(file, 0, FILE_END);
+
+			auto size = ftell(file);
+
+			if (size % 4 != 0)
+			{
+				throw Exception(); // TODO
+			}
+
+			rewind(file);
+
+			std::vector<uint32_t> result(size);
+			fread((void*)result.data(), 1, size, file);
+
+			fclose(file);
+
+			return Move(result);
+		};
+
+		auto vk_vertexShaderModule = Vk::CreateShaderModule(method->engine->device->vk_device, Vk::ShaderModuleCreateInfo(Move(loadShader("Media/Shaders/Vulkan/Example_Graphics/triangle.spir-v.vertex-shader"))));
+		auto vk_fragmentShaderModule = Vk::CreateShaderModule(method->engine->device->vk_device, Vk::ShaderModuleCreateInfo(Move(loadShader("Media/Shaders/Vulkan/Example_Graphics/triangle.spir-v.fragment-shader"))));
+		
+		uint32_t vertexStride = sizeof(Float32) * 3;
+
+		auto vk_pipeline = Vk::CreateGraphicsPipeline(method->engine->device->vk_device, VK_NULL_HANDLE, Vk::GraphicsPipelineCreateInfo(
+			0,
+			{
+				Vk::PipelineShaderStageCreateInfo(VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT, vk_vertexShaderModule, "main"),
+				Vk::PipelineShaderStageCreateInfo(VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT, vk_fragmentShaderModule, "main"),
+			},
+			Vk::PipelineVertexInputStateCreateInfo(
+				{ Vk::VertexInputBindingDescription(0, vertexStride, VkVertexInputRate::VK_VERTEX_INPUT_RATE_VERTEX) },
+				{ Vk::VertexInputAttributeDescription(0, 0, VkFormat::VK_FORMAT_R32G32B32_SFLOAT, 0) }
+			),
+			Vk::PipelineInputAssemblyStateCreateInfo(VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, VK_FALSE),
+			Vk::PipelineViewportStateCreateInfo(
+				{ Vk::Viewport(0.0f, static_cast<float>(viewport_.height), static_cast<float>(viewport_.width), -static_cast<float>(viewport_.height), 0.0f, 1.0f) },
+				{ Vk::Rect2D(Vk::Offset2D(0, 0), Vk::Extent2D(viewport_.width, viewport_.height)) }
+			),
+			Vk::PipelineRasterizationStateCreateInfo(
+				VK_FALSE, VK_FALSE,
+				VkPolygonMode::VK_POLYGON_MODE_FILL, VkCullModeFlagBits::VK_CULL_MODE_BACK_BIT, VkFrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE,
+				VK_FALSE, 0.0f, 0.0f, 0.0f, 1.0f
+			),
+			Vk::PipelineMultisampleStateCreateInfo(
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VK_FALSE, 0.0f, nullptr, VK_FALSE, VK_FALSE
+			),
+			Vk::PipelineDepthStencilStateCreateInfo(
+				VK_TRUE, VK_TRUE, VkCompareOp::VK_COMPARE_OP_LESS, VK_FALSE,
+				VK_FALSE,
+				Vk::StencilOpState(VkStencilOp::VK_STENCIL_OP_KEEP, VkStencilOp::VK_STENCIL_OP_KEEP, VkStencilOp::VK_STENCIL_OP_KEEP, VkCompareOp::VK_COMPARE_OP_ALWAYS, 0, 0, 0),
+				Vk::StencilOpState(VkStencilOp::VK_STENCIL_OP_KEEP, VkStencilOp::VK_STENCIL_OP_KEEP, VkStencilOp::VK_STENCIL_OP_KEEP, VkCompareOp::VK_COMPARE_OP_ALWAYS, 0, 0, 0),
+				0.0f,
+				0.0f
+			),
+			Vk::PipelineColorBlendStateCreateInfo(
+				VK_FALSE, VkLogicOp::VK_LOGIC_OP_CLEAR,
+				{
+					Vk::PipelineColorBlendAttachmentState(
+						VK_FALSE,
+						VkBlendFactor::VK_BLEND_FACTOR_ONE,
+						VkBlendFactor::VK_BLEND_FACTOR_ONE,
+						VkBlendOp::VK_BLEND_OP_ADD,
+						VkBlendFactor::VK_BLEND_FACTOR_ONE,
+						VkBlendFactor::VK_BLEND_FACTOR_ONE,
+						VkBlendOp::VK_BLEND_OP_ADD,
+						VkColorComponentFlagBits::VK_COLOR_COMPONENT_R_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_G_BIT | VkColorComponentFlagBits::VK_COLOR_COMPONENT_B_BIT
+					),
+				},
+				{0.0f, 0.0f, 0.0f, 0.0f}
+			),
+			vk_pipelineLayout,
+			vk_renderPass_,
+			0
+		));
+
+		Vk::DestroyShaderModule(method->engine->device->vk_device, vk_vertexShaderModule);
+		Vk::DestroyShaderModule(method->engine->device->vk_device, vk_fragmentShaderModule);
+
+		return vk_pipeline;
+	}())
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::MaterialHolder::~MaterialHolder()
+{
+	Vk::DestroyPipeline(method->engine->device->vk_device, vk_pipeline);
+	Vk::DestroyPipelineLayout(method->engine->device->vk_device, vk_pipelineLayout);
+}
+
+#pragma endregion
+
+#pragma region RenderPassHolder
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RenderPassHolder::RenderPassHolder(const Memory<ForwardMethod>& method_, const VkFormat& vk_colorFormat_, const VkFormat& vk_depthFormat_):
+	method(method_),
+	vk_clearRenderPass(Vk::CreateRenderPass(method->engine->device->vk_device, Vk::RenderPassCreateInfo(
+		{
+			Vk::AttachmentDescription(
+				vk_colorFormat_, // vk_surfaceFormat.format,
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
+				VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			),
+			Vk::AttachmentDescription(
+				vk_depthFormat_, // swapchainHolder->vk_swapchainDepthFormat,
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED,
+				VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+			),
+		},
+		{
+			Vk::SubpassDescription(VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+				{ Vk::AttachmentReference(0, VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) },
+				Vk::AttachmentReference(1, VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+			)
+		}
+	))),
+	vk_drawRenderPass(Vk::CreateRenderPass(method->engine->device->vk_device, Vk::RenderPassCreateInfo(
+		{
+			Vk::AttachmentDescription(
+				vk_colorFormat_, // vk_surfaceFormat.format,
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED, // VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+			),
+			Vk::AttachmentDescription(
+				vk_depthFormat_, // swapchainHolder->vk_swapchainDepthFormat,
+				VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE,
+				VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+				VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE,
+				VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED, // VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
+				VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+			),
+		},
+		{
+			Vk::SubpassDescription(VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+				{ Vk::AttachmentReference(0, VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) },
+				Vk::AttachmentReference(1, VkImageLayout::VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
+			)
+		}
+	)))
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RenderPassHolder::~RenderPassHolder()
+{
+	Vk::DestroyRenderPass(method->engine->device->vk_device, vk_clearRenderPass);
+	Vk::DestroyRenderPass(method->engine->device->vk_device, vk_drawRenderPass);
+}
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FramebufferHolder> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RenderPassHolder::GetFramebuffer(const StrongPointer<SwapchainHolder>& swapchainHolder_)
+{
+	auto swapchainHolderMemory = swapchainHolder_.GetValue();
+	auto it = framebuffersLookup.find(swapchainHolderMemory);
+
+	if (it == framebuffersLookup.end())
+	{
+		auto framebufferHolder = MakeStrong<FramebufferHolder>(this, swapchainHolderMemory);
+
+		framebuffersLookup.insert({swapchainHolderMemory, framebufferHolder});
+
+		return framebufferHolder;
+	}
+	else
+	{
+		auto framebufferHolder = (*it).second;
+
+		return framebufferHolder;
+	}
+}
+
+#pragma endregion
+
+#pragma region FramebufferHolder
+
+GreatVEngine2::Vector<VkFramebuffer> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FramebufferHolder::ObtainClearFramebuffers(const Memory<RenderPassHolder>& renderPassHolderMemory_, const Memory<SwapchainHolder>& swapchainHolderMemory_)
+{
+	auto &surfaceCapabilities = swapchainHolderMemory_->surfaceInfoMemory->vk_surfaceCapabilities;
+	auto &imageViews = swapchainHolderMemory_->vk_swapchainImageViews;
+	auto &depthImageView = swapchainHolderMemory_->vk_swapchainDepthImageView;
+
+	Vector<VkFramebuffer> vk_framebuffers(imageViews.size());
+
+	for (auto &i : Range(imageViews.size()))
+	{
+		auto &colorImageView = imageViews[i];
+		auto &vk_framebuffer = vk_framebuffers[i];
+
+		vk_framebuffer = Vk::CreateFramebuffer(
+			renderPassHolderMemory_->method->engine->device->vk_device,
+			Vk::FramebufferCreateInfo(
+				renderPassHolderMemory_->vk_clearRenderPass, {colorImageView, depthImageView},
+				surfaceCapabilities.currentExtent.width,
+				surfaceCapabilities.currentExtent.height,
+				1
+			)
+		);
+	}
+
+	return Move(vk_framebuffers);
+}
+GreatVEngine2::Vector<VkFramebuffer> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FramebufferHolder::ObtainDrawFramebuffers(const Memory<RenderPassHolder>& renderPassHolderMemory_, const Memory<SwapchainHolder>& swapchainHolderMemory_)
+{
+	auto &surfaceCapabilities = swapchainHolderMemory_->surfaceInfoMemory->vk_surfaceCapabilities;
+	auto &imageViews = swapchainHolderMemory_->vk_swapchainImageViews;
+	auto &depthImageView = swapchainHolderMemory_->vk_swapchainDepthImageView;
+
+	Vector<VkFramebuffer> vk_framebuffers(imageViews.size());
+
+	for (auto &i : Range(imageViews.size()))
+	{
+		auto &colorImageView = imageViews[i];
+		auto &vk_framebuffer = vk_framebuffers[i];
+
+		vk_framebuffer = Vk::CreateFramebuffer(
+			renderPassHolderMemory_->method->engine->device->vk_device,
+			Vk::FramebufferCreateInfo(
+				renderPassHolderMemory_->vk_drawRenderPass, {colorImageView, depthImageView},
+				surfaceCapabilities.currentExtent.width,
+				surfaceCapabilities.currentExtent.height,
+				1
+			)
+		);
+	}
+
+	return Move(vk_framebuffers);
+}
+
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FramebufferHolder::FramebufferHolder(const Memory<RenderPassHolder>& renderPassHolder_, const Memory<SwapchainHolder>& swapchainHolderMemory_):
+	renderPassHolder(renderPassHolder_),
+	swapchainHolder(swapchainHolderMemory_),
+	vk_clearFramebuffers(Move(ObtainClearFramebuffers(renderPassHolder_, swapchainHolderMemory_))),
+	vk_drawFramebuffers(Move(ObtainDrawFramebuffers(renderPassHolder_, swapchainHolderMemory_)))
+{
+}
+GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FramebufferHolder::~FramebufferHolder()
+{
+	for (auto &vk_framebuffer : vk_clearFramebuffers)
+	{
+		Vk::DestroyFramebuffer(renderPassHolder->method->engine->device->vk_device, vk_framebuffer);
+	}
+	for (auto &vk_framebuffer : vk_drawFramebuffers)
+	{
+		Vk::DestroyFramebuffer(renderPassHolder->method->engine->device->vk_device, vk_framebuffer);
+	}
 }
 
 #pragma endregion
@@ -1935,6 +2615,22 @@ GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RendererIt GreatVEngine2::
 	else
 	{
 		return it;
+	}
+}
+GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::RenderPassHolder> GreatVEngine2::Graphics::APIs::Vulkan::ForwardMethod::FindOrCreate(const VkSurfaceFormatKHR& vk_surfaceFormat_)
+{
+	auto it = renderPassesLookup.find(vk_surfaceFormat_);
+
+	if (it == renderPassesLookup.end())
+	{
+		auto renderPassHolder = MakeStrong<RenderPassHolder>(this, vk_surfaceFormat_.format, VkFormat::VK_FORMAT_D32_SFLOAT);
+		auto nIt = renderPassesLookup.insert({vk_surfaceFormat_, renderPassHolder});
+
+		return renderPassHolder.GetValue();
+	}
+	else
+	{
+		return (*it).second.GetValue();
 	}
 }
 

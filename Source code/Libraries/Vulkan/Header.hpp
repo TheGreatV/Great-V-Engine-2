@@ -130,7 +130,7 @@ namespace GreatVEngine2
 			inline DeviceSize operator + (const DeviceSize& source_) const;
 			// not sure if other operations needed
 		public:
-			inline explicit operator Value() const;
+			inline operator Value() const;
 		};
 
 		class NullHandle

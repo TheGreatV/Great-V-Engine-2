@@ -24,7 +24,7 @@ namespace Desert
 	class HoldPlace;
 	class Cargo; class CargoDependent;
 	class CargoPart;
-	class Hardpoint;
+	class Hardpoint; class HardpointUser;
 	class Ship; class ShipDependent;
 	namespace Ships
 	{
@@ -39,6 +39,9 @@ namespace Desert
 
 	inline void Connect(const GVE::StrongPointer<CargoPart>& cargoPart_, const GVE::StrongPointer<HoldPlace>& holdPlace_, const CargoRotation& rotation_);
 	inline void Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_);
+
+	inline void Mount(const GVE::StrongPointer<HardpointUser>& user_, const GVE::StrongPointer<Hardpoint>& hardpoint_);
+	inline void Unmount(const GVE::StrongPointer<HardpointUser>& user_);
 
 
 	class Exception
@@ -100,6 +103,7 @@ namespace Desert
 		virtual void Update(const Delta& delta_) override;
 	public:
 		inline Mass GetTotalMass() const;
+		inline Mass GetEquipmentMass() const;
 		inline virtual Mass GetMass() const;
 		inline GVE::StrongPointer<Hold> GetHold() const;
 	};
@@ -116,9 +120,22 @@ namespace Desert
 		public Entity,
 		public ShipDependent
 	{
+		friend void Mount(const GVE::StrongPointer<HardpointUser>& user_, const GVE::StrongPointer<Hardpoint>& hardpoint_);
+		friend void Unmount(const GVE::StrongPointer<HardpointUser>& user_);
+	protected:
+		GVE::StrongPointer<HardpointUser> user = GVE::StrongPointer<HardpointUser>(nullptr);
 	public:
 		inline Hardpoint(const GVE::StrongPointer<Hardpoint>& this_, const GVE::StrongPointer<Ship>& ship_, const GVE::StrongPointer<Game>& game_);
 		inline virtual ~Hardpoint() override = default;
+	public:
+		inline bool IsEmpty() const;
+	};
+	class HardpointUser
+	{
+		friend void Mount(const GVE::StrongPointer<HardpointUser>& user_, const GVE::StrongPointer<Hardpoint>& hardpoint_);
+		friend void Unmount(const GVE::StrongPointer<HardpointUser>& user_);
+	protected:
+		GVE::WeakPointer<Hardpoint> hardpoint = GVE::WeakPointer<Hardpoint>(nullptr);
 	};
 	namespace Ships
 	{
@@ -263,6 +280,13 @@ namespace Desert
 		public:
 			inline Test(const GVE::StrongPointer<Test>& this_, const GVE::StrongPointer<Game>& game_);
 		};
+		// class Box:
+		// 	public Equipment,
+		// 	public Cargo
+		// {
+		// public:
+		// 	inline Box(const GVE::StrongPointer<Box>& this_, const GVE::StrongPointer<Game>& game_);
+		// };
 	}
 
 
@@ -708,6 +732,11 @@ Desert::Hardpoint::Hardpoint(const GVE::StrongPointer<Hardpoint>& this_, const G
 {
 }
 
+bool Desert::Hardpoint::IsEmpty() const
+{
+	return user != nullptr;
+}
+
 #pragma endregion
 
 #pragma region Ship
@@ -726,12 +755,22 @@ void Desert::Ship::Update(const Delta& delta_)
 
 Desert::Ship::Mass Desert::Ship::GetTotalMass() const
 {
+	auto ownMass = GetMass();
+	auto equipmentMass = GetEquipmentMass();
+	auto totalMass = ownMass + equipmentMass;
+	
+	return totalMass;
+}
+Desert::Ship::Mass Desert::Ship::GetEquipmentMass() const
+{
 	Mass mass = 0.0f;
 
 	for (auto &hardpoint : hardpoints)
 	{
 		// TODO
 	}
+
+	return mass;
 }
 Desert::Ship::Mass Desert::Ship::GetMass() const
 {
@@ -1051,6 +1090,28 @@ void Desert::Disconnect(const GVE::StrongPointer<CargoPart>& cargoPart_)
 			disconnect(part);
 		}
 	}
+}
+
+void Desert::Mount(const GVE::StrongPointer<HardpointUser>& user_, const GVE::StrongPointer<Hardpoint>& hardpoint_)
+{
+	if (!hardpoint_->user)
+	{
+		if (user_->hardpoint != nullptr)
+		{
+			user_->hardpoint->user = nullptr;
+		}
+
+		user_->hardpoint = hardpoint_;
+		hardpoint_->user = user_;
+	}
+	else
+	{
+		throw Exception();
+	}
+}
+void Desert::Unmount(const GVE::StrongPointer<HardpointUser>& user_)
+{
+
 }
 
 #pragma endregion

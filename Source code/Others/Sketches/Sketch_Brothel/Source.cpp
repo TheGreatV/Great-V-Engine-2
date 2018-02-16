@@ -1030,10 +1030,13 @@ void Brothel::Building::PerformWhiteroomGuests()
 		auto guest = guestsQueue.front();
 		auto seat = FindEmptySeat();
 
-		Place(guest, seat);
+		if (seat)
+		{
+			Place(guest, seat);
 
-		guestsQueue.pop_front();
-		// guestsInProgress.push_back(guest);
+			guestsQueue.pop_front();
+			// guestsInProgress.push_back(guest);
+		}
 	}
 }
 
@@ -2007,7 +2010,7 @@ void main()
 		}
 		else
 		{
-			throw Exception();
+			throw Brothel::Exception();
 		}
 	}();
 
@@ -2019,7 +2022,7 @@ void main()
 	}
 	else
 	{
-		throw Exception();
+		throw Brothel::Exception();
 	}
 
 	auto snackBar = [&]()
@@ -2034,7 +2037,7 @@ void main()
 		}
 		else
 		{
-			throw Exception();
+			throw Brothel::Exception();
 		}
 	}();
 
@@ -2044,7 +2047,7 @@ void main()
 	}
 	else
 	{
-		throw Exception(); // TODO
+		throw Brothel::Exception(); // TODO
 	}
 
 	auto guest = building->CreateGuest();

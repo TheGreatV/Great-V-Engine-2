@@ -1208,8 +1208,10 @@ namespace GreatVEngine2
 
 		// Descriptor Set
 		inline Vector<VkDescriptorSet> AllocateDescriptorSets(const VkDevice& vk_device_, const VkDescriptorSetAllocateInfo& vk_descriptorSetAllocateInfo_);
+		inline VkDescriptorSet AllocateDescriptorSet(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const VkDescriptorSetLayout& vk_descriptorSetLayout_);
 		inline void UpdateDescriptorSets(const VkDevice& vk_device_, const Vector<VkWriteDescriptorSet> vk_writeDescriptorSets_, const Vector<VkCopyDescriptorSet>& vk_copyDescriptorSet_);
 		inline void FreeDescriptorSets(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const Vector<VkDescriptorSet>& vk_descriptorSets_);
+		inline void FreeDescriptorSet(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const VkDescriptorSet& vk_descriptorSet_);
 
 		// Image
 		inline VkImage CreateImage(const VkDevice& vk_device_, const VkImageCreateInfo& vk_imageCreateInfo_);
@@ -3470,6 +3472,19 @@ GreatVEngine2::Vector<VkDescriptorSet> GreatVEngine2::Vulkan::AllocateDescriptor
 		throw Exception(); // TODO
 	}
 }
+VkDescriptorSet GreatVEngine2::Vulkan::AllocateDescriptorSet(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const VkDescriptorSetLayout& vk_descriptorSetLayout_)
+{
+	VkDescriptorSet vk_descriptorSet;
+
+	if (auto result = Result(vkAllocateDescriptorSets(vk_device_, &DescriptorSetAllocateInfo(vk_descriptorPool_, {vk_descriptorSetLayout_}), &vk_descriptorSet)))
+	{
+		return vk_descriptorSet;
+	}
+	else
+	{
+		throw Exception(); // TODO
+	}
+}
 void GreatVEngine2::Vulkan::UpdateDescriptorSets(const VkDevice& vk_device_, const Vector<VkWriteDescriptorSet> vk_writeDescriptorSets_, const Vector<VkCopyDescriptorSet>& vk_copyDescriptorSet_)
 {
 	vkUpdateDescriptorSets(vk_device_, vk_writeDescriptorSets_.size(), vk_writeDescriptorSets_.data(), vk_copyDescriptorSet_.size(), vk_copyDescriptorSet_.data());
@@ -3477,6 +3492,10 @@ void GreatVEngine2::Vulkan::UpdateDescriptorSets(const VkDevice& vk_device_, con
 void GreatVEngine2::Vulkan::FreeDescriptorSets(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const Vector<VkDescriptorSet>& vk_descriptorSets_)
 {
 	vkFreeDescriptorSets(vk_device_, vk_descriptorPool_, vk_descriptorSets_.size(), vk_descriptorSets_.data());
+}
+void GreatVEngine2::Vulkan::FreeDescriptorSet(const VkDevice& vk_device_, const VkDescriptorPool& vk_descriptorPool_, const VkDescriptorSet& vk_descriptorSet_)
+{
+	vkFreeDescriptorSets(vk_device_, vk_descriptorPool_, 1, &vk_descriptorSet_);
 }
 
 // Image
