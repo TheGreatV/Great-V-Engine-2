@@ -1,0 +1,15 @@
+#version 330
+
+
+uniform samplerCube     textureEnvironment;
+
+
+in      vec4    fTex;
+
+
+out     vec4    oColor;
+
+
+void main() {
+    oColor = textureLod(textureEnvironment, fTex.xyz, 0.0f);
+}

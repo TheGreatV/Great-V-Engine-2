@@ -52,6 +52,7 @@ public:
 void main()
 {
 	OpenGL::Init();
+	OpenIL::Init();
 
 
 	auto instanceHandle = GetModuleHandleA(NULL);

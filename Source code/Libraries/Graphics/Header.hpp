@@ -29,6 +29,11 @@ namespace GreatVEngine2
 		class Object;
 		class Material;
 		class Model;
+		class Environment;
+		namespace Environments
+		{
+			class Skybox;
+		}
 	}
 }
 

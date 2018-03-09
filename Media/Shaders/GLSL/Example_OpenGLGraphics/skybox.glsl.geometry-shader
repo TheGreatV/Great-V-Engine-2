@@ -1,0 +1,33 @@
+#version 330
+
+
+layout (points) in;
+layout (triangle_strip, max_vertices = 4) out;
+
+
+uniform mat4        viewProjectionInverseMatrix;
+
+
+out     vec4        fTex;
+
+
+void main()
+{
+	gl_Position = vec4(-1.0f, -1.0f, 1.0f, 1.0f);
+    fTex = viewProjectionInverseMatrix * gl_Position;
+	EmitVertex();
+    
+	gl_Position = vec4(+1.0f, -1.0f, 1.0f, 1.0f);
+    fTex = viewProjectionInverseMatrix * gl_Position;
+	EmitVertex();
+
+	gl_Position = vec4(-1.0f, +1.0f, 1.0f, 1.0f);
+    fTex = viewProjectionInverseMatrix * gl_Position;
+	EmitVertex();
+
+	gl_Position = vec4(+1.0f, +1.0f, 1.0f, 1.0f);
+    fTex = viewProjectionInverseMatrix * gl_Position;
+	EmitVertex();
+
+    EndPrimitive();
+}

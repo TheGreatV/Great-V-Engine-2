@@ -5,6 +5,10 @@
 
 #include "Header.hpp"
 
+#include <string>
+#include <fstream>
+#include <streambuf>
+
 #pragma endregion
 
 
@@ -21,6 +25,8 @@ namespace GreatVEngine2
 		{
 			namespace OpenGL
 			{
+				namespace GL = GreatVEngine2::OpenGL;
+
 				class Output:
 					public Graphics::Output
 				{
@@ -125,20 +131,28 @@ namespace GreatVEngine2
 					public:
 						class ProgramHolder;
 						class BuffersHolder;
+						class SkyboxHolder;
 					protected:
 						using ProgramsLookup = Map<Memory<Material>, StrongPointer<ProgramHolder>>;
 						using BuffersLookup = Map<Memory<Model>, StrongPointer<BuffersHolder>>;
+						using SkyboxesLookup = Map<Memory<Environments::Skybox>, StrongPointer<SkyboxHolder>>;
 						using ObjectsTable = Vector<Memory<Object>>;
 						using BuffersTable = Map<Memory<BuffersHolder>, ObjectsTable>;
 						using ProgramsTable = Map<Memory<ProgramHolder>, BuffersTable>;
-						using SceneGraph = Vector<Memory<Object>>; // TODO: optimize
+						using SkyboxesTable = Vector<Memory<SkyboxHolder>>;
+					protected:
+						struct SceneGraph
+						{
+							ProgramsTable programsTable;
+							SkyboxesTable skyboxesTable;
+						};
 					protected:
 						const Memory<Forward> method;
 						const Memory<Scene> scene;
 					protected:
 						ProgramsLookup programsLookup;
 						BuffersLookup buffersLookup;
-						ProgramsTable programsTable;
+						SkyboxesLookup skyboxesLookup;
 						Scene::Version sceneVersion;
 						SceneGraph sceneGraph;
 					public:
@@ -160,6 +174,7 @@ namespace GreatVEngine2
 					{
 					public:
 						GreatVEngine2::OpenGL::ProgramHandle programHandle;
+						Map<Size, GL::TextureHandle> textures;
 					};
 					class Forward::Renderer::BuffersHolder
 					{
@@ -167,6 +182,14 @@ namespace GreatVEngine2
 						GreatVEngine2::OpenGL::VertexArrayHandle vertexArrayHandle;
 						GreatVEngine2::OpenGL::BufferHandle verticesBufferHandle;
 						GreatVEngine2::OpenGL::BufferHandle indicesBufferHandle;
+					};
+					class Forward::Renderer::SkyboxHolder
+					{
+					public:
+						GreatVEngine2::OpenGL::TextureHandle textureHandle;
+						GreatVEngine2::OpenGL::VertexArrayHandle vertexArrayHandle;
+						GreatVEngine2::OpenGL::BufferHandle verticesBufferHandle;
+						GreatVEngine2::OpenGL::ProgramHandle programHandle;
 					};
 #pragma endregion
 #pragma region Forward::Context
@@ -283,8 +306,8 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 	}
 
 	auto &objects = scene->objects;
-
-	sceneGraph.clear();
+	auto &programsTable = sceneGraph.programsTable;
+	
 	programsTable.clear();
 
 	for (auto &objectMemory : objects)
@@ -306,9 +329,18 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 				auto program = GreatVEngine2::OpenGL::CreateProgram();
 				{
+					auto loadShader = [](const String& filename)
+					{
+						std::ifstream t(filename);
+						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+
+						return Move(str);
+					};
+
 					auto vs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Vertex);
 					{
-						String source = "#version 330\n uniform mat4 modelViewProjectionMatrix; in vec3 vPos; void main() { gl_Position = modelViewProjectionMatrix * vec4(vPos,1.0f); }";
+						// String source = "#version 330\n uniform mat4 modelViewProjectionMatrix; in vec3 vPos; void main() { gl_Position = modelViewProjectionMatrix * vec4(vPos,1.0f); }";
+						auto source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader");
 
 						GreatVEngine2::OpenGL::ShaderSource(vs, {source});
 						GreatVEngine2::OpenGL::CompileShader(vs);
@@ -322,7 +354,8 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 					}
 					auto fs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Fragment);
 					{
-						String source = "#version 330\nout vec4 oColor; void main() { oColor = vec4(vec3(gl_FragCoord.z), 1.0f); }";
+						// String source = "#version 330\nout vec4 oColor; void main() { oColor = vec4(vec3(gl_FragCoord.z), 1.0f); }";
+						auto source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader");
 
 						GreatVEngine2::OpenGL::ShaderSource(fs, {source});
 						GreatVEngine2::OpenGL::CompileShader(fs);
@@ -352,9 +385,78 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 					GreatVEngine2::OpenGL::DeleteShader(vs);
 					GreatVEngine2::OpenGL::DeleteShader(fs);
+
+					GL::UseProgram(program);
+
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureAlbedo"))
+					{
+						GL::SetUniform(uniformLocation, 0);
+					}
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureNormals"))
+					{
+						GL::SetUniform(uniformLocation, 1);
+					}
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureRoughness"))
+					{
+						GL::SetUniform(uniformLocation, 2);
+					}
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureMetalness"))
+					{
+						GL::SetUniform(uniformLocation, 3);
+					}
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureOcclusion"))
+					{
+						GL::SetUniform(uniformLocation, 4);
+					}
+					if (auto uniformLocation = GL::GetUniformLocation(program, "textureEnvironment"))
+					{
+						GL::SetUniform(uniformLocation, 8);
+					}
 				}
 
+				auto loadTexture = [](const String& filename_)
+				{
+					auto texture = GL::GenTexture();
+					{
+						auto image = OpenIL::Load(filename_);
+
+						if (auto image2D = DynamicCast<Image2D>(image))
+						{
+							GL::ActiveTexture(0); GL::BindTexture(GL::TextureType::D2, texture);
+
+							GL::TextureParameterWrap(GL::TextureType::D2, GL::TextureWrap::Repeat, GL::TextureWrap::Repeat, GL::TextureWrap::Repeat);
+							GL::TextureParameterFilter(GL::TextureType::D2, GL::TextureMinificationFilter::LinearMipmapLinear, GL::TextureMagnificationFilter::Linear);
+
+							for (auto &mipmapIndex : Range(image2D->GetMipmapsCount()))
+							{
+								auto &mipmap = (*image2D)[mipmapIndex];
+
+								GL::TextureImage(mipmapIndex, GL::GetInternalFormat(image), mipmap.GetSize(), GL::GetFormat(image), GL::GetDataType(image), mipmap.GetData());
+							}
+						}
+						else
+						{
+							throw Exception();
+						}
+
+						GL::glGenerateMipmap(static_cast<GLenum>(GL::TextureType::D2));
+					}
+
+					return texture;
+				};
+
+				auto textureAlbedo = loadTexture("Media/Images/Albedo.png");
+				auto textureNormals = loadTexture("Media/Images/Normals.png");
+				auto textureRoughness = loadTexture("Media/Images/Roughness.png");
+				auto textureMetalness = loadTexture("Media/Images/Metalness.png");
+				auto textureOcclusion = loadTexture("Media/Images/Occlusion.png");
+
 				programHolderMemory->programHandle = program;
+				programHolderMemory->textures[0] = textureAlbedo;
+				programHolderMemory->textures[1] = textureNormals;
+				programHolderMemory->textures[2] = textureRoughness;
+				programHolderMemory->textures[3] = textureMetalness;
+				programHolderMemory->textures[4] = textureOcclusion;
 
 				return programHolderMemory;
 			}
@@ -403,7 +505,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 				auto vbo = GreatVEngine2::OpenGL::GenBuffer();
 				{
-					auto data = Move(geometry->GetVertices(Geometry::VertexPackMode::Pos32F));
+					auto data = Move(geometry->GetVertices(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
 
 					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
 					GreatVEngine2::OpenGL::BufferData(GreatVEngine2::OpenGL::BufferType::Array, data.size(), data.data(), GreatVEngine2::OpenGL::BufferUsage::Static);
@@ -424,18 +526,37 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 					GreatVEngine2::OpenGL::UseProgram(programHandle);
 					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
 
-					auto l1 = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vPos");
+					const Size positionAttributeOffset				= 0;
+					const Size tangentAttributeOffset				= sizeof(Float32) * 3;
+					const Size binormalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 1;
+					const Size normalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 2;
+					const Size textureCoordinatesAttributeOffset	= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 3;
 
-					GreatVEngine2::OpenGL::VertexAttribPointer(l1, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F), 0);
-					GreatVEngine2::OpenGL::EnableVertexAttribArray(l1);
-
-					/*auto modelMatrix = objectMemory->GetMMat();
-					auto viewMatrix = camera_->GetVMat();
-					auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 1000.0f) * Scale4(Vec3(1.0f, 1.0f, 1.0f)) * viewMatrix;
-					auto mat = viewProjectionMatrix * modelMatrix;
-
-					auto u1 = GetUniformLocation(programHandle, "modelViewProjectionMatrix");
-					UniformMatrix(u1, mat);*/
+					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vPos"))
+					{
+						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), positionAttributeOffset);
+						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
+					}
+					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vTan"))
+					{
+						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), tangentAttributeOffset);
+						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
+					}
+					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vBin"))
+					{
+						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), binormalAttributeOffset);
+						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
+					}
+					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vNor"))
+					{
+						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), normalAttributeOffset);
+						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
+					}
+					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vTex"))
+					{
+						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 2, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), textureCoordinatesAttributeOffset);
+						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
+					}
 				}
 
 				buffersHolderMemory->vertexArrayHandle = vao;
@@ -472,7 +593,187 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 		objectsTable.push_back(objectMemory);
 
-		sceneGraph.push_back(objectMemory);
+		// sceneGraph.push_back(objectMemory);
+	}
+
+	auto &skyboxes = scene->skyboxes;
+	auto &skyboxesTable = sceneGraph.skyboxesTable;
+
+	for (auto &skyboxMemory : skyboxes)
+	{
+		auto skyboxHolderMemory = [&]() -> Memory<SkyboxHolder>
+		{
+			auto it = skyboxesLookup.find(skyboxMemory);
+
+			if (it == skyboxesLookup.end())
+			{
+				auto skyboxHolder = MakeStrong<SkyboxHolder>();
+
+				skyboxesLookup.insert({skyboxMemory, skyboxHolder});
+
+				auto skyboxHolderMemory = skyboxHolder.GetValue();
+				
+				auto programHandle = GreatVEngine2::OpenGL::CreateProgram();
+				{
+					auto loadShader = [](const String& filename)
+					{
+						std::ifstream t(filename);
+						std::string str((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+
+						return Move(str);
+					};
+
+					auto vs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Vertex);
+					{
+						auto source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/skybox.glsl.vertex-shader");
+
+						GreatVEngine2::OpenGL::ShaderSource(vs, {source});
+						GreatVEngine2::OpenGL::CompileShader(vs);
+
+						if (!GreatVEngine2::OpenGL::GetShaderCompileStatus(vs))
+						{
+							auto log = GreatVEngine2::OpenGL::GetShaderInfoLog(vs);
+
+							throw Exception("Error while compiling shader: " + log);
+						}
+					}
+					auto gs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Geometry);
+					{
+						auto source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/skybox.glsl.geometry-shader");
+
+						GreatVEngine2::OpenGL::ShaderSource(gs, {source});
+						GreatVEngine2::OpenGL::CompileShader(gs);
+
+						if (!GreatVEngine2::OpenGL::GetShaderCompileStatus(gs))
+						{
+							auto log = GreatVEngine2::OpenGL::GetShaderInfoLog(gs);
+
+							throw Exception("Error while compiling shader: " + log);
+						}
+					}
+					auto fs = GreatVEngine2::OpenGL::CreateShader(GreatVEngine2::OpenGL::ShaderType::Fragment);
+					{
+						auto source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/skybox.glsl.fragment-shader");
+
+						GreatVEngine2::OpenGL::ShaderSource(fs, {source});
+						GreatVEngine2::OpenGL::CompileShader(fs);
+
+						if (!GreatVEngine2::OpenGL::GetShaderCompileStatus(fs))
+						{
+							auto log = GreatVEngine2::OpenGL::GetShaderInfoLog(fs);
+
+							throw Exception("Error while compiling shader: " + log);
+						}
+					}
+
+					GreatVEngine2::OpenGL::AttachShader(programHandle, vs);
+					GreatVEngine2::OpenGL::AttachShader(programHandle, gs);
+					GreatVEngine2::OpenGL::AttachShader(programHandle, fs);
+
+					GreatVEngine2::OpenGL::LinkProgram(programHandle);
+
+					if (!GreatVEngine2::OpenGL::GetProgramLinkStatus(programHandle))
+					{
+						auto log = GreatVEngine2::OpenGL::GetProgramInfoLog(programHandle);
+
+						throw Exception("Error while linking programHandle: " + log);
+					}
+
+					GreatVEngine2::OpenGL::DetachShader(programHandle, vs);
+					GreatVEngine2::OpenGL::DetachShader(programHandle, gs);
+					GreatVEngine2::OpenGL::DetachShader(programHandle, fs);
+
+					GreatVEngine2::OpenGL::DeleteShader(vs);
+					GreatVEngine2::OpenGL::DeleteShader(gs);
+					GreatVEngine2::OpenGL::DeleteShader(fs);
+
+					GL::UseProgram(programHandle);
+
+					if (auto uniformLocation = GL::GetUniformLocation(programHandle, "textureEnvironment"))
+					{
+						GL::SetUniform(uniformLocation, 0);
+					}
+				}
+
+				skyboxHolderMemory->programHandle = programHandle;
+
+				auto vbo = GreatVEngine2::OpenGL::GenBuffer();
+				{
+					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
+					GreatVEngine2::OpenGL::BufferData(GreatVEngine2::OpenGL::BufferType::Array, 0, nullptr, GreatVEngine2::OpenGL::BufferUsage::Static);
+				}
+				auto vao = GreatVEngine2::OpenGL::GenVertexArray();
+				{
+					GreatVEngine2::OpenGL::BindVertexArray(vao);
+
+					GreatVEngine2::OpenGL::UseProgram(programHandle);
+					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
+				}
+
+				skyboxHolderMemory->vertexArrayHandle = vao;
+				skyboxHolderMemory->verticesBufferHandle = vbo;
+
+				auto loadTexture = [](const String& filename_)
+				{
+					auto texture = GL::GenTexture();
+					{
+						auto image = OpenIL::Load(filename_);
+
+						if (auto imageCube = DynamicCast<ImageCube>(image))
+						{
+							GL::ActiveTexture(0); GL::BindTexture(GL::TextureType::Cubemap, texture);
+							
+							GL::TextureParameterWrap(GL::TextureType::Cubemap, GL::TextureWrap::ClampToEdge, GL::TextureWrap::ClampToEdge, GL::TextureWrap::ClampToEdge);
+							GL::TextureParameterFilter(GL::TextureType::Cubemap, GL::TextureMinificationFilter::LinearMipmapLinear, GL::TextureMagnificationFilter::Linear);
+							
+							for (auto &mipmapIndex : Range(imageCube->GetMipmapsCount()))
+							{
+								auto &mipmap = (*imageCube)[mipmapIndex];
+								auto &data = mipmap.GetData();
+
+								for (auto &faceIndex : Range(mipmap.GetFacesCount()))
+								{
+									auto faceData = data[faceIndex];
+									auto face =
+										faceIndex == static_cast<Size>(MipmapCube::Face::NegativeX) ? GL::CubemapFace::NegativeX :
+										faceIndex == static_cast<Size>(MipmapCube::Face::PositiveX) ? GL::CubemapFace::PositiveX :
+										faceIndex == static_cast<Size>(MipmapCube::Face::NegativeY) ? GL::CubemapFace::NegativeY :
+										faceIndex == static_cast<Size>(MipmapCube::Face::PositiveY) ? GL::CubemapFace::PositiveY :
+										faceIndex == static_cast<Size>(MipmapCube::Face::NegativeZ) ? GL::CubemapFace::NegativeZ :
+										faceIndex == static_cast<Size>(MipmapCube::Face::PositiveZ) ? GL::CubemapFace::PositiveZ :
+										throw Exception();
+
+									GL::TextureImage(face, mipmapIndex, GL::GetInternalFormat(image), mipmap.GetSize(), GL::GetFormat(image), GL::GetDataType(image), faceData);
+								}
+							}
+						}
+						else
+						{
+							throw Exception();
+						}
+
+						// GL::glGenerateMipmap(static_cast<GLenum>(GL::TextureType::D2));
+					}
+
+					return texture;
+				};
+
+				auto textureEnvironment = loadTexture("Media/Images/Environment.dds");
+
+				skyboxHolderMemory->textureHandle = textureEnvironment;
+
+				return skyboxHolderMemory;
+			}
+			else
+			{
+				auto skyboxHolder = (*it).second;
+				auto skyboxHolderMemory = skyboxHolder.GetValue();
+
+				return skyboxHolderMemory;
+			}
+		}();
+		
+		skyboxesTable.push_back(skyboxHolderMemory);
 	}
 
 	if (!wglMakeCurrent(nullptr, nullptr))
@@ -495,6 +796,9 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::UpdateSc
 void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_)
 {
 	UpdateSceneGraph();
+	
+	auto &programsTable = sceneGraph.programsTable;
+	auto &skyboxesTable = sceneGraph.skyboxesTable;
 
 	auto deviceContextHandle = view_->GetDeviceContextHandle();
 	auto renderContext = method->GetContext()->renderContext;
@@ -514,6 +818,33 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	// draw skybox
+	if (!skyboxesTable.empty())
+	{
+		auto &skybox = skyboxesTable.front();
+
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+
+		UseProgram(skybox->programHandle);
+		BindVertexArray(skybox->vertexArrayHandle);
+
+		auto projectionInverseMatrix = PerspectiveInverse(60.0f, aspect, 0.1f, 100.0f);
+
+		if (auto uniformLocation = GetUniformLocation(skybox->programHandle, "viewProjectionInverseMatrix"))
+		{
+			SetUniform(uniformLocation, Mat4(camera_->GetRMat()) * projectionInverseMatrix);
+		}
+
+		GL::ActiveTexture(0);
+		GL::BindTexture(GL::TextureType::Cubemap, skybox->textureHandle);
+
+		glDrawArrays(GL_POINTS, 0, 1);
+	}
+
+
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
@@ -531,6 +862,25 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 		auto programHandle = programHolder->programHandle;
 		auto &buffersTable = programIt.second;
 
+		UseProgram(programHandle);
+
+		for (auto &it : programHolder->textures)
+		{
+			auto &index = it.first;
+			auto &texture = it.second;
+
+			GL::ActiveTexture(index);
+			GL::BindTexture(GL::TextureType::D2, texture);
+		}
+
+		if (!skyboxesTable.empty())
+		{
+			auto &skybox = skyboxesTable.front();
+
+			GL::ActiveTexture(8);
+			GL::BindTexture(GL::TextureType::Cubemap, skybox->textureHandle);
+		}
+
 		for (auto &buffersIt : buffersTable)
 		{
 			auto &buffersHolder = buffersIt.first;
@@ -539,7 +889,6 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			auto indicesBufferHandle = buffersHolder->indicesBufferHandle;
 			auto &objectsTable = buffersIt.second;
 
-			UseProgram(programHandle);
 			BindVertexArray(vertexArrayHandle);
 			BindBuffer(BufferType::ElementArray, indicesBufferHandle);
 
@@ -555,13 +904,25 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			
 			for (auto &objectMemory : objectsTable)
 			{
+				auto rotateMatrix = objectMemory->GetRMat();
 				auto modelMatrix = objectMemory->GetMMat();
 				auto viewMatrix = camera_->GetVMat();
-				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 10.0f) * viewMatrix;
+				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 100.0f) * viewMatrix;
 				auto mat = viewProjectionMatrix * modelMatrix;
 
-				auto u1 = GetUniformLocation(programHandle, "modelViewProjectionMatrix");
-				UniformMatrix(u1, mat);
+				if (auto uniformLocation = GetUniformLocation(programHandle, "modelViewProjectionMatrix"))
+				{
+					SetUniform(uniformLocation, mat);
+				}
+				if (auto uniformLocation = GetUniformLocation(programHandle, "modelMatrix"))
+				{
+					SetUniform(uniformLocation, Move4(-camera_->GetPosition()) * modelMatrix);
+				}
+				if (auto uniformLocation = GetUniformLocation(programHandle, "rotateMatrix"))
+				{
+					SetUniform(uniformLocation, rotateMatrix);
+				}
+
 
 				auto geometry = objectMemory->GetModel()->GetGeometry();
 				
@@ -576,7 +937,6 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			}
 		}
 	}
-
 
 	glFlush();
 

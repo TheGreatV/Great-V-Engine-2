@@ -20,9 +20,10 @@ namespace GreatVEngine2
 		enum class VertexPackMode
 		{
 			Pos32F,
-			Pos32F_TBN32F_Tex32F,				// 4*3 + 4*3*3 + 4*2 = 56 bytes
-			Pos32F_TN16F_Tex32F,				// 4*3 + 2*3*2 + 2*2 = 32 bytes
-			Default = Pos32F_TBN32F_Tex32F
+			Pos32F_TBN32F_Tex32F,				// 4*3	+ 4*3*3	+ 4*2	= 56 bytes
+			Pos32F_TN16F_Tex32F,				// 4*3	+ 2*3*2	+ 2*2	= 32 bytes
+			Pos16F_TBNa16F_Tex16F,				// 2*3	+ 2*3	+ 2*2	= 16 bytes (TBN is saved as angles)
+			Default = Pos32F_TBN32F_Tex32F,
 		};
 		enum class IndexPackMode
 		{
@@ -59,6 +60,8 @@ namespace GreatVEngine2
 	public:
 		static inline StrongPointer<Geometry> CreateBox(const Vec3& size_, const Vec3& tex_, const UVec3& seg_);
 		static inline StrongPointer<Geometry> CreateSphere(const Float32& radius_, const Vec2& tex_, const UVec2& seg_);
+		static inline StrongPointer<Geometry> CreateTorus(const Float32& radius_, const Float32& width_, const Vec2& tex_, const UVec2& seg_);
+		static inline StrongPointer<Geometry> CreateCapsule(const Float32& radius_, const Float32& height_, const Vec2& tex_, const UVec2& seg_);
 	public:
 		Topology topology = Topology::Triangles;
 		Vector<Vertex> vertices;
@@ -447,6 +450,154 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::C
 		geometry->indices[id + 3] = geometry->indices[id + 1];
 		geometry->indices[id + 4] = (y + 1)*(seg_.x + 1) + (x + 1);
 		geometry->indices[id + 5] = geometry->indices[id + 2];
+	}
+
+	return MakeStrong(geometry);
+}
+GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::CreateTorus(const Float32& radius_, const Float32& width_, const Vec2& tex_, const UVec2& seg_)
+{
+	if (seg_.x < 3 || seg_.y < 3)
+	{
+		throw Exception("Invalid segments count");
+	}
+
+	auto geometry = new Geometry(
+		Topology::Triangles,
+		(seg_.x + 1)*(seg_.y + 1),
+		seg_.x*seg_.y * 6
+	);
+
+	SInt32 segX = seg_.x + 1;
+	SInt32 segY = seg_.y + 1;
+	Float32 step_tx = tex_.x / Float32(seg_.x);
+	Float32 step_ty = tex_.y / Float32(seg_.y);
+	Float32 step_ay = 360.0f / Float32(seg_.y);
+	Float32 step_ax = 360.0f / Float32(seg_.x);
+
+	Vec3 tpos;
+	Mat3 tmat;
+	SInt32 id;
+
+	for (SInt32 x = 0; x < SInt32(seg_.x) + 1; ++x)
+	{
+		for (SInt32 y = 0; y < SInt32(seg_.y) + 1; ++y)
+		{
+			id = (seg_.y + 1)*x + y;
+			tpos = ((
+				RotateZXY4(Vec3(0, step_ax*x, 0))
+				*Move4(Vec3(0, 0, radius_))
+				*RotateZXY4(Vec3(step_ay*y, 0, 0))
+			) * Vec4(Vec3(0, 0, width_), 1.0f)).xyz;
+			
+			geometry->vertices[id].pos = tpos;
+			geometry->vertices[id].tex = Vec2(step_tx*x, step_ty*y);
+			tmat = RotateZXY3(Vec3(step_ay*y, step_ax*x, 0));
+			geometry->vertices[id].tan = tmat * Vec3(1, 0, 0);
+			geometry->vertices[id].bin = tmat * Vec3(0, -1, 0);
+			geometry->vertices[id].nor = tmat * Vec3(0, 0, 1);
+		}
+	}
+
+	for (SInt32 x = 0; x < SInt32(seg_.x); ++x)
+	{
+		for (SInt32 y = 0; y < SInt32(seg_.y); ++y)
+		{
+			id = 6 * (seg_.y*x + y);
+			geometry->indices[id + 0] = (seg_.y + 1)*(x + 0) + (y + 0);
+			geometry->indices[id + 1] = (seg_.y + 1)*(x + 1) + (y + 0);
+			geometry->indices[id + 2] = (seg_.y + 1)*(x + 0) + (y + 1);
+			geometry->indices[id + 3] = geometry->indices[id + 1];
+			geometry->indices[id + 4] = (seg_.y + 1)*(x + 1) + (y + 1);
+			geometry->indices[id + 5] = geometry->indices[id + 2];
+		}
+	}
+
+	return MakeStrong(geometry);
+}
+GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::CreateCapsule(const Float32& radius_, const Float32& height_, const Vec2& tex_, const UVec2& seg_)
+{
+	auto geometry = new Geometry(
+		Topology::Triangles,
+		(seg_.x + 1)*(seg_.y + 1) * 2,
+		(6 * ((seg_.y - 1) * 2 + 1) + 3 * 2) * seg_.x
+	);
+
+	Float32	st = (radius_*PI*0.5f) / (2.0f*(radius_*PI*0.5f) + height_);
+	Mat3	tMat;
+
+	for (Size x = 0; x <= seg_.x; ++x)
+	{
+		Float32 dx = Float32(x) / Float32(seg_.x);
+
+		for (Size y = 0; y <= seg_.y; ++y)
+		{
+			Float32 dy = Float32(y) / Float32(seg_.y);
+			{
+				Size id = (seg_.y + 1) * 2 * x + y;
+				tMat = RotateZXY3(Vec3(-90.0f + 90.0f*dy, 360.0f*dx - 180.0f, 0.0f));
+				geometry->vertices[id].pos = (tMat * Vec3(0.0f, 0.0f, radius_)) + Vec3(0.0f, height_*0.5f, 0.0f);
+				geometry->vertices[id].tan = tMat*Vec3(-1.0f, 0.0f, 0.0f);
+				geometry->vertices[id].bin = tMat*Vec3(0.0f, 1.0f, 0.0f);
+				geometry->vertices[id].nor = tMat*Vec3(0.0f, 0.0f, 1.0f);
+				geometry->vertices[id].tex = Vec2(1.0f - dx, 1.0f - dy*st) * tex_;
+			}
+			{
+				Size id = (seg_.y + 1) * 2 * x + (seg_.y + 1) + y;
+				tMat = RotateZXY3(Vec3(90.0f*dy, 360.0f*dx - 180.0f, 0.0f));
+				geometry->vertices[id].pos = (tMat * Vec3(0.0f, 0.0f, radius_)) + Vec3(0.0f, -height_*0.5f, 0.0f);
+				geometry->vertices[id].tan = tMat*Vec3(-1.0f, 0.0f, 0.0f);
+				geometry->vertices[id].bin = tMat*Vec3(0.0f, 1.0f, 0.0f);
+				geometry->vertices[id].nor = tMat*Vec3(0.0f, 0.0f, 1.0f);
+				geometry->vertices[id].tex = Vec2(1.0f - dx, (1.0f - dy)*st) * tex_;
+			}
+		}
+	}
+
+	Size iR = 6 * (1 + 2 * (seg_.y - 1)) + 3 * 2;
+	for (Size x = 0; x < seg_.x; ++x)
+	{
+		{
+			Size id = iR*x + 0;
+			geometry->indices[id + 0] = (seg_.y + 1) * 2 * (x + 0) + 0;
+			geometry->indices[id + 1] = (seg_.y + 1) * 2 * (x + 1) + 1;
+			geometry->indices[id + 2] = (seg_.y + 1) * 2 * (x + 0) + 1;
+		}
+		{
+			Size id = iR*x + (3 + 6 * (2 * (seg_.y - 1) + 1)) + 0;
+			geometry->indices[id + 0] = (seg_.y + 1) * 2 * (x + 0) + (2 * seg_.y);
+			geometry->indices[id + 1] = (seg_.y + 1) * 2 * (x + 1) + (2 * seg_.y);
+			geometry->indices[id + 2] = (seg_.y + 1) * 2 * (x + 0) + (2 * seg_.y + 1);
+		}
+		{
+			Size id = iR*x + 3 + 6 * (seg_.y - 1);
+			geometry->indices[id + 0] = (seg_.y + 1) * 2 * (x + 0) + seg_.y + 0;
+			geometry->indices[id + 1] = (seg_.y + 1) * 2 * (x + 1) + seg_.y + 0;
+			geometry->indices[id + 2] = (seg_.y + 1) * 2 * (x + 0) + seg_.y + 1;
+			geometry->indices[id + 3] = geometry->indices[id + 2];
+			geometry->indices[id + 4] = geometry->indices[id + 1];
+			geometry->indices[id + 5] = (seg_.y + 1) * 2 * (x + 1) + seg_.y + 1;
+		}
+		for (Size y = 0; y < seg_.y - 1; ++y)
+		{
+			{
+				Size id = iR*x + 3 + 6 * y;
+				geometry->indices[id + 0] = (seg_.y + 1) * 2 * (x + 0) + 1 + (y + 0);
+				geometry->indices[id + 1] = (seg_.y + 1) * 2 * (x + 1) + 1 + (y + 0);
+				geometry->indices[id + 2] = (seg_.y + 1) * 2 * (x + 0) + 1 + (y + 1);
+				geometry->indices[id + 3] = geometry->indices[id + 2];
+				geometry->indices[id + 4] = geometry->indices[id + 1];
+				geometry->indices[id + 5] = (seg_.y + 1) * 2 * (x + 1) + 1 + (y + 1);
+			}
+			{
+				Size id = iR*x + 3 + 6 * (seg_.y - 1) + 6 + 6 * y;
+				geometry->indices[id + 0] = (seg_.y + 1) * 2 * (x + 0) + (seg_.y + 1) + (y + 0);
+				geometry->indices[id + 1] = (seg_.y + 1) * 2 * (x + 1) + (seg_.y + 1) + (y + 0);
+				geometry->indices[id + 2] = (seg_.y + 1) * 2 * (x + 0) + (seg_.y + 1) + (y + 1);
+				geometry->indices[id + 3] = geometry->indices[id + 2];
+				geometry->indices[id + 4] = geometry->indices[id + 1];
+				geometry->indices[id + 5] = (seg_.y + 1) * 2 * (x + 1) + (seg_.y + 1) + (y + 1);
+			}
+		}
 	}
 
 	return MakeStrong(geometry);

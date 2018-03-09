@@ -5,6 +5,7 @@
 #include <../OpenGL/OpenGL.hpp>
 #include <../Graphics/Graphics.hpp>
 #include <../Windows Graphics/Windows Graphics.hpp>
+#include <../OpenIL/OpenIL.hpp>
 
 #pragma endregion
 

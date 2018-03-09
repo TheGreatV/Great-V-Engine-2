@@ -54,10 +54,12 @@ namespace GreatVEngine2
 			public This<Scene>
 		{
 			friend Object;
+			friend Environments::Skybox;
 			friend Engine;
 		protected:
 			using Objects = Vector<Memory<Object>>;
 			using ObjectIt = Objects::size_type;
+			using Skyboxes = Vector<Memory<Environments::Skybox>>;
 		public:
 			using Version = Size;
 		protected:
@@ -67,6 +69,7 @@ namespace GreatVEngine2
 			}
 		public: // protected: // TODO: do something with that
 			Objects objects;
+			Skyboxes skyboxes;
 			Version version;
 		public:
 			inline Scene() = delete;
@@ -78,6 +81,8 @@ namespace GreatVEngine2
 		protected:
 			inline ObjectIt SignalObjectCreated(const Memory<Object>& objectMemory_);
 			inline void SignalObjectDestroyed(const Memory<Object>& objectMemory_);
+			inline void SignalSkyboxEnvironmentCreated(const Memory<Environments::Skybox>& skyboxMemory_);
+			inline void SignalSkyboxEnvironmentDestroyed(const Memory<Environments::Skybox>& skyboxMemory_);
 		protected:
 			inline void UpdateVersion();
 		public:
@@ -162,6 +167,7 @@ namespace GreatVEngine2
 		public:
 			inline virtual ViewportRange GetViewportRange() const = 0;
 		};
+#pragma region View::ViewportRange
 		class View::ViewportRange
 		{
 		protected:
@@ -188,6 +194,37 @@ namespace GreatVEngine2
 			{
 				return static_cast<Float32>(size.x) / static_cast<Float32>(size.y);
 			}
+		};
+#pragma endregion
+
+		class Environment:
+			public This<Environment>
+		{
+		protected:
+			const Memory<Scene> scene;
+		public:
+			inline Environment() = delete;
+			inline Environment(const StrongPointer<Environment>& this_, const StrongPointer<Scene>& scene_);
+			inline Environment(const Environment&) = delete;
+			inline ~Environment() = default;
+		public:
+			inline Environment& operator = (const Environment&) = delete;
+		};
+		namespace Environments
+		{
+			class Skybox:
+				public Environment
+			{
+			public:
+				static inline StrongPointer<Skybox> Load(const StrongPointer<Scene>& scene_);
+			public:
+				inline Skybox() = delete;
+				inline Skybox(const StrongPointer<Skybox>& this_, const StrongPointer<Scene>& scene_);
+				inline Skybox(const Skybox&) = delete;
+				inline ~Skybox();
+			public:
+				inline Skybox& operator = (const Skybox&) = delete;
+			};
 		};
 	}
 }
@@ -258,6 +295,23 @@ void GreatVEngine2::Graphics::Scene::SignalObjectDestroyed(const Memory<Object>&
 		objects.pop_back();
 		
 		UpdateVersion();
+	}
+}
+void GreatVEngine2::Graphics::Scene::SignalSkyboxEnvironmentCreated(const Memory<Environments::Skybox>& skyboxMemory_)
+{
+	skyboxes.push_back(skyboxMemory_);
+}
+void GreatVEngine2::Graphics::Scene::SignalSkyboxEnvironmentDestroyed(const Memory<Environments::Skybox>& skyboxMemory_)
+{
+	auto it = std::find(skyboxes.begin(), skyboxes.end(), skyboxMemory_);
+
+	if (it != skyboxes.end())
+	{
+		skyboxes.erase(it);
+	}
+	else
+	{
+		throw Exception();
 	}
 }
 
@@ -346,6 +400,41 @@ GreatVEngine2::Graphics::View::View(const StrongPointer<View>& this_):
 	This(this_)
 {
 }
+
+#pragma endregion
+
+#pragma region Environment
+
+GreatVEngine2::Graphics::Environment::Environment(const StrongPointer<Environment>& this_, const StrongPointer<Scene>& scene_):
+	This(this_),
+	scene(scene_.GetValue())
+{
+}
+
+#pragma endregion
+
+#pragma region Environments
+
+#pragma region Skybox
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::Environments::Skybox> GreatVEngine2::Graphics::Environments::Skybox::Load(const StrongPointer<Scene>& scene_)
+{
+	auto skybox = Make<Skybox>(scene_);
+
+	return Move(skybox);
+}
+
+GreatVEngine2::Graphics::Environments::Skybox::Skybox(const StrongPointer<Skybox>& this_, const StrongPointer<Scene>& scene_):
+	Environment(this_, scene_)
+{
+	scene->SignalSkyboxEnvironmentCreated(this);
+}
+GreatVEngine2::Graphics::Environments::Skybox::~Skybox()
+{
+	scene->SignalSkyboxEnvironmentDestroyed(this);
+}
+
+#pragma endregion
 
 #pragma endregion
 

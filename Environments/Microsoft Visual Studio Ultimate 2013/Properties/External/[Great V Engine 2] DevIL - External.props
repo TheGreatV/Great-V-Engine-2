@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\External Dependencies\OpenIL\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\..\External Dependencies\OpenIL\lib\$(PlatformTarget);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /R /Y "$(SolutionDir)..\..\External Dependencies\OpenIL\dll\$(PlatformTarget)\DevIL.dll" "$(OutDir)"
+xcopy /R /Y "$(SolutionDir)..\..\External Dependencies\OpenIL\dll\$(PlatformTarget)\ILU.dll" "$(OutDir)"
+xcopy /R /Y "$(SolutionDir)..\..\External Dependencies\OpenIL\dll\$(PlatformTarget)\ILUT.dll" "$(OutDir)"
+%(Command)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

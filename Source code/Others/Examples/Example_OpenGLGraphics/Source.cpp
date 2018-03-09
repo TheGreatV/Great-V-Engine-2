@@ -48,6 +48,9 @@ public:
 void main()
 {
 	OpenGL::Init();
+	OpenIL::Init();
+	OpenIL::Enable(OpenIL::State::OriginSet);
+	OpenIL::OriginFunc(OpenIL::Origin::UpperLeft);
 
 
 	auto instanceHandle = GetModuleHandleA(NULL);
@@ -148,10 +151,15 @@ void main()
 	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>();
 
 	auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
-	auto geometry2 = Geometry::CreateSphere(0.5f, Vec2(1.0f), UVec2(32, 16));
+	auto geometry2 = Geometry::CreateSphere(0.5f, Vec2(3.0f, 2.0f), UVec2(128, 64));
+	auto geometry3 = Geometry::CreateTorus(0.35f, 0.15f, Vec2(6.0f, 2.0f), UVec2(256, 64));
+	auto geometry4 = Geometry::CreateCapsule(0.3f, 0.4f, Vec2(3.0f, 2.0f), UVec2(128, 64));
 
 	auto model = Make<Graphics::Model>(geometry);
 	auto model2 = Make<Graphics::Model>(geometry2);
+	auto model3 = Make<Graphics::Model>(geometry3);
+	auto model4 = Make<Graphics::Model>(geometry4);
+
 	auto material = Make<Graphics::Material>();
 
 	auto scene = Make<Graphics::Scene>();
@@ -165,6 +173,16 @@ void main()
 	{
 		object3->SetLocalPosition(Vec3(-2.0f, 0.0f, 0.0f));
 	}
+	auto object4 = Make<Graphics::Object>(material, model3, scene);
+	{
+		object4->SetLocalPosition(Vec3(-4.0f, 0.0f, 0.0f));
+	}
+	auto object5 = Make<Graphics::Object>(material, model4, scene);
+	{
+		object5->SetLocalPosition(Vec3(+4.0f, 0.0f, 0.0f));
+	}
+
+	auto skybox = Make<Graphics::Environments::Skybox>(scene);
 
 	auto camera = Make<Graphics::Camera>();
 	{
@@ -186,6 +204,12 @@ void main()
 
 			performWindow(openGLWindow1Handle);
 		}
+
+		object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
+		// object2->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
+		// object3->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
+		// object4->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
+		// object5->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
 
 		Float32 movingSpeed = 0.1f;
 		if (GetAsyncKeyState(VK_SHIFT))

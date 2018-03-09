@@ -1071,7 +1071,7 @@ void Brothel::Building::Update(const Delta& delta_)
 		}
 	}
 
-	guests;
+	/*guests;
 	{
 		auto &it = guests.begin();
 
@@ -1083,7 +1083,7 @@ void Brothel::Building::Update(const Delta& delta_)
 
 			guest->Update(delta_);
 		}
-	}
+	}*/
 }
 
 #pragma endregion
@@ -2009,7 +2009,7 @@ void main()
 		}
 		else
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 	}();
 
@@ -2021,7 +2021,7 @@ void main()
 	}
 	else
 	{
-		throw Exception();
+		throw GVE::Exception();
 	}
 
 	auto snackBar = [&]()
@@ -2036,7 +2036,7 @@ void main()
 		}
 		else
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 	}();
 
@@ -2046,7 +2046,7 @@ void main()
 	}
 	else
 	{
-		throw Exception(); // TODO
+		throw GVE::Exception(); // TODO
 	}
 
 	auto guest = building->CreateGuest();

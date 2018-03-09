@@ -593,17 +593,9 @@ namespace GreatVEngine2
 			{
 				return value;
 			}
-			inline operator Value&()
+			inline operator bool() const
 			{
-				return value;
-			}
-			inline operator Value*()
-			{
-				return &value;
-			}
-			inline operator const Value*() const
-			{
-				return &value;
+				return value != -1;
 			}
 		};
 		class UniformLocation
@@ -627,17 +619,35 @@ namespace GreatVEngine2
 			{
 				return value;
 			}
-			inline operator Value&()
+			inline operator bool() const
+			{
+				return value != -1;
+			}
+		};
+		class TextureHandle
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline TextureHandle() = default;
+			inline explicit TextureHandle(const Value& value_):
+				value(value_)
+			{
+			}
+			inline TextureHandle(const TextureHandle&) = default;
+			inline ~TextureHandle() = default;
+		public:
+			inline TextureHandle& operator = (const TextureHandle&) = default;
+		public:
+			inline operator const Value&() const
 			{
 				return value;
 			}
-			inline operator Value*()
+			inline operator Value&()
 			{
-				return &value;
-			}
-			inline operator const Value*() const
-			{
-				return &value;
+				return value;
 			}
 		};
 
@@ -654,6 +664,183 @@ namespace GreatVEngine2
 			Dynamic				= GL_DYNAMIC_DRAW,
 			Stream				= GL_STREAM_DRAW,
 		};
+		enum class TextureType: GLenum
+		{
+			D1					= GL_TEXTURE_1D,
+			D1Array				= GL_TEXTURE_1D_ARRAY,
+			D2					= GL_TEXTURE_2D,
+			D2Array				= GL_TEXTURE_2D_ARRAY,
+			D2Multisample		= GL_TEXTURE_2D_MULTISAMPLE,
+			D2MultisampleArray	= GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+			D3					= GL_TEXTURE_3D,
+			Cubemap				= GL_TEXTURE_CUBE_MAP,
+			CubemapArray		= GL_TEXTURE_CUBE_MAP_ARRAY,
+			Rectangle			= GL_TEXTURE_RECTANGLE,
+		};
+		enum class CubemapFace
+		{
+			NegativeX			= GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+			PositiveX			= GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+			NegativeY			= GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			PositiveY			= GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+			NegativeZ			= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+			PositiveZ			= GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		};
+		enum class TextureParameter: GLenum
+		{
+			DepthStencilTextureMode		= GL_DEPTH_STENCIL_TEXTURE_MODE,
+			TextureBaseLevel			= GL_TEXTURE_BASE_LEVEL,
+			TextureCompareFunc			= GL_TEXTURE_COMPARE_FUNC,
+			TextureCompareMode			= GL_TEXTURE_COMPARE_MODE,
+			TextureLodBias				= GL_TEXTURE_LOD_BIAS,
+			TextureMinFilter			= GL_TEXTURE_MIN_FILTER,
+			TextureMagFilter			= GL_TEXTURE_MAG_FILTER,
+			TextureMinLod				= GL_TEXTURE_MIN_LOD,
+			TextureMaxLod				= GL_TEXTURE_MAX_LOD,
+			TextureMaxLevel				= GL_TEXTURE_MAX_LEVEL,
+			TextureSwizzleR				= GL_TEXTURE_SWIZZLE_R,
+			TextureSwizzleG				= GL_TEXTURE_SWIZZLE_G,
+			TextureSwizzleB				= GL_TEXTURE_SWIZZLE_B,
+			TextureSwizzleA				= GL_TEXTURE_SWIZZLE_A,
+			TextureWrapS				= GL_TEXTURE_WRAP_S,
+			TextureWrapT				= GL_TEXTURE_WRAP_T,
+			TextureWrapR				= GL_TEXTURE_WRAP_R,
+		};
+		enum class TextureWrap: GLint
+		{
+			ClampToEdge					= GL_CLAMP_TO_EDGE,
+			ClampToBorder				= GL_CLAMP_TO_BORDER,
+			MirroredRepeat				= GL_MIRRORED_REPEAT,
+			Repeat						= GL_REPEAT,
+			MirrorClampToEdge			= GL_MIRROR_CLAMP_TO_EDGE,
+		};
+		enum class TextureMinificationFilter: GLint
+		{
+			Nearest					= GL_NEAREST,
+			Linear					= GL_LINEAR,
+			NearestMipmapNearest	= GL_NEAREST_MIPMAP_NEAREST,
+			LinearMipmapNearest		= GL_LINEAR_MIPMAP_NEAREST,
+			NearestMipmapLinear		= GL_NEAREST_MIPMAP_LINEAR,
+			LinearMipmapLinear		= GL_LINEAR_MIPMAP_LINEAR,
+		};
+		enum class TextureMagnificationFilter: GLint
+		{
+			Nearest				= GL_NEAREST,
+			Linear				= GL_LINEAR,
+		};
+		enum class TextureInternalFormat: GLint
+		{
+			// Base internal formats
+			DepthComponent		= GL_DEPTH_COMPONENT,
+			Stencil				= GL_DEPTH_STENCIL,
+			R					= GL_RED,
+			RG					= GL_RG,
+			RGB					= GL_RGB,
+			RGBA				= GL_RGBA,
+			// Sized internal formats
+			R8					= GL_R8,
+			R8SNorm				= GL_R8_SNORM,
+			R16					= GL_R16,
+			R16SNorm			= GL_R16_SNORM,
+			RG8					= GL_RG8,
+			RG8SNorm			= GL_RG8_SNORM,
+			RG16				= GL_RG16,
+			RG16SNorm			= GL_RG16_SNORM,
+			R3G3B2				= GL_R3_G3_B2,
+			RGB4				= GL_RGB4,
+			RGB5				= GL_RGB5,
+			RGB8				= GL_RGB8,
+			RGB8SNorm			= GL_RGB8_SNORM,
+			RGB10				= GL_RGB10,
+			RGB12				= GL_RGB12,
+			RGB16				= GL_RGB16, // Added manually
+			RGB16SNorm			= GL_RGB16_SNORM,
+			RGBA2				= GL_RGBA2,
+			RGBA4				= GL_RGBA4,
+			RGB5A1				= GL_RGB5_A1,
+			RGBA8				= GL_RGBA8,
+			RGBA8SNorm			= GL_RGBA8_SNORM,
+			RGB10A2				= GL_RGB10_A2,
+			RGB10A2UI			= GL_RGB10_A2UI,
+			RGBA12				= GL_RGBA12,
+			RGBA16				= GL_RGBA16,
+			SRGB8				= GL_SRGB8,
+			SRGB8A8				= GL_SRGB8_ALPHA8,
+			R16F				= GL_R16F,
+			RG16F				= GL_RG16F,
+			RGB16F				= GL_RGB16F,
+			RGBA16F				= GL_RGBA16F,
+			R32F				= GL_R32F,
+			RG32F				= GL_RG32F,
+			RGB32F				= GL_RGB32F,
+			RGBA32F				= GL_RGBA32F,
+			R11FG11FB10F		= GL_R11F_G11F_B10F,
+			RGB9E5				= GL_RGB9_E5,
+			R8I					= GL_R8I,
+			R8UI				= GL_R8UI,
+			R16I				= GL_R16I,
+			R16UI				= GL_R16UI,
+			R32I				= GL_R32I,
+			R32UI				= GL_R32UI,
+			RG8I				= GL_RG8I,
+			RG8UI				= GL_RG8UI,
+			RG16I				= GL_RG16I,
+			RG16UI				= GL_RG16UI,
+			RG32I				= GL_RG32I,
+			RG32UI				= GL_RG32UI,
+			RGB8I				= GL_RGB8I,
+			RGB8UI				= GL_RGB8UI,
+			RGB16I				= GL_RGB16I,
+			RGB16UI				= GL_RGB16UI,
+			RGB32I				= GL_RGB32I,
+			RGB32UI				= GL_RGB32UI,
+			RGBA8I				= GL_RGBA8I,
+			RGBA8UI				= GL_RGBA8UI,
+			RGBA16I				= GL_RGBA16I,
+			RGBA16UI			= GL_RGBA16UI,
+			RGBA32I				= GL_RGBA32I,
+			RGBA32UI			= GL_RGBA32UI,
+		};
+		enum class TextureFormat: GLenum
+		{
+			R					= GL_RED,
+			RG					= GL_RG,
+			RGB					= GL_RGB,
+			BGR					= GL_BGR,
+			RGBA				= GL_RGBA,
+			BGRA				= GL_BGRA,
+			RI					= GL_RED_INTEGER,
+			RGI					= GL_RG_INTEGER,
+			RGBI				= GL_RGB_INTEGER,
+			BGRI				= GL_BGR_INTEGER,
+			RGBAI				= GL_RGBA_INTEGER,
+			BGRAI				= GL_BGRA_INTEGER,
+			StencilIndex		= GL_STENCIL_INDEX,
+			DepthComponent		= GL_DEPTH_COMPONENT,
+			DepthStencil		= GL_DEPTH_STENCIL,
+		};
+		enum class TextureDataType: GLenum
+		{
+			UInt8				= GL_UNSIGNED_BYTE,
+			SInt8				= GL_BYTE,
+			UInt16				= GL_UNSIGNED_SHORT,
+			SInt16				= GL_SHORT,
+			UInt32				= GL_UNSIGNED_INT,
+			SInt32				= GL_INT,
+			SFloat32			= GL_FLOAT,
+			// TODO:			= GL_UNSIGNED_BYTE_3_3_2,
+			// TODO:			= GL_UNSIGNED_BYTE_2_3_3_REV,
+			// TODO:			= GL_UNSIGNED_SHORT_5_6_5,
+			// TODO:			= GL_UNSIGNED_SHORT_5_6_5_REV,
+			// TODO:			= GL_UNSIGNED_SHORT_4_4_4_4,
+			// TODO:			= GL_UNSIGNED_SHORT_4_4_4_4_REV,
+			// TODO:			= GL_UNSIGNED_SHORT_5_5_5_1,
+			// TODO:			= GL_UNSIGNED_SHORT_1_5_5_5_REV,
+			// TODO:			= GL_UNSIGNED_INT_8_8_8_8,
+			// TODO:			= GL_UNSIGNED_INT_8_8_8_8_REV,
+			// TODO:			= GL_UNSIGNED_INT_10_10_10_2,
+			// TODO:			= GL_UNSIGNED_INT_2_10_10_10_REV,
+		};
 		enum class ProgramParameter: GLenum
 		{
 			LinkStatus			= GL_LINK_STATUS,
@@ -663,6 +850,7 @@ namespace GreatVEngine2
 		enum class ShaderType: GLenum
 		{
 			Vertex				= GL_VERTEX_SHADER,
+			Geometry			= GL_GEOMETRY_SHADER,
 			Fragment			= GL_FRAGMENT_SHADER,
 		};
 		enum class ShaderParameter: GLenum
@@ -705,9 +893,13 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
-		inline void UnbindBuffer(const BufferType& bufferType_)
+		inline void BindBuffer(const BufferType& bufferType_, const Null&)
 		{
 			glBindBuffer(static_cast<GLenum>(bufferType_), 0);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
 		}
 		inline void BufferData(const BufferType& bufferType_, const Size& dataSize_, const Memory<void>& data_, const BufferUsage& bufferUsage_)
 		{
@@ -738,7 +930,7 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
-		inline void UnbindVertexArray()
+		inline void BindVertexArray(const Null&)
 		{
 			glBindVertexArray(0);
 
@@ -754,6 +946,178 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
+
+		inline TextureHandle GenTexture()
+		{
+			TextureHandle textureHandle;
+
+			glGenTextures(1, &static_cast<TextureHandle::Value&>(textureHandle));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+			
+			return textureHandle;
+		}
+		inline void DeleteTexture(const TextureHandle& textureHandle_)
+		{
+			glDeleteTextures(1, &static_cast<const TextureHandle::Value&>(textureHandle_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void ActiveTexture(const Size& index_)
+		{
+			glActiveTexture(GL_TEXTURE0 + index_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void BindTexture(const TextureType& textureType_, const TextureHandle& textureHandle_)
+		{
+			glBindTexture(static_cast<GLenum>(textureType_), textureHandle_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void BindTexture(const TextureType& textureType_, const Null&)
+		{
+			glBindTexture(static_cast<GLenum>(textureType_), 0);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void TextureParameterWrap(const TextureType& textureType_, const TextureWrap& textureWrapS_, const TextureWrap& textureWrapT_, const TextureWrap& textureWrapR_)
+		{
+			glTexParameteri(static_cast<GLenum>(textureType_), static_cast<GLenum>(TextureParameter::TextureWrapS), static_cast<GLint>(textureWrapS_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			glTexParameteri(static_cast<GLenum>(textureType_), static_cast<GLenum>(TextureParameter::TextureWrapT), static_cast<GLint>(textureWrapT_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			glTexParameteri(static_cast<GLenum>(textureType_), static_cast<GLenum>(TextureParameter::TextureWrapR), static_cast<GLint>(textureWrapR_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void TextureParameterFilter(const TextureType& textureType_, const TextureMinificationFilter& textureMinificationFilter_, const TextureMagnificationFilter& textureMagnificationFilter_)
+		{
+			glTexParameteri(static_cast<GLenum>(textureType_), static_cast<GLenum>(TextureParameter::TextureMinFilter), static_cast<GLint>(textureMinificationFilter_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			glTexParameteri(static_cast<GLenum>(textureType_), static_cast<GLenum>(TextureParameter::TextureMagFilter), static_cast<GLint>(textureMagnificationFilter_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void TextureImage(const Size& level_, const TextureInternalFormat& textureInternalFormat_, const Size2& size_, const TextureFormat& textureFormat_, const TextureDataType& textureDataType_, const Memory<const void>& data_ = nullptr) // TexImage2D
+		{
+			glTexImage2D(static_cast<GLenum>(TextureType::D2), level_, static_cast<GLint>(textureInternalFormat_), size_.x, size_.y, 0, static_cast<GLenum>(textureFormat_), static_cast<GLenum>(textureDataType_), data_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void TextureImage(const CubemapFace& face_, const Size& level_, const TextureInternalFormat& textureInternalFormat_, const Size& size_, const TextureFormat& textureFormat_, const TextureDataType& textureDataType_, const Memory<const void>& data_ = nullptr) // TexImage2D + Cubemap
+		{
+			glTexImage2D(static_cast<GLenum>(face_), level_, static_cast<GLint>(textureInternalFormat_), size_, size_, 0, static_cast<GLenum>(textureFormat_), static_cast<GLenum>(textureDataType_), data_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+
+		inline TextureInternalFormat GetInternalFormat(const StrongPointer<Image>& image_)
+		{
+			if (DynamicCast<Image2DX<Pixel<UInt8>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt8>>>(image_))
+			{
+				return TextureInternalFormat::R8;
+			}
+			else if (DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt8, UInt8, UInt8>>>(image_))
+			{
+				return TextureInternalFormat::RGB8;
+			}
+			else if (DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_))
+			{
+				return TextureInternalFormat::RGBA8;
+			}
+			else if (DynamicCast<Image2DX<Pixel<UInt16>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt16>>>(image_))
+			{
+				return TextureInternalFormat::R16;
+			}
+			else if (DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt16, UInt16, UInt16>>>(image_))
+			{
+				return TextureInternalFormat::RGB16;
+			}
+			else if (DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>(image_) || DynamicCast<ImageCubeX<Pixel<UInt16, UInt16, UInt16, UInt16>>>(image_))
+			{
+				return TextureInternalFormat::RGBA16;
+			}
+
+			throw Exception();
+		};
+		inline TextureFormat GetFormat(const StrongPointer<Image>& image_)
+		{
+			if (
+				DynamicCast<Image2DX<Pixel<UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16>>>(image_)
+			) {
+				return TextureFormat::R;
+			}
+			else if (
+				DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16>>>(image_)
+			) {
+				return TextureFormat::RGB;
+			}
+			else if (
+				DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>(image_) ||
+				DynamicCast<ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_) ||
+				DynamicCast<ImageCubeX<Pixel<UInt16, UInt16, UInt16, UInt16>>>(image_)
+			) {
+				return TextureFormat::RGBA;
+			}
+
+			throw Exception();
+		};
+		inline TextureDataType GetDataType(const StrongPointer<Image>& image_)
+		{
+			if (
+				DynamicCast<Image2DX<Pixel<UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt8, UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_) ||
+				DynamicCast<ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>(image_)
+			) {
+				return TextureDataType::UInt8;
+			}
+			else if (
+				DynamicCast<Image2DX<Pixel<UInt16>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16, UInt16>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16>>>(image_) ||
+				DynamicCast<Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>(image_)
+			) {
+				return TextureDataType::UInt16;
+			}
+
+			throw Exception();
+		};
 
 		inline ProgramHandle CreateProgram()
 		{
@@ -774,7 +1138,7 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
-		inline void UnuseProgram()
+		inline void UseProgram(const Null&)
 		{
 			glUseProgram(0);
 
@@ -898,7 +1262,7 @@ namespace GreatVEngine2
 		}
 		inline void VertexAttribPointer(const AttributeLocation& attributeLocation_, const Size& componentsCount_, const ComponentType& componentsType_, const bool& isNormalized_, const Size& stride_, const Size& offset_)
 		{
-			glVertexAttribPointer(attributeLocation_, componentsCount_, static_cast<GLenum>(componentsType_), isNormalized_ ? GL_TRUE : GL_FALSE, stride_, reinterpret_cast<GLvoid*>(offset_));
+			glVertexAttribPointer(static_cast<AttributeLocation::Value>(attributeLocation_), componentsCount_, static_cast<GLenum>(componentsType_), isNormalized_ ? GL_TRUE : GL_FALSE, stride_, reinterpret_cast<GLvoid*>(offset_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -906,7 +1270,7 @@ namespace GreatVEngine2
 		}
 		inline void EnableVertexAttribArray(const AttributeLocation& attributeLocation_)
 		{
-			glEnableVertexAttribArray(attributeLocation_);
+			glEnableVertexAttribArray(static_cast<AttributeLocation::Value>(attributeLocation_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -914,7 +1278,7 @@ namespace GreatVEngine2
 		}
 		inline void DisableVertexAttribArray(const AttributeLocation& attributeLocation_)
 		{
-			glDisableVertexAttribArray(attributeLocation_);
+			glDisableVertexAttribArray(static_cast<AttributeLocation::Value>(attributeLocation_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -932,12 +1296,36 @@ namespace GreatVEngine2
 
 			return uniformLocation;
 		}
-		inline void UniformMatrix(const UniformLocation& uniformLocation_, const Mat4& mat_, const bool& isTransposed_ = false)
+		inline void SetUniform(const UniformLocation& uniformLocation_, const UInt32& value_)
+		{
+			glUniform1ui(uniformLocation_, value_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void SetUniform(const UniformLocation& uniformLocation_, const SInt32& value_)
+		{
+			glUniform1i(uniformLocation_, value_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void SetUniform(const UniformLocation& uniformLocation_, const Mat4& mat_, const bool& isTransposed_ = false)
 		{
 			glUniformMatrix4fv(uniformLocation_, 1, isTransposed_ ? GL_TRUE : GL_FALSE, reinterpret_cast<const GLfloat*>(&mat_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 				Error::Check();
+#endif
+		}
+		inline void SetUniform(const UniformLocation& uniformLocation_, const Mat3& mat_, const bool& isTransposed_ = false)
+		{
+			glUniformMatrix3fv(uniformLocation_, 1, isTransposed_ ? GL_TRUE : GL_FALSE, reinterpret_cast<const GLfloat*>(&mat_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
 #endif
 		}
 

@@ -27,7 +27,7 @@ void main()
 
 		if (!RegisterClassA(&windowClass))
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 	}
 
@@ -44,14 +44,14 @@ void main()
 
 	if (!windowHandle)
 	{
-		throw Exception();
+		throw GVE::Exception();
 	}
 
 	auto deviceContextHandle = GetDC(windowHandle);
 
 	if (!deviceContextHandle)
 	{
-		throw Exception();
+		throw GVE::Exception();
 	}
 
 	PIXELFORMATDESCRIPTOR pixelFormatDescriptorInfo;
@@ -69,12 +69,12 @@ void main()
 		auto pixelFormat = ChoosePixelFormat(deviceContextHandle, &pixelFormatDescriptorInfo);
 		if (!pixelFormat)
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 
 		if (!SetPixelFormat(deviceContextHandle, pixelFormat, &pixelFormatDescriptorInfo))
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 	}
 
@@ -91,7 +91,7 @@ void main()
 
 	wglMakeCurrent(deviceContextHandle, openGLRenderContextHandle);
 
-	if (glGetError() != GL_NO_ERROR) throw Exception();
+	if (glGetError() != GL_NO_ERROR) throw GVE::Exception();
 
 	using namespace OpenGL;
 
@@ -99,9 +99,9 @@ void main()
 	{
 		Vector<float> data = { -0.5f, -0.5f, +0.5f, -0.5f, +0.0f, +0.5f };
 
-		glGenBuffers(1, &vbo); if (glGetError() != GL_NO_ERROR) throw Exception();
-		glBindBuffer(GL_ARRAY_BUFFER, vbo); if (glGetError() != GL_NO_ERROR) throw Exception();
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float)* data.size(), data.data(), GL_STATIC_DRAW); if (glGetError() != GL_NO_ERROR) throw Exception();
+		glGenBuffers(1, &vbo); if (glGetError() != GL_NO_ERROR) throw GVE::Exception();
+		glBindBuffer(GL_ARRAY_BUFFER, vbo); if (glGetError() != GL_NO_ERROR) throw GVE::Exception();
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float)* data.size(), data.data(), GL_STATIC_DRAW); if (glGetError() != GL_NO_ERROR) throw GVE::Exception();
 	}
 	GLuint program = glCreateProgram();
 	{
@@ -116,7 +116,7 @@ void main()
 			glGetShaderiv(vs, GL_COMPILE_STATUS, &compileResult);
 			if (compileResult != GL_TRUE)
 			{
-				throw Exception();
+				throw GVE::Exception();
 			}
 		}
 		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
@@ -130,7 +130,7 @@ void main()
 			glGetShaderiv(fs, GL_COMPILE_STATUS, &compileResult);
 			if (compileResult != GL_TRUE)
 			{
-				throw Exception();
+				throw GVE::Exception();
 			}
 		}
 
@@ -143,7 +143,7 @@ void main()
 		glGetProgramiv(program, GL_LINK_STATUS, &result);
 		if (result != GL_TRUE)
 		{
-			throw Exception();
+			throw GVE::Exception();
 		}
 
 		glDeleteShader(vs);
@@ -186,7 +186,7 @@ void main()
 
 	if (!wglDeleteContext(openGLRenderContextHandle))
 	{
-		throw Exception();
+		throw GVE::Exception();
 	}
 
 

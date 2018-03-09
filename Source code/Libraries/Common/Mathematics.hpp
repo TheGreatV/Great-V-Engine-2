@@ -66,6 +66,9 @@ namespace GreatVEngine2
 	using Mat4			= glm::mat4;
 
 
+	const Float32 PI	= 3.1415926535897932384626433832795f;
+
+
 	template<class Type> inline Type Radians(const Type& degrees_);
 	template<class Type> inline Type Degrees(const Type& radians_);
 	template<class Type> inline Type Sin(const Type& radians_);

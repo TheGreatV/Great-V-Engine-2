@@ -73,6 +73,7 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Exception.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Header.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Helpers.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Image.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Mathematics.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Memory.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Move.cpp" />
@@ -86,6 +87,7 @@
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Exception.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Header.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Helpers.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Image.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Mathematics.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Memory.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Move.hpp" />
