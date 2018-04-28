@@ -1312,6 +1312,14 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
+		inline void SetUniform(const UniformLocation& uniformLocation_, const Float32& value_)
+		{
+			glUniform1f(uniformLocation_, value_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
 		inline void SetUniform(const UniformLocation& uniformLocation_, const Mat4& mat_, const bool& isTransposed_ = false)
 		{
 			glUniformMatrix4fv(uniformLocation_, 1, isTransposed_ ? GL_TRUE : GL_FALSE, reinterpret_cast<const GLfloat*>(&mat_));

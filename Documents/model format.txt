@@ -1,0 +1,72 @@
+Attributes [
+    Attribute {
+        Name        : "Position",
+        Components  : [
+            Component {
+                Name    : "X",
+                Size    : 32,
+                Type    : Signed Integral,
+            },
+            Component {
+                Name    : "Y",
+                Size    : 32,
+                Type    : Signed Integral,
+            },
+            Component {
+                Name    : "Z",
+                Size    : 32,
+                Type    : Signed Integral,
+            },
+        ]
+    },
+    Attribute {
+        Name        : "Texture Coordinate",
+        Components  : [
+            Component {
+                Name    : "U",
+                Size    : 32,
+                Type    : Signed Integral,
+            },
+            Component {
+                Name    : "V",
+                Size    : 32,
+                Type    : Signed Integral,
+            },
+        ]
+    },
+]
+
+
+# file format
+<version>: uint32
+<attributes count>: uint32 {
+    <attribute name length>: uint32 {
+        <name character>
+    }
+    <attribute components count>: uint32 {
+        <component name length>: uint32 {
+            <name character>
+        }
+        <component size>: uint32
+        <component type>: uint32
+    }
+}
+<vertices count>: uint32 {
+    <vertex data>: depends
+}
+<index size>: uint32
+<indices count>: uint32 {
+    <index data>
+}
+
+
+
+
+
+
+
+
+
+
+
+

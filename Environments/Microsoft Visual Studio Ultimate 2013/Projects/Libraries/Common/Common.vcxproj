@@ -80,6 +80,7 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Reference.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\Size.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\String.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Common\System.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Collection.hpp" />
@@ -94,6 +95,7 @@
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Reference.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\Size.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\String.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Common\System.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -114,6 +114,10 @@ namespace GreatVEngine2
 			public This<Material>
 		{
 		public:
+			class Module;
+		public:
+			Vector<StrongPointer<Module>> modules;
+		public:
 			inline Material() = delete;
 			inline Material(const StrongPointer<Material>& this_);
 			inline Material(const Material&) = delete;
@@ -121,6 +125,17 @@ namespace GreatVEngine2
 		public:
 			inline Material& operator = (const Material&) = delete;
 		};
+#pragma region
+		class Material::Module:
+			public This<Module>
+		{
+		public:
+			inline Module(const StrongPointer<Module>& this_): This(this_)
+			{
+			}
+			virtual ~Module() = default;
+		};
+#pragma endregion
 		class Model:
 			public This<Model>
 		{

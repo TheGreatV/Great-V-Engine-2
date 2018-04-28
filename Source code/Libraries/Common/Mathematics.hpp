@@ -76,6 +76,7 @@ namespace GreatVEngine2
 	template<class Type> inline Type SinDg(const Type& degrees_);
 	template<class Type> inline Type CosDg(const Type& degrees_);
 
+	template<class Type> inline Type Normalize(const Type& source_);
 	template<class Type> inline Type Transpose(const Type& source_);
 	template<class Type> inline Type Inverse(const Type& source_);
 
@@ -136,6 +137,10 @@ template<class Type> typename Type GreatVEngine2::CosDg(const Type& degrees_)
 	return Cos<Type>(Radians<Type>(degrees_));
 }
 
+template<class Type> typename Type GreatVEngine2::Normalize(const Type& source_)
+{
+	return glm::normalize(source_);
+}
 template<class Type> typename Type GreatVEngine2::Transpose(const Type& source_)
 {
 	return glm::transpose(source_);

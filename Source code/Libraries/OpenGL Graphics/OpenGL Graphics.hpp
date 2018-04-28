@@ -27,6 +27,33 @@ namespace GreatVEngine2
 			{
 				namespace GL = GreatVEngine2::OpenGL;
 
+				class Module:
+					public Material::Module
+				{
+				public:
+					const String albedoFilename;
+					const String normalsFilename;
+					const String roughnessFilename;
+					const String metalnessFilename;
+					const String occlusionFilename;
+				public:
+					inline Module(const StrongPointer<Module>& this_,
+						const String& albedoFilename_,
+						const String& normalsFilename_,
+						const String& roughnessFilename_,
+						const String& metalnessFilename_,
+						const String& occlusionFilename_
+					): Material::Module(this_),
+						albedoFilename(albedoFilename_),
+						normalsFilename(normalsFilename_),
+						roughnessFilename(roughnessFilename_),
+						metalnessFilename(metalnessFilename_),
+						occlusionFilename(occlusionFilename_)
+					{
+					}
+					virtual ~Module() override = default;
+				};
+
 				class Output:
 					public Graphics::Output
 				{
@@ -314,6 +341,16 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 	{
 		auto material = objectMemory->GetMaterial();
 		auto materialMemory = material.GetValue();
+		auto moduleIt = std::find_if(materialMemory->modules.begin(), materialMemory->modules.end(), [](const StrongPointer<Graphics::Material::Module>& module) {
+			return DynamicCast<Graphics::APIs::OpenGL::Module>(module) != nullptr;
+		});
+
+		if (moduleIt == materialMemory->modules.end())
+		{
+			throw Exception();
+		}
+
+		auto module = DynamicCast<Graphics::APIs::OpenGL::Module>(*moduleIt);
 
 		auto programHolderMemory = [&]
 		{
@@ -445,11 +482,11 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 					return texture;
 				};
 
-				auto textureAlbedo = loadTexture("Media/Images/Albedo.png");
-				auto textureNormals = loadTexture("Media/Images/Normals.png");
-				auto textureRoughness = loadTexture("Media/Images/Roughness.png");
-				auto textureMetalness = loadTexture("Media/Images/Metalness.png");
-				auto textureOcclusion = loadTexture("Media/Images/Occlusion.png");
+				auto textureAlbedo = loadTexture(module->albedoFilename);
+				auto textureNormals = loadTexture(module->normalsFilename);
+				auto textureRoughness = loadTexture(module->roughnessFilename);
+				auto textureMetalness = loadTexture(module->metalnessFilename);
+				auto textureOcclusion = loadTexture(module->occlusionFilename);
 
 				programHolderMemory->programHandle = program;
 				programHolderMemory->textures[0] = textureAlbedo;
@@ -831,7 +868,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 		UseProgram(skybox->programHandle);
 		BindVertexArray(skybox->vertexArrayHandle);
 
-		auto projectionInverseMatrix = PerspectiveInverse(60.0f, aspect, 0.1f, 100.0f);
+		auto projectionInverseMatrix = PerspectiveInverse(60.0f, aspect, 0.02f, 10000.0f);
 
 		if (auto uniformLocation = GetUniformLocation(skybox->programHandle, "viewProjectionInverseMatrix"))
 		{
@@ -854,6 +891,9 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 
 	glDisable(GL_BLEND);
 
+
+	float roughness = 0.1f;
+	float metalness = 0.0f;
 
 	// draw objects
 	for (auto &programIt : programsTable)
@@ -907,7 +947,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 				auto rotateMatrix = objectMemory->GetRMat();
 				auto modelMatrix = objectMemory->GetMMat();
 				auto viewMatrix = camera_->GetVMat();
-				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.1f, 100.0f) * viewMatrix;
+				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.02f, 10000.0f) * viewMatrix;
 				auto mat = viewProjectionMatrix * modelMatrix;
 
 				if (auto uniformLocation = GetUniformLocation(programHandle, "modelViewProjectionMatrix"))
@@ -922,7 +962,45 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 				{
 					SetUniform(uniformLocation, rotateMatrix);
 				}
+				if (auto uniformLocation = GetUniformLocation(programHandle, "mode"))
+				{
+					if (GetAsyncKeyState(VK_NUMPAD1)) SetUniform(uniformLocation, 1);
+					if (GetAsyncKeyState(VK_NUMPAD2)) SetUniform(uniformLocation, 2);
+					if (GetAsyncKeyState(VK_NUMPAD3)) SetUniform(uniformLocation, 3);
+					if (GetAsyncKeyState(VK_NUMPAD4)) SetUniform(uniformLocation, 4);
+					if (GetAsyncKeyState(VK_NUMPAD5)) SetUniform(uniformLocation, 5);
+					if (GetAsyncKeyState(VK_NUMPAD6)) SetUniform(uniformLocation, 6);
+					if (GetAsyncKeyState(VK_NUMPAD7)) SetUniform(uniformLocation, 7);
+					if (GetAsyncKeyState(VK_NUMPAD8)) SetUniform(uniformLocation, 8);
+					if (GetAsyncKeyState(VK_NUMPAD9)) SetUniform(uniformLocation, 9);
+					if (GetAsyncKeyState(VK_NUMPAD0)) SetUniform(uniformLocation, 10);
+					if (GetAsyncKeyState('T')) SetUniform(uniformLocation, 11);
+					if (GetAsyncKeyState('Y')) SetUniform(uniformLocation, 12);
+					if (GetAsyncKeyState('U')) SetUniform(uniformLocation, 13);
+					if (GetAsyncKeyState('G')) SetUniform(uniformLocation, 14);
+					if (GetAsyncKeyState('H')) SetUniform(uniformLocation, 15);
+					if (GetAsyncKeyState('J')) SetUniform(uniformLocation, 16);
+					if (GetAsyncKeyState('B')) SetUniform(uniformLocation, 17);
+					if (GetAsyncKeyState('N')) SetUniform(uniformLocation, 18);
+					if (GetAsyncKeyState('M')) SetUniform(uniformLocation, 19);
+				}
 
+				if (auto uniformLocation = GetUniformLocation(programHandle, "roughness"))
+				{
+					SetUniform(uniformLocation, roughness);
+				}
+				if (auto uniformLocation = GetUniformLocation(programHandle, "metalness"))
+				{
+					SetUniform(uniformLocation, metalness);
+				}
+
+				roughness += 0.1f;
+
+				if (roughness > 1.05f)
+				{
+					roughness = 0.1f;
+					metalness += 0.1f;
+				}
 
 				auto geometry = objectMemory->GetModel()->GetGeometry();
 				

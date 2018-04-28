@@ -46,6 +46,9 @@ namespace GreatVEngine2
 			Patches4,
 		};
 	public:
+		class Component;
+		class Attribute;
+	public:
 		using Index = UInt32;
 		using Bytes = Vector<UInt8>;
 	public:
@@ -57,6 +60,8 @@ namespace GreatVEngine2
 			Vec3 nor;
 			Vec2 tex;
 		};
+	public:
+		static inline StrongPointer<Geometry> FromData(const Vector<Attribute>& atttributes_, const Size& verticesCount_, const Bytes& verticesData_, const Size& indicesCount_, const Bytes& indicesData_);
 	public:
 		static inline StrongPointer<Geometry> CreateBox(const Vec3& size_, const Vec3& tex_, const UVec3& seg_);
 		static inline StrongPointer<Geometry> CreateSphere(const Float32& radius_, const Vec2& tex_, const UVec2& seg_);
@@ -258,13 +263,311 @@ namespace GreatVEngine2
 				} break;
 			}
 		}
+		inline void GenerateTangentSpace();
 	};
+
+	class Geometry::Component
+	{
+	public:
+		enum class Type
+		{
+			Undefined = 0,
+			UnsignedDiscrete = 1, // integer
+			SignedDiscrete = 2, // integer
+			UnsignedIntegral = 3, // floating
+			SignedIntegral = 4, // floating
+		};
+	protected:
+		const String name;
+		const Size size;
+		const Size tail;
+		const Type type;
+	public:
+		inline Component(const String name_, const Size& size_, const Size& tail_, const Type& type_):
+			name(name_),
+			size(size_),
+			tail(tail_),
+			type(type_)
+		{
+		}
+	public:
+		inline String GetName() const
+		{
+			return name;
+		}
+		inline Size GetSize() const
+		{
+			return size;
+		}
+		inline Size GetTail() const
+		{
+			return tail;
+		}
+		inline Type GetType() const
+		{
+			return type;
+		}
+	};
+	class Geometry::Attribute
+	{
+	protected:
+		const String name;
+		const Vector<Component> components;
+		const Size tail;
+	public:
+		inline Attribute(const String& name_, const Vector<Component>& components_, const Size& tail_):
+			name(name_),
+			components(components_),
+			tail(tail_)
+		{
+		}
+	public:
+		inline String GetName() const
+		{
+			return name;
+		}
+		inline Vector<Component> GetComponents() const
+		{
+			return components;
+		}
+		inline Size GetTail() const
+		{
+			return tail;
+		}
+	};
+
 }
 
 
 #pragma region GreatVEngine2
 
 #pragma region Geometry
+
+GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::FromData(const Vector<Attribute>& atttributes_, const Size& verticesCount_, const Bytes& verticesData_, const Size& indicesCount_, const Bytes& indicesData_)
+{
+	auto &attributePosition = atttributes_[0];
+	{
+		if (attributePosition.GetName() != "Position")
+		{
+			throw Exception();
+		}
+
+		auto &components = attributePosition.GetComponents();
+
+		if (components.size() != 3)
+		{
+			throw Exception();
+		}
+
+		auto &componentX = components[0];
+		{
+			if (componentX.GetName() != "X" || componentX.GetSize() != 32 || componentX.GetTail() != 0 || componentX.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentY = components[1];
+		{
+			if (componentY.GetName() != "Y" || componentY.GetSize() != 32 || componentY.GetTail() != 0 || componentY.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentZ = components[2];
+		{
+			if (componentZ.GetName() != "Z" || componentZ.GetSize() != 32 || componentZ.GetTail() != 0 || componentZ.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+	}
+
+	auto &attributeTangentSpace = atttributes_[1];
+	{
+		if (attributeTangentSpace.GetName() != "Tangent-Space")
+		{
+			throw Exception();
+		}
+
+		auto &components = attributeTangentSpace.GetComponents();
+
+		if (components.size() != 9)
+		{
+			throw Exception();
+		}
+
+		auto &componentTX = components[0];
+		{
+			if (componentTX.GetName() != "TX" || componentTX.GetSize() != 32 || componentTX.GetTail() != 0 || componentTX.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentTY = components[1];
+		{
+			if (componentTY.GetName() != "TY" || componentTY.GetSize() != 32 || componentTY.GetTail() != 0 || componentTY.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentTZ = components[2];
+		{
+			if (componentTZ.GetName() != "TZ" || componentTZ.GetSize() != 32 || componentTZ.GetTail() != 0 || componentTZ.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentBX = components[3];
+		{
+			if (componentBX.GetName() != "BX" || componentBX.GetSize() != 32 || componentBX.GetTail() != 0 || componentBX.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentBY = components[4];
+		{
+			if (componentBY.GetName() != "BY" || componentBY.GetSize() != 32 || componentBY.GetTail() != 0 || componentBY.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentBZ = components[5];
+		{
+			if (componentBZ.GetName() != "BZ" || componentBZ.GetSize() != 32 || componentBZ.GetTail() != 0 || componentBZ.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentNX = components[6];
+		{
+			if (componentNX.GetName() != "NX" || componentNX.GetSize() != 32 || componentNX.GetTail() != 0 || componentNX.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentNY = components[7];
+		{
+			if (componentNY.GetName() != "NY" || componentNY.GetSize() != 32 || componentNY.GetTail() != 0 || componentNY.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentNZ = components[8];
+		{
+			if (componentNZ.GetName() != "NZ" || componentNZ.GetSize() != 32 || componentNZ.GetTail() != 0 || componentNZ.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+	}
+
+	auto &attributeTextureCoordinates = atttributes_[2];
+	{
+		if (attributeTextureCoordinates.GetName() != "Texture coordinates")
+		{
+			throw Exception();
+		}
+
+		auto &components = attributeTextureCoordinates.GetComponents();
+
+		if (components.size() != 2)
+		{
+			throw Exception();
+		}
+
+		auto &componentX = components[0];
+		{
+			if (componentX.GetName() != "X" || componentX.GetSize() != 32 || componentX.GetTail() != 0 || componentX.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+		auto &componentY = components[1];
+		{
+			if (componentY.GetName() != "Y" || componentY.GetSize() != 32 || componentY.GetTail() != 0 || componentY.GetType() != Component::Type::SignedIntegral)
+			{
+				throw Exception();
+			}
+		}
+	}
+
+	auto geometry = new Geometry(
+		Topology::Triangles,
+		verticesCount_,
+		indicesCount_
+	);
+
+	Size vertexSize = 0;
+	{
+		for (auto &attribute : atttributes_)
+		{
+			if (attribute.GetTail() != 0)
+			{
+				throw Exception();
+			}
+
+			for (auto &component : attribute.GetComponents())
+			{
+				if (component.GetTail() != 0)
+				{
+					throw Exception();
+				}
+
+				auto componentSize = component.GetSize();
+
+				if (componentSize % 8 != 0)
+				{
+					throw Exception();
+				}
+
+				vertexSize += componentSize / 8;
+			}
+		}
+	}
+
+	for (auto &i : Range(verticesCount_))
+	{
+		auto &pos = geometry->vertices[i].pos;
+
+		pos.x = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 0);
+		pos.y = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 1);
+		pos.z = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 2);
+
+		auto &tan = geometry->vertices[i].tan;
+
+		tan.x = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 3);
+		tan.y = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 4);
+		tan.z = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 5);
+
+		auto &bin = geometry->vertices[i].bin;
+
+		bin.x = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 6);
+		bin.y = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 7);
+		bin.z = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 8);
+
+		auto &nor = geometry->vertices[i].nor;
+
+		nor.x = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 9);
+		nor.y = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 10);
+		nor.z = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 11);
+
+		auto &tex = geometry->vertices[i].tex;
+
+		tex.x = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 12);
+		tex.y = *(reinterpret_cast<const Float32*>(verticesData_.data() + vertexSize * i) + 13);
+	}
+	
+	for (auto &i : Range(indicesCount_))
+	{
+		auto &index = geometry->indices[i];
+
+		index = *reinterpret_cast<const UInt32*>(indicesData_.data() + sizeof(UInt32) * i);
+	}
+
+	geometry->GenerateTangentSpace();
+
+	return MakeStrong(geometry);
+}
 
 GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::CreateBox(const Vec3& size_, const Vec3& tex_, const UVec3& seg_)
 {
@@ -601,6 +904,44 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Geometry::C
 	}
 
 	return MakeStrong(geometry);
+}
+void GreatVEngine2::Geometry::GenerateTangentSpace()
+{
+	Size id0, id1, id2;
+	for(Size i = 0; i < indices.size(); i += 3)
+	{
+		id0 = indices[i + 0];
+		id1 = indices[i + 1];
+		id2 = indices[i + 2];
+
+		Vec3 e0 = vertices[id1].pos - vertices[id0].pos;
+		Vec3 e1 = vertices[id2].pos - vertices[id0].pos;
+		Vec2 e0uv = vertices[id1].tex - vertices[id0].tex;
+		Vec2 e1uv = vertices[id2].tex - vertices[id0].tex;
+		Float32 cp = e0uv.y * e1uv.x - e0uv.x * e1uv.y;
+		if(cp != 0.0f)
+		{
+			Float32 k = 1.0f / cp;
+			vertices[id0].tan = Normalize((e0 * -e1uv.y + e1 * e0uv.y) * k);
+			vertices[id0].bin = Normalize((e0 * -e1uv.x + e1 * e0uv.x) * k);
+		}
+
+		vertices[id2].tan = vertices[id1].tan = vertices[id0].tan;
+		vertices[id2].bin = vertices[id1].bin = vertices[id0].bin;
+
+		// if(flip_t)
+		// {
+		// 	vertices[id0].tan = -vertices[id0].tan;
+		// 	vertices[id1].tan = -vertices[id1].tan;
+		// 	vertices[id2].tan = -vertices[id2].tan;
+		// }
+		// if(flip_b)
+		// {
+		// 	vertices[id0].bin = -vertices[id0].bin;
+		// 	vertices[id1].bin = -vertices[id1].bin;
+		// 	vertices[id2].bin = -vertices[id2].bin;
+		// }
+	}
 }
 
 #pragma endregion

@@ -10,6 +10,7 @@
 #include "Collection.hpp"
 #include "Exception.hpp"
 #include "Mathematics.hpp"
+#include "System.hpp"
 #include "Image.hpp"
 #include "Helpers.hpp"
 
