@@ -657,6 +657,7 @@ namespace GreatVEngine2
 		{
 			Array				= GL_ARRAY_BUFFER,
 			ElementArray		= GL_ELEMENT_ARRAY_BUFFER,
+			Uniform				= GL_UNIFORM_BUFFER,
 		};
 		enum class BufferUsage: GLenum
 		{

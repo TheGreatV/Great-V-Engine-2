@@ -29,6 +29,11 @@ namespace GreatVEngine2
 		class Object;
 		class Material;
 		class Model;
+		class Light;
+		namespace Lights
+		{
+			class Directional;
+		}
 		class Environment;
 		namespace Environments
 		{

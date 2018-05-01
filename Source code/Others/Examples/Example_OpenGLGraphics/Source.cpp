@@ -148,177 +148,28 @@ void main()
 	auto openGLWindow1View = createView(openGLWindow1Handle);
 
 
-	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>();
+	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>(Make<Graphics::APIs::OpenGL::Methods::Forward>());
 
-	auto loadGeometry = [&](const WideString& filename_)
+	auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
+
+	auto model = Make<Graphics::Model>(geometry);
+
+	auto material = Make<Graphics::Material>();
 	{
-		auto file = File(filename_); // L"Media/Models/Test.Great-V.Mesh");
-		
-		auto version = file.ReadUInt32();
-		auto attributesCount = file.ReadUInt32();
-
-		Vector<Geometry::Attribute> attributes;
-
-		attributes.reserve(attributesCount);
-
-		for (auto &attributeIndex : Range(attributesCount))
-		{
-			auto nameLength = file.ReadUInt32();
-			auto name = file.ReadString(nameLength);
-			auto componentsCount = file.ReadUInt32();
-
-			Vector<Geometry::Component> components;
-
-			components.reserve(componentsCount);
-
-			for (auto &componentIndex : Range(componentsCount))
-			{
-				auto nameLength = file.ReadUInt32();
-				auto name = file.ReadString(nameLength);
-				auto size = file.ReadUInt32();
-				auto tail = file.ReadUInt32();
-				auto type = file.ReadUInt32();
-
-				components.emplace_back(name, size, tail, static_cast<Geometry::Component::Type>(type));
-			}
-
-			auto tail = file.ReadUInt32();
-
-			attributes.emplace_back(name, components, tail);
-		}
-
-		auto verticesCount = file.ReadUInt32();
-
-		Size vertexSize = 0;
-		{
-			for (auto &attribute : attributes)
-			{
-				if (attribute.GetTail() != 0)
-				{
-					throw Exception();
-				}
-
-				for (auto &component : attribute.GetComponents())
-				{
-					if (component.GetTail() != 0)
-					{
-						throw Exception();
-					}
-
-					auto componentSize = component.GetSize();
-
-					if (componentSize % 8 != 0)
-					{
-						throw Exception();
-					}
-
-					vertexSize += componentSize / 8;
-				}
-			}
-		}
-
-		auto verticesData = file.ReadUInt8Array(vertexSize * verticesCount);
-
-		auto indicesCount = file.ReadUInt32();
-
-		auto indicesData = file.ReadUInt8Array(sizeof(UInt32)* indicesCount);
-
-		return Geometry::FromData(attributes, verticesCount, verticesData, indicesCount, indicesData);
-	};
-
-	// auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
-	// auto geometry2 = Geometry::CreateSphere(0.5f, Vec2(3.0f, 2.0f), UVec2(64, 32));
-	// auto geometry3 = Geometry::CreateTorus(0.35f, 0.15f, Vec2(6.0f, 2.0f), UVec2(256, 64));
-	// auto geometry4 = Geometry::CreateCapsule(0.3f, 0.4f, Vec2(3.0f, 2.0f), UVec2(128, 64));
-
-	auto geometryWood = loadGeometry(L"Media/Models/Chair-wood.Great-V.Mesh");
-	auto geometryMetal = loadGeometry(L"Media/Models/Chair-metal.Great-V.Mesh");
-	auto geometryLeather = loadGeometry(L"Media/Models/Chair-leather.Great-V.Mesh");
-
-	// auto model = Make<Graphics::Model>(geometry);
-	// auto model2 = Make<Graphics::Model>(geometryT);
-	// auto model3 = Make<Graphics::Model>(geometry3);
-	// auto model4 = Make<Graphics::Model>(geometry4);
-	
-	auto modelWood = Make<Graphics::Model>(geometryWood);
-	auto modelMetal = Make<Graphics::Model>(geometryMetal);
-	auto modelLeather = Make<Graphics::Model>(geometryLeather);
-
-	auto materialWood = Make<Graphics::Material>();
-	{
-		materialWood->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-			"Media/Images/30/Albedo.png",
-			"Media/Images/30/Normals.png",
-			"Media/Images/30/Roughness.png",
-			"Media/Images/30/Metalness.png",
-			"Media/Images/30/Occlusion.png"
-		));
-	}
-	auto materialMetal = Make<Graphics::Material>();
-	{
-		materialMetal->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-			"Media/Images/31/Albedo.png",
-			"Media/Images/31/Normals.png",
-			"Media/Images/31/Roughness.png",
-			"Media/Images/31/Metalness.png",
-			"Media/Images/31/Occlusion.png"
-		));
-	}
-	auto materialLeather = Make<Graphics::Material>();
-	{
-		materialLeather->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-			"Media/Images/17/Albedo.png",
-			"Media/Images/17/Normals.png",
-			"Media/Images/17/Roughness.png",
-			"Media/Images/17/Metalness.png",
-			"Media/Images/17/Occlusion.png"
+		material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+			"Media/Images/Albedo.png",
+			"Media/Images/Normals.png",
+			"Media/Images/Roughness.png",
+			"Media/Images/Metalness.png",
+			"Media/Images/Occlusion.png"
 		));
 	}
 
 	auto scene = Make<Graphics::Scene>();
 
-	/*Array<Array<Array<StrongPointer<Graphics::Object>, 10>, 10>, 10> objects;
-	{
-		for (auto &i : Range(objects.size()))
-		{
-			auto &objectsX = objects[i];
+	auto object = Make<Graphics::Object>(material, model, scene);
 
-			for (auto &j : Range(objectsX.size()))
-			{
-				auto &objectsZ = objectsX[j];
-
-				for (auto &k : Range(objectsZ.size()))
-				{
-					auto &object = objectsZ[k];
-
-					object = Make<Graphics::Object>(material, model2, scene);
-					object->SetLocalPosition(Vec3(i, k, j) * 1.25f);
-				}
-			}
-		}
-	}*/
-
-	auto objectWood = Make<Graphics::Object>(materialWood, modelWood, scene);
-	auto objectMetal = Make<Graphics::Object>(materialMetal, modelMetal, scene);
-	auto objectLeather = Make<Graphics::Object>(materialLeather, modelLeather, scene);
-
-	// auto object = Make<Graphics::Object>(material, model, scene);
-	// auto object2 = Make<Graphics::Object>(material, model, scene);
-	// {
-	// 	object2->SetLocalPosition(Vec3(2.0f, 0.0f, 0.0f));
-	// }
-	// auto object3 = Make<Graphics::Object>(material, model2, scene);
-	// {
-	// 	object3->SetLocalPosition(Vec3(-2.0f, 0.0f, 0.0f));
-	// }
-	// auto object4 = Make<Graphics::Object>(material, model3, scene);
-	// {
-	// 	object4->SetLocalPosition(Vec3(-4.0f, 0.0f, 0.0f));
-	// }
-	// auto object5 = Make<Graphics::Object>(material, model4, scene);
-	// {
-	// 	object5->SetLocalPosition(Vec3(+4.0f, 0.0f, 0.0f));
-	// }
+	auto directionalLight = Make<Graphics::Lights::Directional>(scene);
 
 	auto skybox = Make<Graphics::Environments::Skybox>(scene);
 
@@ -359,21 +210,10 @@ void main()
 			rotateLock = false;
 		}
 
-		/*if (rotate)
+		if (rotate)
 		{
-			for (auto &i : objects)
-			for (auto &j : i)
-			for (auto &k : j)
-			{
-				k->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
-			}
-		}*/
-
-		// object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
-		// object2->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
-		// object3->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
-		// object4->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
-		// object5->LocalRotate(Vec3(0.7f, 1.0f, 0.3f) * 0.5f);
+			object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f));
+		}
 
 		Float32 movingSpeed = 0.1f;
 		if (GetAsyncKeyState(VK_SHIFT))

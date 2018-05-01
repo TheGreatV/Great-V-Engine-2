@@ -54,11 +54,14 @@ namespace GreatVEngine2
 			public This<Scene>
 		{
 			friend Object;
+			friend Light;
+			friend Lights::Directional;
 			friend Environments::Skybox;
 			friend Engine;
 		protected:
 			using Objects = Vector<Memory<Object>>;
 			using ObjectIt = Objects::size_type;
+			using DirectionalLights = Vector<Memory<Lights::Directional>>;
 			using Skyboxes = Vector<Memory<Environments::Skybox>>;
 		public:
 			using Version = Size;
@@ -69,6 +72,7 @@ namespace GreatVEngine2
 			}
 		public: // protected: // TODO: do something with that
 			Objects objects;
+			DirectionalLights directionalLights;
 			Skyboxes skyboxes;
 			Version version;
 		public:
@@ -81,6 +85,8 @@ namespace GreatVEngine2
 		protected:
 			inline ObjectIt SignalObjectCreated(const Memory<Object>& objectMemory_);
 			inline void SignalObjectDestroyed(const Memory<Object>& objectMemory_);
+			inline void SignalDirectionalLightCreated(const Memory<Lights::Directional>& directionalLightMemory_);
+			inline void SignalDirectionalLightDestroyed(const Memory<Lights::Directional>& directionalLightMemory_);
 			inline void SignalSkyboxEnvironmentCreated(const Memory<Environments::Skybox>& skyboxMemory_);
 			inline void SignalSkyboxEnvironmentDestroyed(const Memory<Environments::Skybox>& skyboxMemory_);
 		protected:
@@ -212,6 +218,40 @@ namespace GreatVEngine2
 		};
 #pragma endregion
 
+		class Light:
+			public This<Light>
+			// TODO: inherit color
+		{
+		protected:
+			const Memory<Scene> scene; // TODO: move to scene-dependent
+		public:
+			inline Light() = delete;
+			inline Light(const StrongPointer<Light>& this_, const StrongPointer<Scene>& scene_);
+			inline Light(const Light&) = delete;
+			inline ~Light() = default;
+		public:
+			inline Light& operator = (const Light&) = delete;
+		};
+		namespace Lights
+		{
+			class Directional:
+				public Light
+			{
+			protected:
+				Vec3 direction = Vec3(0.0f, -1.0f, 0.0f);
+			public:
+				inline Directional() = delete;
+				inline Directional(const StrongPointer<Directional>& this_, const StrongPointer<Scene>& scene_);
+				inline Directional(const Directional&) = delete;
+				inline ~Directional();
+			public:
+				inline Directional& operator = (const Directional&) = delete;
+			public:
+				inline Vec3 GetDirection() const;
+				inline void SetDirection(const Vec3& direction_);
+			};
+		}
+
 		class Environment:
 			public This<Environment>
 		{
@@ -310,6 +350,23 @@ void GreatVEngine2::Graphics::Scene::SignalObjectDestroyed(const Memory<Object>&
 		objects.pop_back();
 		
 		UpdateVersion();
+	}
+}
+void GreatVEngine2::Graphics::Scene::SignalDirectionalLightCreated(const Memory<Lights::Directional>& directionalLightMemory_)
+{
+	directionalLights.push_back(directionalLightMemory_);
+}
+void GreatVEngine2::Graphics::Scene::SignalDirectionalLightDestroyed(const Memory<Lights::Directional>& directionalLightMemory_)
+{
+	auto it = std::find(directionalLights.begin(), directionalLights.end(), directionalLightMemory_);
+
+	if (it != directionalLights.end())
+	{
+		directionalLights.erase(it);
+	}
+	else
+	{
+		throw Exception();
 	}
 }
 void GreatVEngine2::Graphics::Scene::SignalSkyboxEnvironmentCreated(const Memory<Environments::Skybox>& skyboxMemory_)
@@ -415,6 +472,34 @@ GreatVEngine2::Graphics::View::View(const StrongPointer<View>& this_):
 	This(this_)
 {
 }
+
+#pragma endregion
+
+#pragma region Light
+
+GreatVEngine2::Graphics::Light::Light(const StrongPointer<Light>& this_, const StrongPointer<Scene>& scene_):
+	This(this_),
+	scene(scene_.GetValue())
+{
+}
+
+#pragma endregion
+
+#pragma region Lights
+
+#pragma region Directional
+
+GreatVEngine2::Graphics::Lights::Directional::Directional(const StrongPointer<Directional>& this_, const StrongPointer<Scene>& scene_):
+	Light(this_, scene_)
+{
+	scene->SignalDirectionalLightCreated(this);
+}
+GreatVEngine2::Graphics::Lights::Directional::~Directional()
+{
+	scene->SignalDirectionalLightDestroyed(this);
+}
+
+#pragma endregion
 
 #pragma endregion
 
