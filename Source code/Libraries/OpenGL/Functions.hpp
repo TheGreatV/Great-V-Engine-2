@@ -453,19 +453,15 @@ namespace GreatVEngine2
 		public:
 			inline BufferHandle& operator = (const BufferHandle&) = default;
 		public:
-			inline operator Value() const
+			inline explicit operator Value() const
 			{
 				return value;
 			}
-			inline operator Value&()
-			{
-				return value;
-			}
-			inline operator Value*()
+			inline explicit operator Value*()
 			{
 				return &value;
 			}
-			inline operator const Value*() const
+			inline explicit operator const Value*() const
 			{
 				return &value;
 			}
@@ -487,19 +483,15 @@ namespace GreatVEngine2
 		public:
 			inline VertexArrayHandle& operator = (const VertexArrayHandle&) = default;
 		public:
-			inline operator Value() const
+			inline explicit operator Value() const
 			{
 				return value;
 			}
-			inline operator Value&()
-			{
-				return value;
-			}
-			inline operator Value*()
+			inline explicit operator Value*()
 			{
 				return &value;
 			}
-			inline operator const Value*() const
+			inline explicit operator const Value*() const
 			{
 				return &value;
 			}
@@ -521,19 +513,15 @@ namespace GreatVEngine2
 		public:
 			inline ProgramHandle& operator = (const ProgramHandle&) = default;
 		public:
-			inline operator Value() const
+			inline explicit operator Value() const
 			{
 				return value;
 			}
-			inline operator Value&()
-			{
-				return value;
-			}
-			inline operator Value*()
+			inline explicit operator Value*()
 			{
 				return &value;
 			}
-			inline operator const Value*() const
+			inline explicit operator const Value*() const
 			{
 				return &value;
 			}
@@ -555,19 +543,15 @@ namespace GreatVEngine2
 		public:
 			inline ShaderHandle& operator = (const ShaderHandle&) = default;
 		public:
-			inline operator Value() const
+			inline explicit operator Value() const
 			{
 				return value;
 			}
-			inline operator Value&()
-			{
-				return value;
-			}
-			inline operator Value*()
+			inline explicit operator Value*()
 			{
 				return &value;
 			}
-			inline operator const Value*() const
+			inline explicit operator const Value*() const
 			{
 				return &value;
 			}
@@ -888,7 +872,7 @@ namespace GreatVEngine2
 		}
 		inline void BindBuffer(const BufferType& bufferType_, const BufferHandle& bufferHandle_)
 		{
-			glBindBuffer(static_cast<GLenum>(bufferType_), bufferHandle_);
+			glBindBuffer(static_cast<GLenum>(bufferType_), static_cast<GLuint>(bufferHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -902,7 +886,7 @@ namespace GreatVEngine2
 			Error::Check();
 #endif
 		}
-		inline void BufferData(const BufferType& bufferType_, const Size& dataSize_, const Memory<void>& data_, const BufferUsage& bufferUsage_)
+		inline void BufferData(const BufferType& bufferType_, const Size& dataSize_, const Memory<const void>& data_, const BufferUsage& bufferUsage_)
 		{
 			glBufferData(static_cast<GLenum>(bufferType_), dataSize_, data_, static_cast<GLenum>(bufferUsage_));
 
@@ -915,7 +899,7 @@ namespace GreatVEngine2
 		{
 			VertexArrayHandle vertexArrayHandle;
 
-			glGenVertexArrays(1, vertexArrayHandle);
+			glGenVertexArrays(1, static_cast<GLuint*>(vertexArrayHandle));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -925,7 +909,7 @@ namespace GreatVEngine2
 		}
 		inline void BindVertexArray(const VertexArrayHandle& vertexArrayHandle_)
 		{
-			glBindVertexArray(vertexArrayHandle_);
+			glBindVertexArray(static_cast<GLuint>(vertexArrayHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -941,7 +925,7 @@ namespace GreatVEngine2
 		}
 		inline void DeleteVertexArray(const VertexArrayHandle& vertexArrayHandle_)
 		{
-			glDeleteVertexArrays(1, vertexArrayHandle_);
+			glDeleteVertexArrays(1, static_cast<const GLuint*>(vertexArrayHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1133,7 +1117,7 @@ namespace GreatVEngine2
 		}
 		inline void UseProgram(const ProgramHandle& programHandle_)
 		{
-			glUseProgram(programHandle_);
+			glUseProgram(static_cast<GLuint>(programHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1149,7 +1133,7 @@ namespace GreatVEngine2
 		}
 		inline void LinkProgram(const ProgramHandle& programHandle_)
 		{
-			glLinkProgram(programHandle_);
+			glLinkProgram(static_cast<GLuint>(programHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1157,7 +1141,7 @@ namespace GreatVEngine2
 		}
 		inline void ValidateProgram(const ProgramHandle& programHandle_)
 		{
-			glValidateProgram(programHandle_);
+			glValidateProgram(static_cast<GLuint>(programHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1165,7 +1149,7 @@ namespace GreatVEngine2
 		}
 		inline void DeleteProgram(const ProgramHandle& programHandle_)
 		{
-			glDeleteProgram(programHandle_);
+			glDeleteProgram(static_cast<GLuint>(programHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1176,7 +1160,7 @@ namespace GreatVEngine2
 		{
 			GLint result;
 
-			glGetProgramiv(programHandle_, static_cast<GLenum>(ProgramParameter::LinkStatus), &result);
+			glGetProgramiv(static_cast<GLuint>(programHandle_), static_cast<GLenum>(ProgramParameter::LinkStatus), &result);
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1197,7 +1181,7 @@ namespace GreatVEngine2
 		{
 			GLint result;
 
-			glGetProgramiv(programHandle_, static_cast<GLenum>(ProgramParameter::ValidateStatus), &result);
+			glGetProgramiv(static_cast<GLuint>(programHandle_), static_cast<GLenum>(ProgramParameter::ValidateStatus), &result);
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1218,7 +1202,7 @@ namespace GreatVEngine2
 		{
 			GLint result;
 
-			glGetProgramiv(programHandle_, static_cast<GLenum>(ProgramParameter::InfoLogLength), &result);
+			glGetProgramiv(static_cast<GLuint>(programHandle_), static_cast<GLenum>(ProgramParameter::InfoLogLength), &result);
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1238,7 +1222,7 @@ namespace GreatVEngine2
 
 			Vector<char> buffer(length);
 
-			glGetProgramInfoLog(programHandle_, buffer.size(), nullptr, buffer.data());
+			glGetProgramInfoLog(static_cast<GLuint>(programHandle_), buffer.size(), nullptr, buffer.data());
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1251,7 +1235,7 @@ namespace GreatVEngine2
 
 		inline AttributeLocation GetAttributeLocation(const ProgramHandle& programHandle_, const String& attributeName_)
 		{
-			auto value = glGetAttribLocation(programHandle_, attributeName_.c_str());
+			auto value = glGetAttribLocation(static_cast<GLuint>(programHandle_), attributeName_.c_str());
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1287,7 +1271,7 @@ namespace GreatVEngine2
 		}
 		inline UniformLocation GetUniformLocation(const ProgramHandle& programHandle_, const String& uniformName_)
 		{
-			auto value = glGetUniformLocation(programHandle_, uniformName_.c_str());
+			auto value = glGetUniformLocation(static_cast<GLuint>(programHandle_), uniformName_.c_str());
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1366,7 +1350,7 @@ namespace GreatVEngine2
 				sizes[i] = sources_[i].length();
 			}
 
-			glShaderSource(shaderHandle_, sources_.size(), datas.data(), sizes.data());
+			glShaderSource(static_cast<GLuint>(shaderHandle_), sources_.size(), datas.data(), sizes.data());
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1374,7 +1358,7 @@ namespace GreatVEngine2
 		}
 		inline void CompileShader(const ShaderHandle& shaderHandle_)
 		{
-			glCompileShader(shaderHandle_);
+			glCompileShader(static_cast<GLuint>(shaderHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1382,7 +1366,7 @@ namespace GreatVEngine2
 		}
 		inline void AttachShader(const ProgramHandle& programHandle_, const ShaderHandle& shaderHandle_)
 		{
-			glAttachShader(programHandle_, shaderHandle_);
+			glAttachShader(static_cast<GLuint>(programHandle_), static_cast<GLuint>(shaderHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1390,7 +1374,7 @@ namespace GreatVEngine2
 		}
 		inline void DetachShader(const ProgramHandle& programHandle_, const ShaderHandle& shaderHandle_)
 		{
-			glDetachShader(programHandle_, shaderHandle_);
+			glDetachShader(static_cast<GLuint>(programHandle_), static_cast<GLuint>(shaderHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1398,7 +1382,7 @@ namespace GreatVEngine2
 		}
 		inline void DeleteShader(const ShaderHandle& shaderHandle_)
 		{
-			glDeleteShader(shaderHandle_);
+			glDeleteShader(static_cast<GLuint>(shaderHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1409,7 +1393,7 @@ namespace GreatVEngine2
 		{
 			GLint result;
 
-			glGetShaderiv(shaderHandle_, static_cast<GLenum>(ShaderParameter::CompilseStatus), &result);
+			glGetShaderiv(static_cast<GLuint>(shaderHandle_), static_cast<GLenum>(ShaderParameter::CompilseStatus), &result);
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1430,7 +1414,7 @@ namespace GreatVEngine2
 		{
 			GLint result;
 
-			glGetShaderiv(shaderHandle_, static_cast<GLenum>(ShaderParameter::InfoLogLength), &result);
+			glGetShaderiv(static_cast<GLuint>(shaderHandle_), static_cast<GLenum>(ShaderParameter::InfoLogLength), &result);
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1450,7 +1434,7 @@ namespace GreatVEngine2
 
 			Vector<char> buffer(length);
 
-			glGetShaderInfoLog(shaderHandle_, buffer.size(), nullptr, buffer.data());
+			glGetShaderInfoLog(static_cast<GLuint>(shaderHandle_), buffer.size(), nullptr, buffer.data());
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();

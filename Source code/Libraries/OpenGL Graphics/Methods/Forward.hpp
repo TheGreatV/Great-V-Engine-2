@@ -134,6 +134,7 @@ namespace GreatVEngine2
 						 * Create a new "ProgramHolder" if there is no such for the respective "Material", or returns existed otherwise.
 						 */
 						inline const Memory<ProgramHolder> ObtainProgramHolder(const Memory<Material>& materialMemory_);
+						inline ProgramsTable::iterator ObtainProgramHolderIt(const Memory<ProgramHolder>& programHolderMemory_);
 					protected:
 						inline void ClearUnusedProgramHolders(); // clear unused programs // TODO: replace with something else
 					protected:
@@ -160,10 +161,17 @@ namespace GreatVEngine2
 					};
 					class Forward::Renderer::BuffersHolder
 					{
+					protected:
+						inline const GL::BufferHandle ObtainVerticesBufferHandle(const Memory<Geometry>& geometryMemory_);
+						inline const GL::BufferHandle ObtainIndicesBufferHandle(const Memory<Geometry>& geometryMemory_);
+						inline const GL::VertexArrayHandle ObtainVertexArrayHandle(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_);
 					public:
-						GreatVEngine2::OpenGL::VertexArrayHandle vertexArrayHandle;
-						GreatVEngine2::OpenGL::BufferHandle verticesBufferHandle;
-						GreatVEngine2::OpenGL::BufferHandle indicesBufferHandle;
+						const GL::BufferHandle verticesBufferHandle;
+						const GL::BufferHandle indicesBufferHandle;
+						const GL::VertexArrayHandle verticesArrayHandle;
+					public:
+						inline BuffersHolder(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_);
+						inline ~BuffersHolder();
 					};
 					class Forward::Renderer::LightsHolder
 					{
@@ -406,6 +414,92 @@ GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ProgramHolder
 
 #pragma endregion
 
+#pragma region BuffersHolder
+
+const GreatVEngine2::OpenGL::BufferHandle GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::ObtainVerticesBufferHandle(const Memory<Geometry>& geometryMemory_)
+{
+	const auto &verticesBufferHandle	= GL::GenBuffer();
+	const auto &data					= Move(geometryMemory_->GetVertices(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
+
+	GL::BindBuffer(GL::BufferType::Array, verticesBufferHandle);
+	GL::BufferData(GL::BufferType::Array, data.size(), data.data(), GL::BufferUsage::Static);
+
+	return verticesBufferHandle;
+}
+const GreatVEngine2::OpenGL::BufferHandle GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::ObtainIndicesBufferHandle(const Memory<Geometry>& geometryMemory_)
+{
+	const auto &indicesBufferHandle	= GL::GenBuffer();
+	const auto &data				= Move(geometryMemory_->GetIndices());
+
+	GL::BindBuffer(GL::BufferType::ElementArray, indicesBufferHandle);
+	GL::BufferData(GL::BufferType::ElementArray, data.size(), data.data(), GL::BufferUsage::Static);
+
+	return indicesBufferHandle;
+}
+const GreatVEngine2::OpenGL::VertexArrayHandle GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::ObtainVertexArrayHandle(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_)
+{
+	const auto &verticesArrayHandle = GL::GenVertexArray();
+	
+	GL::BindVertexArray(verticesArrayHandle);
+	GL::UseProgram(programHandle_);
+	GL::BindBuffer(GL::BufferType::Array, verticesBufferHandle); // NOTE: verticesBufferHandle should be initialized at this point
+
+	const auto vertexSize							= geometryMemory_->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
+	const Size positionAttributeOffset				= 0;
+	const Size tangentAttributeOffset				= sizeof(Float32) * 3;
+	const Size binormalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 1;
+	const Size normalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 2;
+	const Size textureCoordinatesAttributeOffset	= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 3;
+
+	if (auto attributeLocation = GL::GetAttributeLocation(programHandle_, "vPos"))
+	{
+		GL::VertexAttribPointer(attributeLocation, 3, GL::ComponentType::Float, false, vertexSize, positionAttributeOffset);
+		GL::EnableVertexAttribArray(attributeLocation);
+	}
+	if (auto attributeLocation = GL::GetAttributeLocation(programHandle_, "vTan"))
+	{
+		GL::VertexAttribPointer(attributeLocation, 3, GL::ComponentType::Float, false, vertexSize, tangentAttributeOffset);
+		GL::EnableVertexAttribArray(attributeLocation);
+	}
+	if (auto attributeLocation = GL::GetAttributeLocation(programHandle_, "vBin"))
+	{
+		GL::VertexAttribPointer(attributeLocation, 3, GL::ComponentType::Float, false, vertexSize, binormalAttributeOffset);
+		GL::EnableVertexAttribArray(attributeLocation);
+	}
+	if (auto attributeLocation = GL::GetAttributeLocation(programHandle_, "vNor"))
+	{
+		GL::VertexAttribPointer(attributeLocation, 3, GL::ComponentType::Float, false, vertexSize, normalAttributeOffset);
+		GL::EnableVertexAttribArray(attributeLocation);
+	}
+	if (auto attributeLocation = GL::GetAttributeLocation(programHandle_, "vTex"))
+	{
+		GL::VertexAttribPointer(attributeLocation, 2, GL::ComponentType::Float, false, vertexSize, textureCoordinatesAttributeOffset);
+		GL::EnableVertexAttribArray(attributeLocation);
+	}
+
+	return verticesArrayHandle;
+}
+
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::BuffersHolder(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_):
+verticesBufferHandle(ObtainVerticesBufferHandle(geometryMemory_)),
+	indicesBufferHandle(ObtainIndicesBufferHandle(geometryMemory_)),
+	verticesArrayHandle(ObtainVertexArrayHandle(geometryMemory_, programHandle_))
+{
+}
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::~BuffersHolder()
+{
+	GL::BindBuffer(GL::BufferType::Array, nullptr);
+	GL::DeleteBuffer(verticesBufferHandle);
+
+	GL::BindBuffer(GL::BufferType::ElementArray, nullptr);
+	GL::DeleteBuffer(indicesBufferHandle);
+
+	GL::BindVertexArray(nullptr);
+	GL::DeleteVertexArray(verticesArrayHandle);
+}
+
+#pragma endregion
+
 
 GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::Renderer(const StrongPointer<Renderer>& this_, const Memory<Scene>& scene_, const Memory<Forward>& method_):
 	This(this_),
@@ -496,6 +590,21 @@ const GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forw
 		return programHolderMemory;
 	}
 }
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ProgramsTable::iterator GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ObtainProgramHolderIt(const Memory<ProgramHolder>& programHolderMemory_)
+{
+	auto &programsTable = sceneGraph.programsTable;
+	const auto it = programsTable.find(programHolderMemory_);
+
+	if (it != programsTable.end())
+	{
+		return it;
+	}
+	
+	auto t = programsTable.insert({ programHolderMemory_, BuffersTable() });
+	auto nIt = t.first;
+
+	return nIt;
+}
 
 void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ClearUnusedProgramHolders()
 {
@@ -538,22 +647,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 		// handle program
 		const auto &programHolderMemory = ObtainProgramHolder(materialMemory);
-		const auto &programIt			= [&]
-		{
-			auto it = programsTable.find(programHolderMemory);
-
-			if (it == programsTable.end())
-			{
-				auto t = programsTable.insert({programHolderMemory, BuffersTable()});
-				auto nIt = t.first;
-
-				return nIt;
-			}
-			else
-			{
-				return it;
-			}
-		}();
+		const auto &programIt			= ObtainProgramHolderIt(programHolderMemory);
 		auto &buffersTable				= (*programIt).second;
 
 		auto model = objectMemory->GetModel();
@@ -565,15 +659,15 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 			if (it == buffersLookup.end())
 			{
-				auto buffersHolder = MakeStrong<BuffersHolder>();
+				const auto &geometry		= modelMemory->GetGeometry();
+				const auto &programHandle	= programHolderMemory->programHandle;
+				const auto &buffersHolder	= MakeStrong<BuffersHolder>(geometry, programHandle);
 
 				buffersLookup.insert({modelMemory, buffersHolder});
 
-				auto buffersHolderMemory = buffersHolder.GetValue();
+				const auto buffersHolderMemory = buffersHolder.GetValue();
 
-				auto geometry = modelMemory->GetGeometry();
-
-				auto vbo = GreatVEngine2::OpenGL::GenBuffer();
+				/*auto vbo = GreatVEngine2::OpenGL::GenBuffer();
 				{
 					auto data = Move(geometry->GetVertices(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
 
@@ -631,7 +725,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 
 				buffersHolderMemory->vertexArrayHandle = vao;
 				buffersHolderMemory->verticesBufferHandle = vbo;
-				buffersHolderMemory->indicesBufferHandle = ibo;
+				buffersHolderMemory->indicesBufferHandle = ibo;*/
 
 				return buffersHolderMemory;
 			}
@@ -995,7 +1089,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 		for (auto &buffersIt : buffersTable)
 		{
 			auto &buffersHolder = buffersIt.first;
-			auto vertexArrayHandle = buffersHolder->vertexArrayHandle;
+			auto vertexArrayHandle = buffersHolder->verticesArrayHandle;
 			auto verticesBufferHandle = buffersHolder->verticesBufferHandle;
 			auto indicesBufferHandle = buffersHolder->indicesBufferHandle;
 			auto &objectsTable = buffersIt.second;
