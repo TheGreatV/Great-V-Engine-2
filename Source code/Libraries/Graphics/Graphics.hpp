@@ -24,6 +24,119 @@ namespace GreatVEngine2
 			inline Exception(const Text& text_);
 		};
 
+		class _Object: // TODO
+			public Helpers::Transformation::D3::Position,
+			public Helpers::Transformation::D3::Angle,
+			public Helpers::Transformation::D3::Scale
+		{
+		public:
+			inline _Object():
+				Position(Vec3(0.0f)),
+				Angle(Vec3(0.0f)),
+				Scale(Vec3(1.0f))
+			{
+			}
+		public:
+			inline Angle::Value GetLocalAngle() const
+			{
+				return Angle::GetAngle();
+			}
+			inline void SetLocalAngle(const Angle::Value& value_)
+			{
+				Angle::SetAngle(value_);
+			}
+			inline Position::Value GetLocalPosition() const
+			{
+				return Position::GetPosition();
+			}
+			inline void SetLocalPosition(const Position::Value& value_)
+			{
+				Position::SetPosition(value_);
+			}
+		public:
+			inline Mat3 GetLocalRotateMatrix() const
+			{
+				return RotateZXY3(GetLocalAngle());
+			}
+			inline Mat3 GetLocalRotateInverseMatrix() const
+			{
+				return RotateYXZ3(-GetLocalAngle());
+			}
+			inline Mat4 GetLocalModelMatrix() const
+			{
+				return
+					Move4(GetLocalPosition()) *
+					Mat4(GetRotateMatrix()) *
+					Scale4(GetScale());
+			}
+			inline Mat4 GetLocalModelInverseMatrix() const
+			{
+				return
+					Scale4(1.0f / GetScale()) *
+					Mat4(GetRotateInverseMatrix()) *
+					Move4(-GetLocalPosition());
+			}
+		public:
+			inline Mat3 GetRotateMatrix() const
+			{
+				return GetLocalRotateMatrix();
+			}
+			inline Mat3 GetRotateInverseMatrix() const
+			{
+				return GetLocalRotateInverseMatrix();
+			}
+			inline Mat4 GetModelMatrix() const
+			{
+				return GetLocalModelMatrix();
+			}
+			inline Mat4 GetModelInverseMatrix() const
+			{
+				return GetLocalModelInverseMatrix();
+			}
+		public:
+			inline Mat3 GetLRMat() const
+			{
+				return GetLocalRotateMatrix();
+			}
+			inline Mat3 GetLRIMat() const
+			{
+				return GetLocalRotateInverseMatrix();
+			}
+			inline Mat4 GetLMMat() const
+			{
+				return GetLocalModelMatrix();
+			}
+			inline Mat4 GetLMIMat() const
+			{
+				return GetLocalModelInverseMatrix();
+			}
+			inline Mat3 GetRMat() const
+			{
+				return GetRotateMatrix();
+			}
+			inline Mat3 GetRIMat() const
+			{
+				return GetRotateInverseMatrix();
+			}
+			inline Mat4 GetMMat() const
+			{
+				return GetModelMatrix();
+			}
+			inline Mat4 GetMIMat() const
+			{
+				return GetModelInverseMatrix();
+			}
+		public:
+			inline void LocalRotate(const Angle::Value& angle_)
+			{
+				SetLocalAngle(GreatVEngine2::GetAngle(GetLocalRotateMatrix() * RotateZXY3(angle_)));
+			}
+			inline void LocalMove(const Position::Value& position_)
+			{
+				SetLocalPosition((GetLocalModelMatrix() * Vec4(position_, 1.0f)).xyz);
+			}
+		};
+
 		class Output:
 			public This<Output>
 		{
@@ -96,7 +209,7 @@ namespace GreatVEngine2
 		};
 		class Object:
 			public This<Object>,
-			public Helpers::Transformation::D3::HierarchyMatrix
+			public _Object // public Helpers::Transformation::D3::HierarchyMatrix
 		{
 			friend Scene;
 		protected:
@@ -402,7 +515,7 @@ GreatVEngine2::Graphics::Scene::Version GreatVEngine2::Graphics::Scene::GetVersi
 
 GreatVEngine2::Graphics::Object::Object(const StrongPointer<Object>& this_, const StrongPointer<Material>& material_, const StrongPointer<Model>& model_, const StrongPointer<Scene>& scene_):
 	This(this_),
-	HierarchyMatrix(Vec3(0.0f), Vec3(0.0f), Vec3(1.0f)),
+	_Object(), // HierarchyMatrix(Vec3(0.0f), Vec3(0.0f), Vec3(1.0f)),
 	material(material_),
 	model(model_),
 	scene(scene_.GetValue())
