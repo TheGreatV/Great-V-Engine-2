@@ -140,7 +140,10 @@ namespace GreatVEngine2
 		return glm::length(t);
 	}
 	template<class Type> inline Type Normalize(const Type& source_);
-	template<class Type> inline Type Transpose(const Type& source_);
+	template<class Type> inline typename Type::transpose_type Transpose(const Type& source_)
+	{
+		return glm::transpose(source_);
+	}
 	template<class Type> inline Type Inverse(const Type& source_);
 
 
@@ -203,10 +206,6 @@ template<class Type> typename Type GreatVEngine2::CosDg(const Type& degrees_)
 template<class Type> typename Type GreatVEngine2::Normalize(const Type& source_)
 {
 	return glm::normalize(source_);
-}
-template<class Type> typename Type GreatVEngine2::Transpose(const Type& source_)
-{
-	return glm::transpose(source_);
 }
 template<class Type> typename Type GreatVEngine2::Inverse(const Type& source_)
 {

@@ -1,16 +1,18 @@
 #version 330
 
 
-uniform uint objectsCount;
-
-layout (column_major) uniform CameraBuffer {
+layout (column_major, std140) uniform CameraBuffer {
 	vec4	position;
 	mat4	viewProjectionMatrix;
 } camera;
 
-layout (column_major) uniform ObjectBuffer {
-	mat4	modelMatrix;
-} object[];
+struct ObjectData {
+	mat3x4	modelMatrix;
+};
+
+layout (column_major, std140) uniform ObjectsBuffer {
+	ObjectData objects[1024];
+};
 
 
 in      vec3    vPos;
@@ -27,11 +29,13 @@ out     vec2    fTex;
 
 void main()
 {
-	gl_Position = (camera.viewProjectionMatrix * object.modelMatrix) * vec4(vPos, 1.0f);
-    
-	fPos = (object.modelMatrix * vec4(vPos, 1)).xyz - camera.position.xyz;
+	mat4	modelMatrix = mat4(transpose(objects[gl_InstanceID].modelMatrix));
 	
-	mat3	rotateMatrix = mat3(object.modelMatrix);
+	gl_Position = (camera.viewProjectionMatrix * modelMatrix) * vec4(vPos, 1.0f);
+    
+	fPos = (modelMatrix * vec4(vPos, 1)).xyz - camera.position.xyz;
+	
+	mat3	rotateMatrix = mat3(modelMatrix);
     
 	fTBN = rotateMatrix * mat3(vTan, vBin, vNor);
     fTex = vTex;

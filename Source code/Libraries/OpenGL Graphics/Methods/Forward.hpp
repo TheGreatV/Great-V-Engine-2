@@ -168,6 +168,7 @@ namespace GreatVEngine2
 						inline const GL::BufferHandle ObtainIndicesBufferHandle(const Memory<Geometry>& geometryMemory_);
 						inline const GL::VertexArrayHandle ObtainVertexArrayHandle(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_);
 					public:
+						const Memory<const Geometry> geometryMemory;
 						const GL::BufferHandle verticesBufferHandle;
 						const GL::BufferHandle indicesBufferHandle;
 						const GL::VertexArrayHandle verticesArrayHandle;
@@ -483,7 +484,8 @@ const GreatVEngine2::OpenGL::VertexArrayHandle GreatVEngine2::Graphics::APIs::Op
 }
 
 GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder::BuffersHolder(const Memory<Geometry>& geometryMemory_, const GL::ProgramHandle& programHandle_):
-verticesBufferHandle(ObtainVerticesBufferHandle(geometryMemory_)),
+	geometryMemory(geometryMemory_),
+	verticesBufferHandle(ObtainVerticesBufferHandle(geometryMemory_)),
 	indicesBufferHandle(ObtainIndicesBufferHandle(geometryMemory_)),
 	verticesArrayHandle(ObtainVertexArrayHandle(geometryMemory_, programHandle_))
 {
@@ -1015,9 +1017,14 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			Vec4	position;
 			Mat4	viewProjectionMatrix;
 		} cameraUniforms;
-		struct {
-			Mat4	modelMatrix;
-		} objectUniforms;
+		struct ObjectBuffer{
+			glm::mat3x4	modelMatrix;
+		};
+
+		const Size maxObjectsCountShaderCapacity = 1024;
+		const Size maxObjectsCountMemoryCapacity = maxUniformBlockSize / sizeof(ObjectBuffer);
+		
+		Vector<ObjectBuffer> objectsUniforms(glm::min(maxObjectsCountShaderCapacity, maxObjectsCountMemoryCapacity));
 
 		auto cameraUniformsBuffer = GL::GenBuffer();
 		{
@@ -1039,16 +1046,16 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 
 		GL::BufferSubData(GL::BufferType::Uniform, 0, sizeof(cameraUniforms), &cameraUniforms);
 
-		auto objectUniformsBuffer = GL::GenBuffer();
+		auto objectsUniformsBuffer = GL::GenBuffer();
 		{
-			GL::BindBuffer(GL::BufferType::Uniform, objectUniformsBuffer);
-			GL::BufferData(GL::BufferType::Uniform, sizeof(objectUniforms), nullptr, GL::BufferUsage::Dynamic);
+			GL::BindBuffer(GL::BufferType::Uniform, objectsUniformsBuffer);
+			GL::BufferData(GL::BufferType::Uniform, sizeof(ObjectBuffer) * objectsUniforms.size(), nullptr, GL::BufferUsage::Dynamic);
 		}
 
-		auto objectBufferIndex = GL::GetUniformBlockIndex(programHandle, "ObjectBuffer");
+		auto objectsBufferIndex = GL::GetUniformBlockIndex(programHandle, "ObjectsBuffer");
 		{
-			GL::UniformBlockBinding(programHandle, objectBufferIndex, GL::UniformBlockBindingPoint(1));
-			GL::BindBufferBase(GL::BufferType::Uniform, objectBufferIndex, objectUniformsBuffer);
+			GL::UniformBlockBinding(programHandle, objectsBufferIndex, GL::UniformBlockBindingPoint(1));
+			GL::BindBufferBase(GL::BufferType::Uniform, objectsBufferIndex, objectsUniformsBuffer);
 		}
 
 		for (auto &it : programHolder->textures)
@@ -1071,9 +1078,10 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 		for (auto &buffersIt : buffersTable)
 		{
 			auto &buffersHolder = buffersIt.first;
-			auto vertexArrayHandle = buffersHolder->verticesArrayHandle;
-			auto verticesBufferHandle = buffersHolder->verticesBufferHandle;
-			auto indicesBufferHandle = buffersHolder->indicesBufferHandle;
+			auto &geometryMemory = buffersHolder->geometryMemory;
+			auto &vertexArrayHandle = buffersHolder->verticesArrayHandle;
+			auto &verticesBufferHandle = buffersHolder->verticesBufferHandle;
+			auto &indicesBufferHandle = buffersHolder->indicesBufferHandle;
 			auto &objectsTable = buffersIt.second;
 
 			BindVertexArray(vertexArrayHandle);
@@ -1089,20 +1097,27 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 				}
 			}
 			
-			for (auto &objectMemory : objectsTable)
+			const Size drawCalls = (objectsTable.size() + objectsUniforms.size() - 1) / objectsUniforms.size();
+
+			for (auto &drawChunkIndex : Range(drawCalls))
 			{
-				auto modelMatrix = objectMemory->GetMMat();
+				const Size firstIndex = drawChunkIndex * objectsUniforms.size();
+				const Size lastIndex = glm::min((drawChunkIndex + 1) * objectsUniforms.size(), objectsTable.size());
+				const Size instancesCount = lastIndex - firstIndex;
 
-				objectUniforms.modelMatrix = modelMatrix;
-
-				GL::BindBuffer(GL::BufferType::Uniform, objectUniformsBuffer);
-				GL::BufferSubData(GL::BufferType::Uniform, 0, sizeof(objectUniforms), &objectUniforms);
-
-				auto geometry = objectMemory->GetModel()->GetGeometry();
-				
-				if (geometry->GetTopology() == Geometry::Topology::Triangles)
+				for (Size i = firstIndex; i < lastIndex; ++i)
 				{
-					glDrawElements(GL_TRIANGLES, geometry->GetIndicesCount(), GL_UNSIGNED_INT, 0);
+					const auto &objectMemory = objectsTable[i];
+					const auto &modelMatrix = objectMemory->GetMMat();
+
+					objectsUniforms[i - firstIndex].modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+				}
+				
+				GL::BufferSubData(GL::BufferType::Uniform, 0, sizeof(ObjectBuffer)* instancesCount, objectsUniforms.data());
+
+				if (geometryMemory->GetTopology() == Geometry::Topology::Triangles)
+				{
+					glDrawElementsInstanced(GL_TRIANGLES, geometryMemory->GetIndicesCount(), GL_UNSIGNED_INT, 0, instancesCount);
 				}
 				else
 				{
@@ -1113,7 +1128,7 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 
 		GL::BindBuffer(GL::BufferType::Uniform, nullptr);
 		GL::DeleteBuffer(cameraUniformsBuffer);
-		GL::DeleteBuffer(objectUniformsBuffer);
+		GL::DeleteBuffer(objectsUniformsBuffer);
 	}
 
 	glFlush();
