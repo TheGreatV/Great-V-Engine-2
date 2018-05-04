@@ -69,6 +69,56 @@ namespace GreatVEngine2
 	const Float32 PI	= 3.1415926535897932384626433832795f;
 
 
+	inline Float32 Rnd()
+	{
+		return static_cast <Float32> (rand()) / static_cast <Float32> (RAND_MAX);
+	}
+	inline Float32 Rnd(const Float32& max_)
+	{
+		return static_cast <Float32> (rand()) / (static_cast <Float32> (RAND_MAX / max_));
+	}
+	inline Float32 Rnd(const Float32& min_, const Float32& max_)
+	{
+		return min_ + static_cast <Float32> (rand()) / (static_cast <Float32> (RAND_MAX / (max_ - min_)));
+	}
+	inline Vec2 Rnd2()
+	{
+		return Vec2(Rnd(), Rnd());
+	}
+	inline Vec2 Rnd2(const Float32& max_)
+	{
+		return Vec2(Rnd(max_), Rnd(max_));
+	}
+	inline Vec2 Rnd2(const Float32& min_, const Float32& max_)
+	{
+		return Vec2(Rnd(min_, max_), Rnd(min_, max_));
+	}
+	inline Vec3 Rnd3()
+	{
+		return Vec3(Rnd(), Rnd(), Rnd());
+	}
+	inline Vec3 Rnd3(const Float32& max_)
+	{
+		return Vec3(Rnd(max_), Rnd(max_), Rnd(max_));
+	}
+	inline Vec3 Rnd3(const Float32& min_, const Float32& max_)
+	{
+		return Vec3(Rnd(min_, max_), Rnd(min_, max_), Rnd(min_, max_));
+	}
+	inline Vec4 Rnd4()
+	{
+		return Vec4(Rnd(), Rnd(), Rnd(), Rnd());
+	}
+	inline Vec4 Rnd4(const Float32& max_)
+	{
+		return Vec4(Rnd(max_), Rnd(max_), Rnd(max_), Rnd(max_));
+	}
+	inline Vec4 Rnd4(const Float32& min_, const Float32& max_)
+	{
+		return Vec4(Rnd(min_, max_), Rnd(min_, max_), Rnd(min_, max_), Rnd(min_, max_));
+	}
+
+
 	template<class Type> inline Type Radians(const Type& degrees_);
 	template<class Type> inline Type Degrees(const Type& radians_);
 	template<class Type> inline Type Sin(const Type& radians_);
@@ -76,6 +126,19 @@ namespace GreatVEngine2
 	template<class Type> inline Type SinDg(const Type& degrees_);
 	template<class Type> inline Type CosDg(const Type& degrees_);
 
+	template <typename Type> inline Type Clamp(Type value_, Type minValue_, Type maxValue_)
+	{
+		return glm::clamp(value_, minValue_, maxValue_);
+	}
+	template <typename genTypeT, typename genTypeU>
+	inline genTypeT Mix(const genTypeT& a, const genTypeT& b, const genTypeU& t)
+	{
+		return glm::mix(a, b, t);
+	}
+	template <typename T> inline Float32 Length(const T& t)
+	{
+		return glm::length(t);
+	}
 	template<class Type> inline Type Normalize(const Type& source_);
 	template<class Type> inline Type Transpose(const Type& source_);
 	template<class Type> inline Type Inverse(const Type& source_);

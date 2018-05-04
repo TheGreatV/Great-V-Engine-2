@@ -168,6 +168,7 @@ void main()
 	auto scene = Make<Graphics::Scene>();
 
 	auto object = Make<Graphics::Object>(material, model, scene);
+	auto objects = Vector<StrongPointer<Graphics::Object>>();
 
 	auto directionalLight = Make<Graphics::Lights::Directional>(scene);
 
@@ -210,9 +211,49 @@ void main()
 			rotateLock = false;
 		}
 
+		const Size count =
+			objects.size() < 100 ? 1:
+			objects.size() < 1000 ? 10:
+			20;
+		const Float32 minimalDistance = 10.0f;
+		const Float32 maximalDistance = 20.0f;
+		
+		if (GetAsyncKeyState(VK_PRIOR))
+		{
+			for (auto &i : Range(count))
+			{
+				auto object = Make<Graphics::Object>(material, model, scene);
+				
+				object->SetLocalPosition(RotateY3(Rnd(360.0)) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
+				object->SetLocalAngle(Rnd3(360.0f));
+
+				objects.push_back(object);
+			}
+		}
+		if (GetAsyncKeyState(VK_NEXT))
+		{
+			for (auto &i : Range(count))
+			{
+				if (!objects.empty())
+				{
+					objects.pop_back();
+				}
+			}
+		}
+
 		if (rotate)
 		{
 			object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f));
+
+			for (auto &object : objects)
+			{
+				object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f));
+
+				auto distance = Length(object->GetPosition());
+				auto power = Mix(0.2f, 0.04f, Clamp((distance - minimalDistance) / (maximalDistance - minimalDistance), 0.0f, 1.0f));
+
+				object->SetLocalPosition(RotateY3(power) * object->GetPosition());
+			}
 		}
 
 		Float32 movingSpeed = 0.1f;

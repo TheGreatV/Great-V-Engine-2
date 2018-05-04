@@ -608,6 +608,58 @@ namespace GreatVEngine2
 				return value != -1;
 			}
 		};
+		class UniformBlockIndex
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline UniformBlockIndex() = default;
+			inline explicit UniformBlockIndex(const Value& value_):
+				value(value_)
+			{
+			}
+			inline UniformBlockIndex(const UniformBlockIndex&) = default;
+			inline ~UniformBlockIndex() = default;
+		public:
+			inline UniformBlockIndex& operator = (const UniformBlockIndex&) = default;
+		public:
+			inline operator Value() const
+			{
+				return value;
+			}
+			inline operator bool() const
+			{
+				return value != GL_INVALID_INDEX;
+			}
+		};
+		class UniformBlockBindingPoint
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline UniformBlockBindingPoint() = default;
+			inline explicit UniformBlockBindingPoint(const Value& value_):
+				value(value_)
+			{
+			}
+			inline UniformBlockBindingPoint(const UniformBlockBindingPoint&) = default;
+			inline ~UniformBlockBindingPoint() = default;
+		public:
+			inline UniformBlockBindingPoint& operator = (const UniformBlockBindingPoint&) = default;
+		public:
+			inline operator Value() const
+			{
+				return value;
+			}
+			inline operator bool() const
+			{
+				return value != GL_INVALID_INDEX;
+			}
+		};
 		class TextureHandle
 		{
 		public:
@@ -850,6 +902,19 @@ namespace GreatVEngine2
 
 
 		// functions
+		inline Size GetMaxUniformBlockSize()
+		{
+			GLint value;
+
+			glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			return value;
+		}
+
 		inline BufferHandle GenBuffer()
 		{
 			BufferHandle bufferHandle;
@@ -889,6 +954,22 @@ namespace GreatVEngine2
 		inline void BufferData(const BufferType& bufferType_, const Size& dataSize_, const Memory<const void>& data_, const BufferUsage& bufferUsage_)
 		{
 			glBufferData(static_cast<GLenum>(bufferType_), dataSize_, data_, static_cast<GLenum>(bufferUsage_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void BufferSubData(const BufferType& bufferType_, const Size& offset_, const Size& dataSize_, const Memory<const void>& data_)
+		{
+			glBufferSubData(static_cast<GLenum>(bufferType_), offset_, dataSize_, data_);
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline void BindBufferBase(const BufferType& bufferType_, const UniformBlockIndex& uniformBlockIndex_, const BufferHandle& bufferHandle_)
+		{
+			glBindBufferBase(static_cast<GLenum>(bufferType_), static_cast<GLuint>(uniformBlockIndex_), static_cast<GLuint>(bufferHandle_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1316,6 +1397,26 @@ namespace GreatVEngine2
 		inline void SetUniform(const UniformLocation& uniformLocation_, const Mat3& mat_, const bool& isTransposed_ = false)
 		{
 			glUniformMatrix3fv(uniformLocation_, 1, isTransposed_ ? GL_TRUE : GL_FALSE, reinterpret_cast<const GLfloat*>(&mat_));
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+		}
+		inline UniformBlockIndex GetUniformBlockIndex(const ProgramHandle& programHandle_, const String& uniformBlockName_)
+		{
+			auto value = glGetUniformBlockIndex(static_cast<GLuint>(programHandle_), uniformBlockName_.c_str());
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			Error::Check();
+#endif
+
+			auto uniformBlockIndex = UniformBlockIndex(value);
+
+			return uniformBlockIndex;
+		}
+		inline void UniformBlockBinding(const ProgramHandle& programHandle_, const UniformBlockIndex& uniformBlockIndex_, const UniformBlockBindingPoint& uniformBlockBindingPoint_)
+		{
+			glUniformBlockBinding(static_cast<GLuint>(programHandle_), static_cast<GLuint>(uniformBlockIndex_), static_cast<GLuint>(uniformBlockBindingPoint_));
 
 #if __GREAT_V_ENGINE_2__DEBUG__
 			Error::Check();
@@ -1841,6 +1942,20 @@ void GreatVEngine2::OpenGL::Init()
 	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glDeleteVertexArrays);
 	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGenVertexArrays);
 	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glIsVertexArray);
+
+	// Version 3.1
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glDrawArraysInstanced);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glDrawElementsInstanced);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glTexBuffer);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glPrimitiveRestartIndex);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glCopyBufferSubData);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetUniformIndices);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetActiveUniformsiv);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetActiveUniformName);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetUniformBlockIndex);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetActiveUniformBlockiv);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glGetActiveUniformBlockName);
+	__GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(glUniformBlockBinding);
 
 
 	if (!wglMakeCurrent(NULL, NULL))

@@ -135,6 +135,8 @@ namespace GreatVEngine2
 						 */
 						inline const Memory<ProgramHolder> ObtainProgramHolder(const Memory<Material>& materialMemory_);
 						inline ProgramsTable::iterator ObtainProgramHolderIt(const Memory<ProgramHolder>& programHolderMemory_);
+						inline const Memory<BuffersHolder> ObtainBuffersHolder(const Memory<Model>& modelMemory_, const ProgramsTable::iterator& programIt_);
+						inline BuffersTable::iterator ObtainBuffersHolderIt(const Memory<BuffersHolder>& buffersHolderMemory_, const ProgramsTable::iterator& programIt_);
 					protected:
 						inline void ClearUnusedProgramHolders(); // clear unused programs // TODO: replace with something else
 					protected:
@@ -605,6 +607,44 @@ GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ProgramsTable
 
 	return nIt;
 }
+const GreatVEngine2::Memory<GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersHolder> GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ObtainBuffersHolder(const Memory<Model>& modelMemory_, const ProgramsTable::iterator& programIt_)
+{
+	const auto &it = buffersLookup.find(modelMemory_);
+
+	if (it != buffersLookup.end())
+	{
+		const auto &buffersHolder		= (*it).second;
+		const auto &buffersHolderMemory	= buffersHolder.GetValue();
+
+		return buffersHolderMemory;
+	}
+
+	const auto &programHolderMemory	= (*programIt_).first;
+	const auto &programHandle		= programHolderMemory->programHandle;
+	const auto &geometry			= modelMemory_->GetGeometry();
+	const auto &buffersHolder		= MakeStrong<BuffersHolder>(geometry, programHandle);
+
+	buffersLookup.insert({ modelMemory_, buffersHolder });
+
+	const auto &buffersHolderMemory = buffersHolder.GetValue();
+
+	return buffersHolderMemory;
+}
+GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::BuffersTable::iterator GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ObtainBuffersHolderIt(const Memory<BuffersHolder>& buffersHolderMemory_, const ProgramsTable::iterator& programIt_)
+{
+	auto &buffersTable = (*programIt_).second;
+	const auto &it	= buffersTable.find(buffersHolderMemory_);
+
+	if (it != buffersTable.end())
+	{
+		return it;
+	}
+
+	const auto &t	= buffersTable.insert({ buffersHolderMemory_, ObjectsTable() });
+	const auto &nIt	= t.first;
+
+	return nIt;
+}
 
 void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ClearUnusedProgramHolders()
 {
@@ -650,110 +690,11 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::ForceUpd
 		const auto &programIt			= ObtainProgramHolderIt(programHolderMemory);
 		auto &buffersTable				= (*programIt).second;
 
-		auto model = objectMemory->GetModel();
-		auto modelMemory = model.GetValue();
-
-		auto buffersHolderMemory = [&]
-		{
-			auto it = buffersLookup.find(modelMemory);
-
-			if (it == buffersLookup.end())
-			{
-				const auto &geometry		= modelMemory->GetGeometry();
-				const auto &programHandle	= programHolderMemory->programHandle;
-				const auto &buffersHolder	= MakeStrong<BuffersHolder>(geometry, programHandle);
-
-				buffersLookup.insert({modelMemory, buffersHolder});
-
-				const auto buffersHolderMemory = buffersHolder.GetValue();
-
-				/*auto vbo = GreatVEngine2::OpenGL::GenBuffer();
-				{
-					auto data = Move(geometry->GetVertices(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
-
-					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
-					GreatVEngine2::OpenGL::BufferData(GreatVEngine2::OpenGL::BufferType::Array, data.size(), data.data(), GreatVEngine2::OpenGL::BufferUsage::Static);
-				}
-				auto ibo = GreatVEngine2::OpenGL::GenBuffer();
-				{
-					auto data = Move(geometry->GetIndices());
-
-					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::ElementArray, ibo);
-					GreatVEngine2::OpenGL::BufferData(GreatVEngine2::OpenGL::BufferType::ElementArray, data.size(), data.data(), GreatVEngine2::OpenGL::BufferUsage::Static);
-				}
-				auto vao = GreatVEngine2::OpenGL::GenVertexArray();
-				{
-					GreatVEngine2::OpenGL::BindVertexArray(vao);
-
-					auto programHandle = (*programIt).first->programHandle;
-
-					GreatVEngine2::OpenGL::UseProgram(programHandle);
-					GreatVEngine2::OpenGL::BindBuffer(GreatVEngine2::OpenGL::BufferType::Array, vbo);
-
-					const Size positionAttributeOffset				= 0;
-					const Size tangentAttributeOffset				= sizeof(Float32) * 3;
-					const Size binormalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 1;
-					const Size normalAttributeOffset				= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 2;
-					const Size textureCoordinatesAttributeOffset	= sizeof(Float32) * 3 + (sizeof(Float32) * 3) * 3;
-
-					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vPos"))
-					{
-						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), positionAttributeOffset);
-						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
-					}
-					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vTan"))
-					{
-						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), tangentAttributeOffset);
-						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
-					}
-					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vBin"))
-					{
-						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), binormalAttributeOffset);
-						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
-					}
-					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vNor"))
-					{
-						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 3, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), normalAttributeOffset);
-						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
-					}
-					if (auto attributeLocation = GreatVEngine2::OpenGL::GetAttributeLocation(programHandle, "vTex"))
-					{
-						GreatVEngine2::OpenGL::VertexAttribPointer(attributeLocation, 2, GreatVEngine2::OpenGL::ComponentType::Float, false, geometry->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F), textureCoordinatesAttributeOffset);
-						GreatVEngine2::OpenGL::EnableVertexAttribArray(attributeLocation);
-					}
-				}
-
-				buffersHolderMemory->vertexArrayHandle = vao;
-				buffersHolderMemory->verticesBufferHandle = vbo;
-				buffersHolderMemory->indicesBufferHandle = ibo;*/
-
-				return buffersHolderMemory;
-			}
-			else
-			{
-				auto buffersHolder = (*it).second;
-				auto buffersHolderMemory = buffersHolder.GetValue();
-
-				return buffersHolderMemory;
-			}
-		}();
-		auto buffersIt = [&]
-		{
-			auto it = buffersTable.find(buffersHolderMemory);
-
-			if (it == buffersTable.end())
-			{
-				auto t = buffersTable.insert({buffersHolderMemory, ObjectsTable()});
-				auto nIt = t.first;
-
-				return nIt;
-			}
-			else
-			{
-				return it;
-			}
-		}();
-		auto &objectsTable = (*buffersIt).second;
+		const auto &model				= objectMemory->GetModel();
+		const auto &modelMemory			= model.GetValue();
+		const auto &buffersHolderMemory	= ObtainBuffersHolder(modelMemory, programIt);
+		const auto &buffersIt			= ObtainBuffersHolderIt(buffersHolderMemory, programIt);
+		auto &objectsTable				= (*buffersIt).second;
 
 		objectsTable.push_back(objectMemory);
 	}
@@ -1057,9 +998,6 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 	glDisable(GL_BLEND);
 
 
-	float roughness = 0.1f;
-	float metalness = 0.0f;
-
 	// draw objects
 	for (auto &programIt : programsTable)
 	{
@@ -1068,6 +1006,50 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 		auto &buffersTable = programIt.second;
 
 		UseProgram(programHandle);
+
+		
+		// camera uniform buffer
+		auto maxUniformBlockSize = GL::GetMaxUniformBlockSize();
+
+		struct {
+			Vec4	position;
+			Mat4	viewProjectionMatrix;
+		} cameraUniforms;
+		struct {
+			Mat4	modelMatrix;
+		} objectUniforms;
+
+		auto cameraUniformsBuffer = GL::GenBuffer();
+		{
+			GL::BindBuffer(GL::BufferType::Uniform, cameraUniformsBuffer);
+			GL::BufferData(GL::BufferType::Uniform, sizeof(cameraUniforms), nullptr, GL::BufferUsage::Dynamic);
+		}
+
+		auto cameraBufferIndex = GL::GetUniformBlockIndex(programHandle, "CameraBuffer");
+		{
+			GL::UniformBlockBinding(programHandle, cameraBufferIndex, GL::UniformBlockBindingPoint(0));
+			GL::BindBufferBase(GL::BufferType::Uniform, cameraBufferIndex, cameraUniformsBuffer);
+		}
+
+		auto viewMatrix = camera_->GetVMat();
+		auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.02f, 10000.0f) * viewMatrix;
+		
+		cameraUniforms.viewProjectionMatrix	= viewProjectionMatrix;
+		cameraUniforms.position				= Vec4(camera_->GetPosition(), 0.0f);
+
+		GL::BufferSubData(GL::BufferType::Uniform, 0, sizeof(cameraUniforms), &cameraUniforms);
+
+		auto objectUniformsBuffer = GL::GenBuffer();
+		{
+			GL::BindBuffer(GL::BufferType::Uniform, objectUniformsBuffer);
+			GL::BufferData(GL::BufferType::Uniform, sizeof(objectUniforms), nullptr, GL::BufferUsage::Dynamic);
+		}
+
+		auto objectBufferIndex = GL::GetUniformBlockIndex(programHandle, "ObjectBuffer");
+		{
+			GL::UniformBlockBinding(programHandle, objectBufferIndex, GL::UniformBlockBindingPoint(1));
+			GL::BindBufferBase(GL::BufferType::Uniform, objectBufferIndex, objectUniformsBuffer);
+		}
 
 		for (auto &it : programHolder->textures)
 		{
@@ -1109,63 +1091,12 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 			
 			for (auto &objectMemory : objectsTable)
 			{
-				auto rotateMatrix = objectMemory->GetRMat();
 				auto modelMatrix = objectMemory->GetMMat();
-				auto viewMatrix = camera_->GetVMat();
-				auto viewProjectionMatrix = Perspective(60.0f, aspect, 0.02f, 10000.0f) * viewMatrix;
-				auto mat = viewProjectionMatrix * modelMatrix;
 
-				if (auto uniformLocation = GetUniformLocation(programHandle, "modelViewProjectionMatrix"))
-				{
-					SetUniform(uniformLocation, mat);
-				}
-				if (auto uniformLocation = GetUniformLocation(programHandle, "modelMatrix"))
-				{
-					SetUniform(uniformLocation, Move4(-camera_->GetPosition()) * modelMatrix);
-				}
-				if (auto uniformLocation = GetUniformLocation(programHandle, "rotateMatrix"))
-				{
-					SetUniform(uniformLocation, rotateMatrix);
-				}
-				if (auto uniformLocation = GetUniformLocation(programHandle, "mode"))
-				{
-					if (GetAsyncKeyState(VK_NUMPAD1)) SetUniform(uniformLocation, 1);
-					if (GetAsyncKeyState(VK_NUMPAD2)) SetUniform(uniformLocation, 2);
-					if (GetAsyncKeyState(VK_NUMPAD3)) SetUniform(uniformLocation, 3);
-					if (GetAsyncKeyState(VK_NUMPAD4)) SetUniform(uniformLocation, 4);
-					if (GetAsyncKeyState(VK_NUMPAD5)) SetUniform(uniformLocation, 5);
-					if (GetAsyncKeyState(VK_NUMPAD6)) SetUniform(uniformLocation, 6);
-					if (GetAsyncKeyState(VK_NUMPAD7)) SetUniform(uniformLocation, 7);
-					if (GetAsyncKeyState(VK_NUMPAD8)) SetUniform(uniformLocation, 8);
-					if (GetAsyncKeyState(VK_NUMPAD9)) SetUniform(uniformLocation, 9);
-					if (GetAsyncKeyState(VK_NUMPAD0)) SetUniform(uniformLocation, 10);
-					if (GetAsyncKeyState('T')) SetUniform(uniformLocation, 11);
-					if (GetAsyncKeyState('Y')) SetUniform(uniformLocation, 12);
-					if (GetAsyncKeyState('U')) SetUniform(uniformLocation, 13);
-					if (GetAsyncKeyState('G')) SetUniform(uniformLocation, 14);
-					if (GetAsyncKeyState('H')) SetUniform(uniformLocation, 15);
-					if (GetAsyncKeyState('J')) SetUniform(uniformLocation, 16);
-					if (GetAsyncKeyState('B')) SetUniform(uniformLocation, 17);
-					if (GetAsyncKeyState('N')) SetUniform(uniformLocation, 18);
-					if (GetAsyncKeyState('M')) SetUniform(uniformLocation, 19);
-				}
+				objectUniforms.modelMatrix = modelMatrix;
 
-				if (auto uniformLocation = GetUniformLocation(programHandle, "roughness"))
-				{
-					SetUniform(uniformLocation, roughness);
-				}
-				if (auto uniformLocation = GetUniformLocation(programHandle, "metalness"))
-				{
-					SetUniform(uniformLocation, metalness);
-				}
-
-				roughness += 0.1f;
-
-				if (roughness > 1.05f)
-				{
-					roughness = 0.1f;
-					metalness += 0.1f;
-				}
+				GL::BindBuffer(GL::BufferType::Uniform, objectUniformsBuffer);
+				GL::BufferSubData(GL::BufferType::Uniform, 0, sizeof(objectUniforms), &objectUniforms);
 
 				auto geometry = objectMemory->GetModel()->GetGeometry();
 				
@@ -1179,6 +1110,10 @@ void GreatVEngine2::Graphics::APIs::OpenGL::Methods::Forward::Renderer::PresentO
 				}
 			}
 		}
+
+		GL::BindBuffer(GL::BufferType::Uniform, nullptr);
+		GL::DeleteBuffer(cameraUniformsBuffer);
+		GL::DeleteBuffer(objectUniformsBuffer);
 	}
 
 	glFlush();
