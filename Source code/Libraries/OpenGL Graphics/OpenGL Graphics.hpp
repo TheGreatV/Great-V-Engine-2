@@ -4,7 +4,6 @@
 #pragma warning (disable : 4503) // names is too long
 
 #include "Header.hpp"
-#include "Methods/Forward.hpp"
 
 #pragma endregion
 
@@ -26,23 +25,6 @@ namespace GreatVEngine2
 		}
 	}
 }
-
-
-#pragma region GreatVEngine2
-
-#pragma region Graphics
-
-#pragma region APIs
-
-#pragma region OpenGL
-
-#pragma endregion
-
-#pragma endregion
-
-#pragma endregion
-
-#pragma endregion
 
 
 #pragma region

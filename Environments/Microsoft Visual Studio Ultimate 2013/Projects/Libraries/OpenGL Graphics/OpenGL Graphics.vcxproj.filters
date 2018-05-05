@@ -21,18 +21,12 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\OpenGL Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Methods\Forward.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Header.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\OpenGL Graphics.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Methods\Forward.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

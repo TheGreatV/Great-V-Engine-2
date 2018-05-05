@@ -70,12 +70,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Header.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Methods\Forward.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\OpenGL Graphics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Header.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\Methods\Forward.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL Graphics\OpenGL Graphics.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
