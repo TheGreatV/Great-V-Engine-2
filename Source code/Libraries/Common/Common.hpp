@@ -13,6 +13,7 @@
 #include "System.hpp"
 #include "Image.hpp"
 #include "Helpers.hpp"
+#include "Threading.hpp"
 
 #pragma endregion
 

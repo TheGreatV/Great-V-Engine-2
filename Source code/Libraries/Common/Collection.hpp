@@ -7,6 +7,7 @@
 #include <list>
 #include <map>
 #include <set>
+#include <queue>
 #include <initializer_list>
 
 #include "Header.hpp"
@@ -28,6 +29,7 @@ namespace GreatVEngine2
 	template<class Type_> using					List = std::list<Type_>;
 	template<class Key_, class Value_> using	Map = std::map<Key_, Value_>;
 	template<class Type_> using					Set = std::set<Type_>;
+	template<class Type_> using					Queue = std::queue<Type_>;
 	template<class Type_> using					Initializer = std::initializer_list<Type_>;
 
 
