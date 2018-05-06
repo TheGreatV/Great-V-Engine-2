@@ -22,15 +22,6 @@ namespace GreatVEngine2
 }
 
 
-#pragma region GreatVEngine2
-
-#pragma region OpenGL
-
-#pragma endregion
-
-#pragma endregion
-
-
 #pragma region
 #pragma endregion
 
