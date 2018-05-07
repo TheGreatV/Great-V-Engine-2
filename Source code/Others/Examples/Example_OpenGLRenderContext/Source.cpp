@@ -13,6 +13,7 @@ using namespace GVE;
 // #define __GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(x) if((x = reinterpret_cast<decltype(x)>(wglGetProcAddress(#x))) == nullptr) throw Exception() // ("Failed to get function pointer for \""#x"\"");
 // #define OBTAIN(x) x(wglGetProcAddress(#x) ? reinterpret_cast<decltype(x)>(wglGetProcAddress(#x)) : throw Exception())
 #define __GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(x) reinterpret_cast<decltype(x)>(GetProcedureAddress(#x))
+#define __GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(x, h) reinterpret_cast<decltype(x)>(GetProcedureAddress(#x, h))
 
 #include <gl/gl.h>
 #include <gl/glext.h>
@@ -264,54 +265,6 @@ namespace OpenGL
 		inline void				Flush() const;
 		inline void				Finish() const;
 	};
-#pragma region Interface_1_0
-	void Interface_1_0::CheckForErrors() const
-	{
-		auto code = GetErrorCode();
-
-		if (code != Error::Code::NoError)
-		{
-			throw Exception();
-		}
-	}
-	
-	Error::Code Interface_1_0::GetErrorCode() const
-	{
-		auto code = static_cast<Error::Code>(glGetError());
-
-		return code;
-	}
-	void Interface_1_0::ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const
-	{
-		glViewport(x_, y_, width_, height_);
-
-		CheckForErrors();
-	}
-	void Interface_1_0::ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const
-	{
-		glClearColor(red_, green_, blue_, alpha_);
-
-		CheckForErrors();
-	}
-	void Interface_1_0::Clear(const GLbitfield& mask_) const
-	{
-		glClear(mask_);
-
-		CheckForErrors();
-	}
-	void Interface_1_0::Flush() const
-	{
-		glFlush();
-
-		CheckForErrors();
-	}
-	void Interface_1_0::Finish() const
-	{
-		glFinish();
-
-		CheckForErrors();
-	}
-#pragma endregion
 	class Interface_1_2:
 		public virtual Interface
 	{
@@ -330,27 +283,6 @@ namespace OpenGL
 			const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
 		);
 	};
-#pragma region Interface_1_2
-	Interface_1_2::Interface_1_2(const EmptyTag&):
-		glDrawRangeElements		(),
-		glTexImage3D			(),
-		glTexSubImage3D			(),
-		glCopyTexSubImage3D		()
-	{
-	}
-	Interface_1_2::Interface_1_2(
-		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
-	):
-		glDrawRangeElements		(glDrawRangeElements_	),
-		glTexImage3D			(glTexImage3D_			),
-		glTexSubImage3D			(glTexSubImage3D_		),
-		glCopyTexSubImage3D		(glCopyTexSubImage3D_	)
-	{
-	}
-#pragma endregion
 	class Interface_1_3:
 		public virtual Interface
 	{
@@ -452,6 +384,76 @@ namespace OpenGL
 			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_
 		);
 	};
+
+#pragma region Interface_1_0
+	void Interface_1_0::CheckForErrors() const
+	{
+		auto code = GetErrorCode();
+
+		if (code != Error::Code::NoError)
+		{
+			throw Exception();
+		}
+	}
+	
+	Error::Code Interface_1_0::GetErrorCode() const
+	{
+		auto code = static_cast<Error::Code>(glGetError());
+
+		return code;
+	}
+	void Interface_1_0::ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const
+	{
+		glViewport(x_, y_, width_, height_);
+
+		CheckForErrors();
+	}
+	void Interface_1_0::ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const
+	{
+		glClearColor(red_, green_, blue_, alpha_);
+
+		CheckForErrors();
+	}
+	void Interface_1_0::Clear(const GLbitfield& mask_) const
+	{
+		glClear(mask_);
+
+		CheckForErrors();
+	}
+	void Interface_1_0::Flush() const
+	{
+		glFlush();
+
+		CheckForErrors();
+	}
+	void Interface_1_0::Finish() const
+	{
+		glFinish();
+
+		CheckForErrors();
+	}
+#pragma endregion
+#pragma region Interface_1_2
+	Interface_1_2::Interface_1_2(const EmptyTag&):
+		glDrawRangeElements		(),
+		glTexImage3D			(),
+		glTexSubImage3D			(),
+		glCopyTexSubImage3D		()
+	{
+	}
+	Interface_1_2::Interface_1_2(
+		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
+		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
+		const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
+		const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
+	):
+		glDrawRangeElements		(glDrawRangeElements_	),
+		glTexImage3D			(glTexImage3D_			),
+		glTexSubImage3D			(glTexSubImage3D_		),
+		glCopyTexSubImage3D		(glCopyTexSubImage3D_	)
+	{
+	}
+#pragma endregion
 #pragma region Interface_1_3
 	Interface_1_3::Interface_1_3(const EmptyTag&):
 		glActiveTexture					(),
@@ -604,8 +606,6 @@ namespace OpenGL
 		public virtual Interface_1_0
 	{
 	};
-#pragma region Context
-#pragma endregion
 	class Context_1_2:
 		public Context_1_0,
 		public virtual Interface_1_2
@@ -620,31 +620,6 @@ namespace OpenGL
 			const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
 		);
 	};
-#pragma region Context_1_2
-	Context_1_2::Context_1_2(const EmptyTag&):
-		Context_1_0(),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag())
-	{
-	}
-	Context_1_2::Context_1_2(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
-	):
-		Context_1_0(),
-		Interface_1_0(),
-		Interface_1_2(
-			glDrawRangeElements_	,
-			glTexImage3D_			,
-			glTexSubImage3D_		,
-			glCopyTexSubImage3D_	
-		)
-	{
-	}
-#pragma endregion
 	class Context_1_3:
 		public Context_1_2,
 		public virtual Interface_1_3
@@ -706,6 +681,34 @@ namespace OpenGL
 			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_
 		);
 	};
+
+#pragma region Context_1_0
+#pragma endregion
+#pragma region Context_1_2
+	Context_1_2::Context_1_2(const EmptyTag&):
+		Context_1_0(),
+		Interface_1_0(),
+		Interface_1_2(EmptyTag())
+	{
+	}
+	Context_1_2::Context_1_2(
+		// Version 1.2
+		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
+		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
+		const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
+		const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
+	):
+		Context_1_0(),
+		Interface_1_0(),
+		Interface_1_2(
+			glDrawRangeElements_	,
+			glTexImage3D_			,
+			glTexSubImage3D_		,
+			glCopyTexSubImage3D_	
+		)
+	{
+	}
+#pragma endregion
 #pragma region Context_1_3
 	Context_1_3::Context_1_3(const EmptyTag&):
 		Context_1_2(EmptyTag()),
@@ -832,8 +835,7 @@ namespace OpenGL
 #if __GREAT_V_ENGINE_2__PLATFORM__ == __GREAT_V_ENGINE_2__PLATFORM_WINDOWS__
 		namespace Windows
 		{
-			class Context_1_0:
-				protected virtual OpenGL::Context_1_0
+			class Context
 			{
 			protected:
 				using Attributes			= Vector<GLint>;
@@ -841,16 +843,16 @@ namespace OpenGL
 				using Handle				= HGLRC;
 				using DeviceContextHandle	= HDC;
 				using Procedure				= PROC;
+			};
+			class Context_1_0:
+				public Context,
+				protected virtual OpenGL::Context_1_0
+			{
 			private:
 				inline static Attributes	GetAttributes();
 			protected:
-				inline static Handle		ObtainHandle(const DeviceContextHandle& deviceContextHandle_, const Handle& parent_, const Attributes& attributes_);
+				inline static Handle		ObtainHandle(const DeviceContextHandle& deviceContextHandle_, const Handle& parent_, const Attributes& attributes_); // TODO: move to context?
 				inline static Handle		MakeCurrentAndReturn(const DeviceContextHandle& deviceContextHandle_, const Handle& handle_);
-			public:
-				inline static Handle		CreateContext(const DeviceContextHandle& deviceContextHandle_); // TODO: move this functions to Windows namespace
-				inline static void			DeleteContext(const Handle& handle_);
-				inline static Handle		GetCurrentHandle();
-				inline static void			MakeCurrent(const DeviceContextHandle& deviceContextHandle_, const Handle& handle_);
 			protected:
 				const Handle				handle;
 			protected:
@@ -860,10 +862,12 @@ namespace OpenGL
 				inline						~Context_1_0();
 			protected:
 				inline void					CheckForCurrentContext() const;
+				inline void					CheckForCurrentContext(const Handle& handle_) const; // TODO: remove this workaround
 			public:
 				inline Handle				GetHandle() const;
 			public:
 				inline Procedure			GetProcedureAddress(const String& name_) const; // TODO: move to OpenGL::Context?
+				inline Procedure			GetProcedureAddress(const String& name_, const Handle& handle_) const; // TODO: remove this workaround
 			public: // overridden
 				inline void					ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const;
 				inline void					ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const;
@@ -871,6 +875,40 @@ namespace OpenGL
 				inline void					Flush() const;
 				inline void					Finish() const;
 			};
+			class Context_1_2:
+				public Context_1_0,
+				protected virtual OpenGL::Context_1_2
+			{
+			private:
+				inline static Attributes GetAttributes();
+			private:
+				inline Context_1_2(const Handle& handle_);
+			protected:
+				inline Context_1_2(const Handle& handle_, const EmptyTag&);
+			public:
+				inline Context_1_2(const DeviceContextHandle& deviceContextHandle_);
+			};
+			class Context_1_3:
+				public Context_1_2,
+				public virtual OpenGL::Context_1_3
+			{
+			protected:
+				inline static Attributes GetAttributes();
+			private:
+				inline Context_1_3(const Handle& handle_);
+			protected:
+				inline Context_1_3(const Handle& handle_, const EmptyTag&);
+			public:
+				inline Context_1_3(const DeviceContextHandle& deviceContextHandle_);
+			};
+
+			
+			inline Context::Handle		CreateContext(const Context::DeviceContextHandle& deviceContextHandle_); // TODO: move this functions to Windows namespace
+			inline void					DeleteContext(const Context::Handle& handle_);
+			inline Context::Handle		GetCurrentHandle();
+			inline void					MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_);
+
+
 #pragma region Context_1_0
 			Context_1_0::Attributes Context_1_0::GetAttributes()
 			{
@@ -1017,42 +1055,6 @@ namespace OpenGL
 				return handle_;
 			}
 
-			Context_1_0::Handle Context_1_0::CreateContext(const DeviceContextHandle& deviceContextHandle_)
-			{
-				auto handle = wglCreateContext(deviceContextHandle_);
-
-				if (!handle)
-				{
-					throw Exception();
-				}
-
-				return handle;
-			}
-			void Context_1_0::DeleteContext(const Handle& handle_)
-			{
-				auto result = wglDeleteContext(handle_);
-
-				if (!result)
-				{
-					throw Exception();
-				}
-			}
-			Context_1_0::Handle Context_1_0::GetCurrentHandle()
-			{
-				auto handle = wglGetCurrentContext();
-
-				return handle;
-			}
-			void Context_1_0::MakeCurrent(const DeviceContextHandle& deviceContextHandle_, const Handle& handle_)
-			{
-				auto result = wglMakeCurrent(deviceContextHandle_, handle_);
-
-				if (!result)
-				{
-					throw Exception();
-				}
-			}
-
 			Context_1_0::Context_1_0(const Handle& handle_):
 				handle(handle_)
 			{
@@ -1083,6 +1085,17 @@ namespace OpenGL
 				}
 #endif
 			}
+			void Context_1_0::CheckForCurrentContext(const Handle& handle_) const
+			{
+#if __GREAT_V_ENGINE_2__DEBUG__
+				auto currentHandle = GetCurrentHandle();
+
+				if (currentHandle != handle_)
+				{
+					throw Exception();
+				}
+#endif
+			}
 
 			Context_1_0::Handle Context_1_0::GetHandle() const
 			{
@@ -1092,6 +1105,19 @@ namespace OpenGL
 			Context_1_0::Procedure Context_1_0::GetProcedureAddress(const String& name_) const
 			{
 				CheckForCurrentContext();
+
+				auto procedure = wglGetProcAddress(name_.c_str());
+
+				if (!procedure)
+				{
+					throw Exception();
+				}
+
+				return procedure;
+			}
+			Context_1_0::Procedure Context_1_0::GetProcedureAddress(const String& name_, const Handle& handle_) const
+			{
+				CheckForCurrentContext(handle_);
 
 				auto procedure = wglGetProcAddress(name_.c_str());
 
@@ -1134,15 +1160,6 @@ namespace OpenGL
 				OpenGL::Context_1_0::Clear(mask_);
 			}
 #pragma endregion
-			class Context_1_2:
-				public Context_1_0,
-				protected virtual OpenGL::Context_1_2
-			{
-			private:
-				inline static Attributes GetAttributes();
-			public:
-				inline Context_1_2(const DeviceContextHandle& deviceContextHandle_);
-			};
 #pragma region Context_1_2
 			Context_1_2::Attributes Context_1_2::GetAttributes()
 			{
@@ -1155,52 +1172,144 @@ namespace OpenGL
 				};
 			}
 
-			Context_1_2::Context_1_2(const DeviceContextHandle& deviceContextHandle_):
-				Windows::Context_1_0(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes()))),
+			Context_1_2::Context_1_2(const Handle& handle_):
+				Windows::Context_1_0(handle_),		// TODO: need to call this before GetProcedureAddress in Interface_1_2 constructor
 				OpenGL::Context_1_2(EmptyTag()),
 				OpenGL::Interface_1_2(
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glDrawRangeElements),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glTexImage3D),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glTexSubImage3D),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glCopyTexSubImage3D)
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				)
 			{
 				MakeCurrent(nullptr, nullptr);
 			}
-#pragma endregion
-			/*class Context_1_3:
-				public virtual Context_1_2,
-				public OpenGL::Context_1_2
+			Context_1_2::Context_1_2(const Handle& handle_, const EmptyTag&):
+				Windows::Context_1_0(handle_),
+				OpenGL::Context_1_2(EmptyTag()),
+				OpenGL::Interface_1_2(EmptyTag())
 			{
-			protected:
-				inline static Attributes GetAttributes();
-			public:
-				inline Context_1_3(const DeviceContextHandle& deviceContextHandle_);
-			};
-#pragma region Context_1_2
-			Context_1_2::Attributes Context_1_2::GetAttributes()
+			}
+			Context_1_2::Context_1_2(const DeviceContextHandle& deviceContextHandle_):
+				Context_1_2(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes())))
+			{
+			}
+#pragma endregion
+#pragma region Context_1_3
+			Context_1_3::Attributes Context_1_3::GetAttributes()
 			{
 				return {
 					WGL_CONTEXT_MAJOR_VERSION_ARB,	1,
-					WGL_CONTEXT_MINOR_VERSION_ARB,	2,
+					WGL_CONTEXT_MINOR_VERSION_ARB,	3,
 					WGL_CONTEXT_FLAGS_ARB,			0, // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB (???) | WGL_CONTEXT_DEBUG_BIT_ARB
 					WGL_CONTEXT_PROFILE_MASK_ARB,	WGL_CONTEXT_CORE_PROFILE_BIT_ARB, // WGL_CONTEXT_CORE_PROFILE_BIT_ARB / WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB
 					0, 0,
 				};
 			}
 
-			Context_1_2::Context_1_2(const DeviceContextHandle& deviceContextHandle_):
-				Windows::Context(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes()))),
-				OpenGL::Context_1_2(
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glDrawRangeElements),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glTexImage3D),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glTexSubImage3D),
-					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(glCopyTexSubImage3D)
+			Context_1_3::Context_1_3(const Handle& handle_):
+				Windows::Context_1_2(handle_, EmptyTag()),
+				OpenGL::Context_1_2(EmptyTag()),
+				OpenGL::Context_1_3(EmptyTag()),
+				OpenGL::Interface_1_2(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
+				),
+				OpenGL::Interface_1_3(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage2D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage1D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage3D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage2D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage1D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetCompressedTexImage,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClientActiveTexture,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glLoadTransposeMatrixf,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glLoadTransposeMatrixd,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				)
 			{
 				MakeCurrent(nullptr, nullptr);
 			}
-#pragma endregion*/
+			Context_1_3::Context_1_3(const DeviceContextHandle& deviceContextHandle_):
+				Context_1_3(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes())))
+			{
+			}
+#pragma endregion
+
+
+			Context::Handle CreateContext(const Context::DeviceContextHandle& deviceContextHandle_)
+			{
+				auto handle = wglCreateContext(deviceContextHandle_);
+
+				if (!handle)
+				{
+					throw Exception();
+				}
+
+				return handle;
+			}
+			void DeleteContext(const Context::Handle& handle_)
+			{
+				auto result = wglDeleteContext(handle_);
+
+				if (!result)
+				{
+					throw Exception();
+				}
+			}
+			Context::Handle GetCurrentHandle()
+			{
+				auto handle = wglGetCurrentContext();
+
+				return handle;
+			}
+			void MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_)
+			{
+				auto result = wglMakeCurrent(deviceContextHandle_, handle_);
+
+				if (!result)
+				{
+					throw Exception();
+				}
+			}
 		}
 #endif
 	}
@@ -1267,9 +1376,11 @@ HDC GetDeviceContext(HWND windowHandle)
 
 void main()
 {
+	namespace GL = OpenGL::OSs::Windows;
+
 	auto instanceHandle = GetModuleHandleA(NULL);
 
-	std::string windowClassName = "OpenGL Functions Obtainer";
+	std::string windowClassName = "window class";
 	{
 		WNDCLASSA windowClass;
 		{
@@ -1287,12 +1398,18 @@ void main()
 		}
 	}
 
-	auto windowHandle			= GetWindow(instanceHandle, windowClassName);
-	auto deviceContextHandle	= GetDeviceContext(windowHandle);
-	auto renderContext1_2Handle = OpenGL::OSs::Windows::Context_1_0(deviceContextHandle);
+	auto windowHandle				= GetWindow(instanceHandle, windowClassName);
+	auto deviceContextHandle		= GetDeviceContext(windowHandle);
+	auto renderContext1Handle		= GL::Context_1_0(deviceContextHandle);
 
-	OpenGL::OSs::Windows::Context_1_0::MakeCurrent(deviceContextHandle, renderContext1_2Handle.GetHandle());
-	
+	auto window2Handle				= GetWindow(instanceHandle, windowClassName);
+	auto deviceContext2Handle		= GetDeviceContext(window2Handle);
+	auto renderContext2Handle		= GL::Context_1_2(deviceContext2Handle);
+
+	auto window3Handle				= GetWindow(instanceHandle, windowClassName);
+	auto deviceContext3Handle		= GetDeviceContext(window3Handle);
+	auto renderContext3Handle		= GL::Context_1_3(deviceContext3Handle);
+
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
 		MSG msg;
@@ -1302,17 +1419,47 @@ void main()
 				TranslateMessage(&msg);
 				DispatchMessageA(&msg);
 			}
+			while (PeekMessageA(&msg, window2Handle, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessageA(&msg);
+			}
+			while (PeekMessageA(&msg, window3Handle, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessageA(&msg);
+			}
 		}
 
-		renderContext1_2Handle.ConfigureViewport(0, 0, 800, 600);
-		renderContext1_2Handle.ClearColor(1, 0, 0, 0);
-		renderContext1_2Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext1_2Handle.Flush();
+		GL::MakeCurrent(deviceContextHandle, renderContext1Handle.GetHandle());
+
+		renderContext1Handle.ConfigureViewport(0, 0, 800, 600);
+		renderContext1Handle.ClearColor(1, 0, 0, 0);
+		renderContext1Handle.Clear(GL_COLOR_BUFFER_BIT);
+		renderContext1Handle.Flush();
 
 		SwapBuffers(deviceContextHandle);
+
+		GL::MakeCurrent(deviceContext2Handle, renderContext2Handle.GetHandle());
+
+		renderContext2Handle.ConfigureViewport(0, 0, 800, 600);
+		renderContext2Handle.ClearColor(0, 1, 0, 0);
+		renderContext2Handle.Clear(GL_COLOR_BUFFER_BIT);
+		renderContext2Handle.Flush();
+
+		SwapBuffers(deviceContext2Handle);
+
+		GL::MakeCurrent(deviceContext3Handle, renderContext3Handle.GetHandle());
+
+		renderContext3Handle.ConfigureViewport(0, 0, 800, 600);
+		renderContext3Handle.ClearColor(0, 0, 1, 0);
+		renderContext3Handle.Clear(GL_COLOR_BUFFER_BIT);
+		renderContext3Handle.Flush();
+
+		SwapBuffers(deviceContext3Handle);
 	}
 
-	OpenGL::OSs::Windows::Context_1_0::MakeCurrent(nullptr, nullptr);
+	GL::MakeCurrent(nullptr, nullptr);
 }
 
 
