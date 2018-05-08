@@ -10,180 +10,12 @@ using namespace GVE;
 
 #endif
 
-// #define __GREAT_V_ENGINE_2__OBTAIN_OPENGL_FUNCTION__(x) if((x = reinterpret_cast<decltype(x)>(wglGetProcAddress(#x))) == nullptr) throw Exception() // ("Failed to get function pointer for \""#x"\"");
-// #define OBTAIN(x) x(wglGetProcAddress(#x) ? reinterpret_cast<decltype(x)>(wglGetProcAddress(#x)) : throw Exception())
 #define __GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS__(x) reinterpret_cast<decltype(x)>(GetProcedureAddress(#x))
 #define __GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(x, h) reinterpret_cast<decltype(x)>(GetProcedureAddress(#x, h))
 
 #include <gl/gl.h>
 #include <gl/glext.h>
 #include <gl/wglext.h>
-
-
-/*class RenderContext
-{
-public:
-	using Handle = HGLRC;
-	using Attributes = Vector<GLint>;
-public:
-	inline static PFNWGLCREATECONTEXTATTRIBSARBPROC ObtainWglCreateContextAttribsARB()
-	{
-		auto instanceHandle = GetModuleHandleA(NULL);
-
-		std::string windowClassName = "OpenGL Functions Obtainer";
-		WNDCLASSA windowClass;
-		{
-			memset(&windowClass, 0, sizeof(windowClass));
-
-			windowClass.lpszClassName = windowClassName.c_str();
-			windowClass.hInstance = instanceHandle;
-			windowClass.lpfnWndProc = DefWindowProcA;
-			windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-
-			if (!RegisterClassA(&windowClass))
-			{
-				throw Exception();
-			}
-		}
-
-		HWND windowHandle = CreateWindowA(
-			windowClassName.c_str(),
-			"window",
-			NULL,
-			0, 0, 0, 0,
-			NULL,
-			NULL,
-			instanceHandle,
-			NULL
-			);
-
-		if (!windowHandle)
-		{
-			throw Exception();
-		}
-
-		auto deviceContextHandle = GetDC(windowHandle);
-
-		if (!deviceContextHandle)
-		{
-			throw Exception();
-		}
-
-		PIXELFORMATDESCRIPTOR pixelFormatDescriptorInfo;
-		{
-			memset(&pixelFormatDescriptorInfo, 0, sizeof(pixelFormatDescriptorInfo));
-
-			pixelFormatDescriptorInfo.nSize = sizeof(pixelFormatDescriptorInfo);
-			pixelFormatDescriptorInfo.nVersion = 1;
-			pixelFormatDescriptorInfo.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-			pixelFormatDescriptorInfo.iPixelType = PFD_TYPE_RGBA;
-			pixelFormatDescriptorInfo.cColorBits = 32;
-			pixelFormatDescriptorInfo.cDepthBits = 32;
-			pixelFormatDescriptorInfo.cStencilBits = 0;
-
-			auto pixelFormat = ChoosePixelFormat(deviceContextHandle, &pixelFormatDescriptorInfo);
-
-			if (!pixelFormat)
-			{
-				throw Exception();
-			}
-
-			if (!SetPixelFormat(deviceContextHandle, pixelFormat, &pixelFormatDescriptorInfo))
-			{
-				throw Exception();
-			}
-		}
-
-		auto openGLRenderContextHandle = wglCreateContext(deviceContextHandle);
-
-		if (!wglMakeCurrent(deviceContextHandle, openGLRenderContextHandle))
-		{
-			throw Exception();
-		}
-
-		PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = reinterpret_cast<decltype(wglCreateContextAttribsARB)>(wglGetProcAddress("wglCreateContextAttribsARB"));
-
-		if (wglCreateContextAttribsARB == nullptr)
-		{
-			throw Exception();
-		}
-
-		auto t = wglGetProcAddress("glDrawRangeElements");
-
-		if (!wglMakeCurrent(nullptr, nullptr))
-		{
-			throw Exception();
-		}
-
-		DestroyWindow(windowHandle);
-		UnregisterClassA(windowClassName.c_str(), instanceHandle);
-
-		return wglCreateContextAttribsARB;
-	}
-	inline static Handle wglCreateContextAttribsARB(const HDC& deviceContextHandle_, const Handle& sharedContextHandle_, const Attributes& attributes_)
-	{
-		static PFNWGLCREATECONTEXTATTRIBSARBPROC create = ObtainWglCreateContextAttribsARB();
-		
-		auto renderContext = create(deviceContextHandle_, sharedContextHandle_, attributes_.data());
-
-		return renderContext;
-	}
-	inline static Handle MakeCurrentAndReturn(const Handle& handle_, const HDC& deviceContextHandle_)
-	{
-		if (!wglMakeCurrent(deviceContextHandle_, handle_))
-		{
-			throw Exception();
-		}
-	}
-protected:
-	const Handle handle;
-protected:
-	inline RenderContext(const Handle& handle_):
-		handle(handle_)
-	{
-	}
-	inline ~RenderContext()
-	{
-		wglMakeCurrent(nullptr, nullptr);
-
-		wglDeleteContext(handle);
-	}
-};
-class RenderContext1_2:
-	public RenderContext
-{
-public:
-	inline static Attributes GetAttributes()
-	{
-		return{
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 1,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-			WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-			WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB, //WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-			0, 0,
-		};
-	}
-protected:
-	PFNGLDRAWRANGEELEMENTSPROC											glDrawRangeElements;
-	PFNGLTEXIMAGE3DPROC													glTexImage3D;
-	PFNGLTEXSUBIMAGE3DPROC												glTexSubImage3D;
-	PFNGLCOPYTEXSUBIMAGE3DPROC											glCopyTexSubImage3D;
-protected:
-	inline RenderContext1_2(const Handle& handle_):
-		RenderContext(handle_) // ,
-		// OBTAIN(glDrawRangeElements),
-		// OBTAIN(glTexImage3D),
-		// OBTAIN(glTexSubImage3D),
-		// OBTAIN(glCopyTexSubImage3D)
-	{
-		glDrawRangeElements = reinterpret_cast<decltype(glDrawRangeElements)>(wglGetProcAddress("glDrawRangeElements"));
-	}
-public:
-	inline RenderContext1_2(const HDC& deviceContextHandle_):
-		RenderContext1_2(MakeCurrentAndReturn(wglCreateContextAttribsARB(deviceContextHandle_, nullptr, GetAttributes()), deviceContextHandle_))
-	{
-	}
-};*/
 
 
 namespace OpenGL
@@ -247,6 +79,11 @@ namespace OpenGL
 	}
 #pragma endregion
 
+	enum class PrimitiveType: GLenum
+	{
+		Triangles = GL_TRIANGLES,
+	};
+
 	class Buffer
 	{
 	public:
@@ -294,6 +131,128 @@ namespace OpenGL
 			}
 		};
 	};
+	class Shader
+	{
+	public:
+		enum class Type: GLenum
+		{
+			Vertex				= GL_VERTEX_SHADER,
+			Geometry			= GL_GEOMETRY_SHADER,
+			Fragment			= GL_FRAGMENT_SHADER,
+		};
+		enum class Parameter: GLenum
+		{
+			CompilseStatus		= GL_COMPILE_STATUS,
+			InfoLogLength		= GL_INFO_LOG_LENGTH,
+		};
+	public:
+		class Handle
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline Handle() = default;
+			inline explicit Handle(const Value& value_):
+				value(value_)
+			{
+			}
+			inline Handle(const Handle&) = default;
+			inline ~Handle() = default;
+		public:
+			inline Handle& operator = (const Handle&) = default;
+		public:
+			inline explicit operator Value() const
+			{
+				return value;
+			}
+			inline explicit operator Value*()
+			{
+				return &value;
+			}
+			inline explicit operator const Value*() const
+			{
+				return &value;
+			}
+		};
+	};
+	class Program
+	{
+	public:
+		enum class Parameter: GLenum
+		{
+			LinkStatus			= GL_LINK_STATUS,
+			ValidateStatus		= GL_VALIDATE_STATUS,
+			InfoLogLength		= GL_INFO_LOG_LENGTH,
+		};
+	public:
+		class Handle
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline Handle() = default;
+			inline explicit Handle(const Value& value_):
+				value(value_)
+			{
+			}
+			inline Handle(const Handle&) = default;
+			inline ~Handle() = default;
+		public:
+			inline Handle& operator = (const Handle&) = default;
+		public:
+			inline explicit operator Value() const
+			{
+				return value;
+			}
+			inline explicit operator Value*()
+			{
+				return &value;
+			}
+			inline explicit operator const Value*() const
+			{
+				return &value;
+			}
+		};
+		class Attribute
+		{
+		public:
+			enum class Type: GLenum
+			{
+				Float	= GL_FLOAT,
+			};
+		public:
+			class Location
+			{
+			public:
+				using Value = GLint;
+			protected:
+				Value value;
+			public:
+				inline Location() = default;
+				inline explicit Location(const Value& value_):
+					value(value_)
+				{
+				}
+				inline Location(const Location&) = default;
+				inline ~Location() = default;
+			public:
+				inline Location& operator = (const Location&) = default;
+			public:
+				inline operator Value() const
+				{
+					return value;
+				}
+				inline operator bool() const
+				{
+					return value != -1;
+				}
+			};
+		};
+	};
 
 	class Interface
 	{
@@ -311,6 +270,7 @@ namespace OpenGL
 		inline void				ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const;
 		inline void				ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const;
 		inline void				Clear(const GLbitfield& mask_) const;
+		inline void				DrawArrays(const PrimitiveType& primitiveType_, const Size& first_, const Size& count_);
 		inline void				Flush() const;
 		inline void				Finish() const;
 	};
@@ -783,6 +743,204 @@ namespace OpenGL
 			const PFNGLVERTEXATTRIB4USVPROC&				glVertexAttrib4usv_,
 			const PFNGLVERTEXATTRIBPOINTERPROC&				glVertexAttribPointer_
 		);
+	public:
+		inline bool								GetShaderCompileStatus(const Shader::Handle& shaderHandle_)
+		{
+			GLint result;
+
+			glGetShaderiv(static_cast<GLuint>(shaderHandle_), static_cast<GLenum>(Shader::Parameter::CompilseStatus), &result);
+
+			CheckForErrors();
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			return
+				result == GL_TRUE ? true :
+				result == GL_FALSE ? false :
+				throw Exception("Unexpected \"glGetShaderiv\" + \"GL_COMPILE_STATUS\" result: " + ToString(static_cast<Size>(result)));
+#else
+			return result == GL_TRUE
+				? true
+				: false;
+#endif
+		}
+		inline Size								GetShaderInfoLogLength(const Shader::Handle& shaderHandle_)
+		{
+			GLint result;
+
+			glGetShaderiv(static_cast<GLuint>(shaderHandle_), static_cast<GLenum>(Shader::Parameter::InfoLogLength), &result);
+
+			CheckForErrors();
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			return result >= 0
+				? static_cast<Size>(result)
+				: throw Exception("Unexpected \"glGetShaderiv\" + \"GL_INFO_LOG_LENGTH\" result: " + ToString(static_cast<Size>(result)));
+#else
+			return static_cast<Size>(result);
+#endif
+		}
+		inline String							GetShaderInfoLog(const Shader::Handle& shaderHandle_)
+		{
+			auto length = GetShaderInfoLogLength(shaderHandle_);
+
+			Vector<char> buffer(length);
+
+			glGetShaderInfoLog(static_cast<GLuint>(shaderHandle_), buffer.size(), nullptr, buffer.data());
+
+			CheckForErrors();
+
+			auto text = String(buffer.begin(), buffer.end());
+
+			return Move(text);
+		}
+		inline bool								GetProgramLinkStatus(const Program::Handle& programHandle_)
+		{
+			GLint result;
+
+			glGetProgramiv(static_cast<GLuint>(programHandle_), static_cast<GLenum>(Program::Parameter::LinkStatus), &result);
+
+			CheckForErrors();
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			return
+				result == GL_TRUE ? true :
+				result == GL_FALSE ? false :
+				throw Exception("Unexpected \"glGetProgramiv\" + \"GL_LINK_STATUS\" result: " + ToString(static_cast<Size>(result)));
+#else
+			return result == GL_TRUE
+				? true
+				: false;
+#endif
+		}
+		inline Size								GetProgramInfoLogLength(const Program::Handle& programHandle_)
+		{
+			GLint result;
+
+			glGetProgramiv(static_cast<GLuint>(programHandle_), static_cast<GLenum>(Program::Parameter::InfoLogLength), &result);
+
+			CheckForErrors();
+
+#if __GREAT_V_ENGINE_2__DEBUG__
+			return result >= 0
+				? static_cast<Size>(result)
+				: throw Exception("Unexpected \"glGetProgramiv\" + \"GL_INFO_LOG_LENGTH\" result: " + ToString(static_cast<Size>(result)));
+#else
+			return static_cast<Size>(result);
+#endif
+		}
+		inline String							GetProgramInfoLog(const Program::Handle& programHandle_)
+		{
+			auto length = GetProgramInfoLogLength(programHandle_);
+
+			Vector<char> buffer(length);
+
+			glGetProgramInfoLog(static_cast<GLuint>(programHandle_), buffer.size(), nullptr, buffer.data());
+
+			CheckForErrors();
+
+			auto text = String(buffer.begin(), buffer.end());
+
+			return Move(text);
+		}
+		inline void								AttachShader(const Program::Handle& programHandle_, const Shader::Handle& shaderHandle_) const
+		{
+			glAttachShader(static_cast<Program::Handle::Value>(programHandle_), static_cast<Shader::Handle::Value>(shaderHandle_));
+
+			CheckForErrors();
+		}
+		inline void								CompileShader(const Shader::Handle& handle_) const
+		{
+			glCompileShader(static_cast<Shader::Handle::Value>(handle_));
+
+			CheckForErrors();
+		}
+		inline Program::Handle					CreateProgram() const
+		{
+			const auto value	= glCreateProgram();
+
+			CheckForErrors();
+
+			const auto handle	= Program::Handle(value);
+
+			return handle;
+		}
+		inline Shader::Handle					CreateShader(const Shader::Type& type_) const
+		{
+			const auto value	= glCreateShader(static_cast<GLenum>(type_));
+
+			CheckForErrors();
+
+			const auto handle = Shader::Handle(value);
+
+			return handle;
+		}
+		inline void								DeleteProgram(const Program::Handle& handle_) const
+		{
+			glDeleteProgram(static_cast<Program::Handle::Value>(handle_));
+
+			CheckForErrors();
+		}
+		inline void								DeleteShader(const Shader::Handle& handle_) const
+		{
+			glDeleteShader(static_cast<Shader::Handle::Value>(handle_));
+
+			CheckForErrors();
+		}
+		inline void								LinkProgram(const Program::Handle& handle_) const
+		{
+			glLinkProgram(static_cast<Program::Handle::Value>(handle_));
+
+			CheckForErrors();
+		}
+		inline void								ShaderSource(const Shader::Handle& handle_, const String& source_) const
+		{
+			const GLchar*const	data	= source_.c_str();
+			const GLint			length	= source_.length();
+
+			glShaderSource(static_cast<Shader::Handle::Value>(handle_), 1, &data, &length);
+
+			CheckForErrors();
+		}
+		inline void								UseProgram(const Null&) const
+		{
+			glUseProgram(0);
+		}
+		inline void								UseProgram(const Program::Handle& handle_) const
+		{
+			glUseProgram(static_cast<Program::Handle::Value>(handle_));
+		}
+		inline Program::Attribute::Location		GetAttributeLocation(const Program::Handle& handle_, const String& name_) const
+		{
+			const auto value = glGetAttribLocation(static_cast<Program::Handle::Value>(handle_), name_.c_str());
+
+			CheckForErrors();
+
+			const auto location = Program::Attribute::Location(value);
+
+			return location;
+		}
+		inline void								VertexAttributePointer(const Program::Attribute::Location& location_, const Size& componentsCount_, const Program::Attribute::Type& type_, const bool& isNormalized_, const Size& stride_, const Size& offset_) const
+		{
+			if (!location_)
+			{
+				throw Exception();
+			}
+
+			glVertexAttribPointer(static_cast<GLuint>(static_cast<Program::Attribute::Location::Value>(location_)), componentsCount_, static_cast<GLenum>(type_), isNormalized_ ? GL_TRUE : GL_FALSE, stride_, reinterpret_cast<const void*>(offset_));
+
+			CheckForErrors();
+		}
+		inline void								EnableVertexAttributeArray(const Program::Attribute::Location& location_) const
+		{
+			if (!location_)
+			{
+				throw Exception();
+			}
+
+			glEnableVertexAttribArray(static_cast<GLuint>(static_cast<Program::Attribute::Location::Value>(location_)));
+
+			CheckForErrors();
+		}
 	};
 
 #pragma region Interface
@@ -819,6 +977,12 @@ namespace OpenGL
 	void Interface_1_0::Clear(const GLbitfield& mask_) const
 	{
 		glClear(mask_);
+
+		CheckForErrors();
+	}
+	void Interface_1_0::DrawArrays(const PrimitiveType& primitiveType_, const Size& first_, const Size& count_)
+	{
+		glDrawArrays(static_cast<GLenum>(primitiveType_), first_, count_);
 
 		CheckForErrors();
 	}
@@ -4510,6 +4674,7 @@ void main()
 			SwapBuffers(deviceContext_1_5_Handle);
 		}
 
+		// OpenGL 2.*
 		GL::MakeCurrent(deviceContext_2_0_Handle, renderContext_2_0_Handle->GetHandle());
 		{
 			renderContext_2_0_Handle->ConfigureViewport(0, 0, windowSize.x, windowSize.y);
@@ -4517,11 +4682,64 @@ void main()
 			renderContext_2_0_Handle->Clear(GL_COLOR_BUFFER_BIT);
 			{
 				auto bufferHandle = renderContext_2_0_Handle->GenBuffer();
+				{
+					renderContext_2_0_Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
+					renderContext_2_0_Handle->BufferData(OpenGL::Buffer::Type::Array, Vector<Vec2>({ Vec2(-0.5f, -0.5f), Vec2(+0.5f, -0.5f), Vec2(+0.0f, +0.5f) }), OpenGL::Buffer::Usage::Static);
+				}
 
-				renderContext_2_0_Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
-				renderContext_2_0_Handle->BufferData(OpenGL::Buffer::Type::Array, Vector<Vec2>({}), OpenGL::Buffer::Usage::Static);
+				auto vertexShaderHandle = renderContext_2_0_Handle->CreateShader(OpenGL::Shader::Type::Vertex);
+				{
+					renderContext_2_0_Handle->ShaderSource(vertexShaderHandle, "#version 110\n#extension all:disable\nin vec2 vPos; void main(){ gl_Position = vec4(vPos,0,1); }");
+					renderContext_2_0_Handle->CompileShader(vertexShaderHandle);
 
-				// TODO
+					if (auto compileStatus = renderContext_2_0_Handle->GetShaderCompileStatus(vertexShaderHandle)); else
+					{
+						auto shaderInfoLog = renderContext_2_0_Handle->GetShaderInfoLog(vertexShaderHandle);
+
+						throw Exception("Exception during vertex shader compilation: " + shaderInfoLog);
+					}
+				}
+				auto fragmentShaderHandle = renderContext_2_0_Handle->CreateShader(OpenGL::Shader::Type::Fragment);
+				{
+					renderContext_2_0_Handle->ShaderSource(fragmentShaderHandle, "#version 110\n#extension all:disable\nvoid main(){ gl_FragColor = vec4(1); }");
+					renderContext_2_0_Handle->CompileShader(fragmentShaderHandle);
+
+					if (auto compileStatus = renderContext_2_0_Handle->GetShaderCompileStatus(fragmentShaderHandle)); else
+					{
+						auto shaderInfoLog = renderContext_2_0_Handle->GetShaderInfoLog(fragmentShaderHandle);
+
+						throw Exception("Exception during fragment shader compilation: " + shaderInfoLog);
+					}
+				}
+				auto programHandle = renderContext_2_0_Handle->CreateProgram();
+				{
+					renderContext_2_0_Handle->AttachShader(programHandle, vertexShaderHandle);
+					renderContext_2_0_Handle->AttachShader(programHandle, fragmentShaderHandle);
+					renderContext_2_0_Handle->LinkProgram(programHandle);
+
+					if (auto linkStatus = renderContext_2_0_Handle->GetProgramLinkStatus(programHandle)); else
+					{
+						auto programInfoLog = renderContext_2_0_Handle->GetProgramInfoLog(programHandle);
+
+						throw Exception("Exception during program linking" + programInfoLog);
+					}
+
+					if (const auto attributeLocation = renderContext_2_0_Handle->GetAttributeLocation(programHandle, "vPos"))
+					{
+						renderContext_2_0_Handle->VertexAttributePointer(attributeLocation, 2, OpenGL::Program::Attribute::Type::Float, false, 0, 0);
+						renderContext_2_0_Handle->EnableVertexAttributeArray(attributeLocation);
+					}
+				}
+
+				renderContext_2_0_Handle->DeleteShader(vertexShaderHandle);
+				renderContext_2_0_Handle->DeleteShader(fragmentShaderHandle);
+
+				renderContext_2_0_Handle->UseProgram(programHandle);
+				
+				renderContext_2_0_Handle->DrawArrays(OpenGL::PrimitiveType::Triangles, 0, 3);
+
+				renderContext_2_0_Handle->UseProgram(nullptr);
+				renderContext_2_0_Handle->DeleteProgram(programHandle);
 
 				renderContext_2_0_Handle->BindBuffer(OpenGL::Buffer::Type::Array, nullptr);
 				renderContext_2_0_Handle->DeleteBuffer(bufferHandle);
