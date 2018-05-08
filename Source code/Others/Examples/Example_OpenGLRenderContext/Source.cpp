@@ -247,18 +247,67 @@ namespace OpenGL
 	}
 #pragma endregion
 
+	class Buffer
+	{
+	public:
+		enum class Type: GLenum
+		{
+			Array				= GL_ARRAY_BUFFER,
+			ElementArray		= GL_ELEMENT_ARRAY_BUFFER,
+			Uniform				= GL_UNIFORM_BUFFER,
+		};
+		enum class Usage: GLenum
+		{
+			Static				= GL_STATIC_DRAW,
+			Dynamic				= GL_DYNAMIC_DRAW,
+			Stream				= GL_STREAM_DRAW,
+		};
+	public:
+		class Handle
+		{
+		public:
+			using Value = GLuint;
+		protected:
+			Value value;
+		public:
+			inline Handle() = default;
+			inline explicit Handle(const Value& value_):
+				value(value_)
+			{
+			}
+			inline Handle(const Handle&) = default;
+			inline ~Handle() = default;
+		public:
+			inline Handle& operator = (const Handle&) = default;
+		public:
+			inline explicit operator Value() const
+			{
+				return value;
+			}
+			inline explicit operator Memory<Value>()
+			{
+				return &value;
+			}
+			inline explicit operator Memory<const Value>() const
+			{
+				return &value;
+			}
+		};
+	};
+
 	class Interface
 	{
 	protected:
 		class EmptyTag {};
-	};
-	class Interface_1_0:
-		public virtual Interface
-	{
 	protected:
 		inline void				CheckForErrors() const;
 	public:
 		inline Error::Code		GetErrorCode() const;
+	};
+	class Interface_1_0:
+		public virtual Interface
+	{
+	public:
 		inline void				ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const;
 		inline void				ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const;
 		inline void				Clear(const GLbitfield& mask_) const;
@@ -533,10 +582,17 @@ namespace OpenGL
 			const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
 			const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_
 		);
+	public:
+		inline void									BindBuffer(const Buffer::Type& type_, const Null&) const;
+		inline void									BindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const;
+		inline Buffer::Handle						GenBuffer() const;
+		inline void									DeleteBuffer(const Buffer::Handle& handle_) const;
+		inline void									BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;
+		template<class Type_> inline void			BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const;
 	};
 
-#pragma region Interface_1_0
-	void Interface_1_0::CheckForErrors() const
+#pragma region Interface
+	void Interface::CheckForErrors() const
 	{
 		auto code = GetErrorCode();
 
@@ -546,12 +602,14 @@ namespace OpenGL
 		}
 	}
 	
-	Error::Code Interface_1_0::GetErrorCode() const
+	Error::Code Interface::GetErrorCode() const
 	{
 		auto code = static_cast<Error::Code>(glGetError());
 
 		return code;
 	}
+#pragma endregion
+#pragma region Interface_1_0
 	void Interface_1_0::ConfigureViewport(const GLint& x_, const GLint& y_, const GLsizei& width_, const GLsizei& height_) const
 	{
 		glViewport(x_, y_, width_, height_);
@@ -965,6 +1023,47 @@ namespace OpenGL
 		glGetBufferParameteriv		(glGetBufferParameteriv_),
 		glGetBufferPointerv			(glGetBufferPointerv_)
 	{
+	}
+
+	void Interface_1_5::BindBuffer(const Buffer::Type& type_, const Null&) const
+	{
+		glBindBuffer(static_cast<GLenum>(type_), 0);
+
+		CheckForErrors();
+	}
+	void Interface_1_5::BindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const
+	{
+		glBindBuffer(static_cast<GLenum>(type_), static_cast<Buffer::Handle::Value>(handle_));
+
+		CheckForErrors();
+	}
+	Buffer::Handle Interface_1_5::GenBuffer() const
+	{
+		Buffer::Handle handle;
+
+		glGenBuffers(1, static_cast<Memory<Buffer::Handle::Value>>(handle));
+
+		CheckForErrors();
+
+		return handle;
+	}
+	void Interface_1_5::DeleteBuffer(const Buffer::Handle& handle_) const
+	{
+		glDeleteBuffers(1, static_cast<Memory<const Buffer::Handle::Value>>(handle_));
+
+		CheckForErrors();
+	}
+	void Interface_1_5::BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const
+	{
+		glBufferData(static_cast<GLenum>(type_), size_, data_, static_cast<GLenum>(usage_));
+
+		CheckForErrors();
+	}
+	template<class Type_> void Interface_1_5::BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const
+	{
+		glBufferData(static_cast<GLenum>(type_), sizeof(Type_) * data_.size(), data_.data(), static_cast<GLenum>(usage_));
+		
+		CheckForErrors();
 	}
 #pragma endregion
 
@@ -2720,13 +2819,27 @@ namespace OpenGL
 }
 
 
-HWND GetWindow(HINSTANCE instanceHandle, const std::string& windowClassName)
+HWND GetWindow(HINSTANCE instanceHandle, const std::string& windowClassName, int x, int y)
 {
+	DWORD style = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+	RECT rect;
+	{
+		rect.left = x;
+		rect.right = x + 300;
+		rect.top = y;
+		rect.bottom = y + 200;
+	}
+
+	if (!AdjustWindowRect(&rect, style, NULL))
+	{
+		throw Exception();
+	}
+
 	HWND windowHandle = CreateWindowA(
 		windowClassName.c_str(),
 		"window",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-		0, 0, 300, 200,
+		style,
+		rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top,
 		NULL,
 		NULL,
 		instanceHandle,
@@ -2802,25 +2915,25 @@ void main()
 		}
 	}
 
-	auto windowHandle				= GetWindow(instanceHandle, windowClassName);
+	auto windowHandle				= GetWindow(instanceHandle, windowClassName, 50, 50);
 	auto deviceContextHandle		= GetDeviceContext(windowHandle);
-	auto renderContext1Handle		= GL::Context_1_0(deviceContextHandle);
+	auto renderContext1Handle		= MakeStrong<GL::Context_1_0>(deviceContextHandle);
 
-	auto window2Handle				= GetWindow(instanceHandle, windowClassName);
+	auto window2Handle				= GetWindow(instanceHandle, windowClassName, 400, 50);
 	auto deviceContext2Handle		= GetDeviceContext(window2Handle);
-	auto renderContext2Handle		= GL::Context_1_2(deviceContext2Handle);
+	auto renderContext2Handle		= MakeStrong<GL::Context_1_2>(deviceContext2Handle);
 
-	auto window3Handle				= GetWindow(instanceHandle, windowClassName);
+	auto window3Handle				= GetWindow(instanceHandle, windowClassName, 750, 50);
 	auto deviceContext3Handle		= GetDeviceContext(window3Handle);
-	auto renderContext3Handle		= GL::Context_1_3(deviceContext3Handle);
+	auto renderContext3Handle		= MakeStrong<GL::Context_1_3>(deviceContext3Handle);
 
-	auto window4Handle				= GetWindow(instanceHandle, windowClassName);
+	auto window4Handle				= GetWindow(instanceHandle, windowClassName, 50, 300);
 	auto deviceContext4Handle		= GetDeviceContext(window4Handle);
-	auto renderContext4Handle		= GL::Context_1_4(deviceContext4Handle);
+	auto renderContext4Handle		= MakeStrong<GL::Context_1_4>(deviceContext4Handle);
 
-	auto window5Handle				= GetWindow(instanceHandle, windowClassName);
+	auto window5Handle				= GetWindow(instanceHandle, windowClassName, 400, 300);
 	auto deviceContext5Handle		= GetDeviceContext(window5Handle);
-	auto renderContext5Handle		= GL::Context_1_5(deviceContext5Handle);
+	auto renderContext5Handle		= MakeStrong<GL::Context_1_5>(deviceContext5Handle);
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
@@ -2853,48 +2966,69 @@ void main()
 			}
 		}
 
-		GL::MakeCurrent(deviceContextHandle, renderContext1Handle.GetHandle());
+		GL::MakeCurrent(deviceContextHandle, renderContext1Handle->GetHandle());
+		{
+			renderContext1Handle->ConfigureViewport(0, 0, 300, 200);
+			renderContext1Handle->ClearColor(1, 0, 0, 0);
+			renderContext1Handle->Clear(GL_COLOR_BUFFER_BIT);
 
-		renderContext1Handle.ConfigureViewport(0, 0, 300, 200);
-		renderContext1Handle.ClearColor(1, 0, 0, 0);
-		renderContext1Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext1Handle.Flush();
+			glBegin(GL_TRIANGLES);
 
-		SwapBuffers(deviceContextHandle);
+			glVertex2f(-0.5f, -0.5f);
+			glVertex2f(+0.5f, -0.5f);
+			glVertex2f(+0.0f, +0.5f);
 
-		GL::MakeCurrent(deviceContext2Handle, renderContext2Handle.GetHandle());
+			glEnd();
 
-		renderContext2Handle.ConfigureViewport(0, 0, 300, 200);
-		renderContext2Handle.ClearColor(0, 1, 0, 0);
-		renderContext2Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext2Handle.Flush();
+			renderContext1Handle->Flush();
+			
+			SwapBuffers(deviceContextHandle);
+		}
+
+		GL::MakeCurrent(deviceContext2Handle, renderContext2Handle->GetHandle());
+
+		renderContext2Handle->ConfigureViewport(0, 0, 300, 200);
+		renderContext2Handle->ClearColor(0, 1, 0, 0);
+		renderContext2Handle->Clear(GL_COLOR_BUFFER_BIT);
+		renderContext2Handle->Flush();
 
 		SwapBuffers(deviceContext2Handle);
 
-		GL::MakeCurrent(deviceContext3Handle, renderContext3Handle.GetHandle());
+		GL::MakeCurrent(deviceContext3Handle, renderContext3Handle->GetHandle());
 
-		renderContext3Handle.ConfigureViewport(0, 0, 300, 200);
-		renderContext3Handle.ClearColor(0, 0, 1, 0);
-		renderContext3Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext3Handle.Flush();
+		renderContext3Handle->ConfigureViewport(0, 0, 300, 200);
+		renderContext3Handle->ClearColor(0, 0, 1, 0);
+		renderContext3Handle->Clear(GL_COLOR_BUFFER_BIT);
+		renderContext3Handle->Flush();
 
 		SwapBuffers(deviceContext3Handle);
 
-		GL::MakeCurrent(deviceContext4Handle, renderContext4Handle.GetHandle());
+		GL::MakeCurrent(deviceContext4Handle, renderContext4Handle->GetHandle());
 
-		renderContext4Handle.ConfigureViewport(0, 0, 300, 200);
-		renderContext4Handle.ClearColor(1, 1, 0, 0);
-		renderContext4Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext4Handle.Flush();
+		renderContext4Handle->ConfigureViewport(0, 0, 300, 200);
+		renderContext4Handle->ClearColor(1, 1, 0, 0);
+		renderContext4Handle->Clear(GL_COLOR_BUFFER_BIT);
+		renderContext4Handle->Flush();
 
 		SwapBuffers(deviceContext4Handle);
 
-		GL::MakeCurrent(deviceContext5Handle, renderContext5Handle.GetHandle());
+		GL::MakeCurrent(deviceContext5Handle, renderContext5Handle->GetHandle());
 
-		renderContext5Handle.ConfigureViewport(0, 0, 300, 200);
-		renderContext5Handle.ClearColor(1, 0, 1, 0);
-		renderContext5Handle.Clear(GL_COLOR_BUFFER_BIT);
-		renderContext5Handle.Flush();
+		renderContext5Handle->ConfigureViewport(0, 0, 300, 200);
+		renderContext5Handle->ClearColor(1, 0, 1, 0);
+		renderContext5Handle->Clear(GL_COLOR_BUFFER_BIT);
+		{
+			auto bufferHandle = renderContext5Handle->GenBuffer();
+
+			renderContext5Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
+			renderContext5Handle->BufferData(OpenGL::Buffer::Type::Array, Vector<Vec2>({}), OpenGL::Buffer::Usage::Static);
+
+			// TODO
+
+			renderContext5Handle->BindBuffer(OpenGL::Buffer::Type::Array, nullptr);
+			renderContext5Handle->DeleteBuffer(bufferHandle);
+		}
+		renderContext5Handle->Flush();
 
 		SwapBuffers(deviceContext5Handle);
 
