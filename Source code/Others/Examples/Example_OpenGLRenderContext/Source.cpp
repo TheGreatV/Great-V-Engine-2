@@ -257,8 +257,6 @@ namespace OpenGL
 	class Interface
 	{
 	protected:
-		class EmptyTag {};
-	protected:
 		inline void				CheckForErrors() const;
 	public:
 		inline Error::Code		GetErrorCode() const;
@@ -278,12 +276,12 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLDRAWRANGEELEMENTSPROC	glDrawRangeElements;
-		const PFNGLTEXIMAGE3DPROC			glTexImage3D;
-		const PFNGLTEXSUBIMAGE3DPROC		glTexSubImage3D;
-		const PFNGLCOPYTEXSUBIMAGE3DPROC	glCopyTexSubImage3D;
+		const PFNGLDRAWRANGEELEMENTSPROC	glDrawRangeElements	 = nullptr;
+		const PFNGLTEXIMAGE3DPROC			glTexImage3D		 = nullptr;
+		const PFNGLTEXSUBIMAGE3DPROC		glTexSubImage3D		 = nullptr;
+		const PFNGLCOPYTEXSUBIMAGE3DPROC	glCopyTexSubImage3D	 = nullptr;
 	protected:
-		inline explicit Interface_1_2(const EmptyTag&);
+		inline Interface_1_2() = default;
 		inline Interface_1_2(
 			const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
 			const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
@@ -295,54 +293,54 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLACTIVETEXTUREPROC			glActiveTexture;
-		const PFNGLSAMPLECOVERAGEPROC			glSampleCoverage;
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC		glCompressedTexImage3D;
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC		glCompressedTexImage2D;
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC		glCompressedTexImage1D;
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC	glCompressedTexSubImage3D;
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC	glCompressedTexSubImage2D;
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC	glCompressedTexSubImage1D;
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC	glGetCompressedTexImage;
-		const PFNGLCLIENTACTIVETEXTUREPROC		glClientActiveTexture;
-		const PFNGLMULTITEXCOORD1DPROC			glMultiTexCoord1d;
-		const PFNGLMULTITEXCOORD1DVPROC			glMultiTexCoord1dv;
-		const PFNGLMULTITEXCOORD1FPROC			glMultiTexCoord1f;
-		const PFNGLMULTITEXCOORD1FVPROC			glMultiTexCoord1fv;
-		const PFNGLMULTITEXCOORD1IPROC			glMultiTexCoord1i;
-		const PFNGLMULTITEXCOORD1IVPROC			glMultiTexCoord1iv;
-		const PFNGLMULTITEXCOORD1SPROC			glMultiTexCoord1s;
-		const PFNGLMULTITEXCOORD1SVPROC			glMultiTexCoord1sv;
-		const PFNGLMULTITEXCOORD2DPROC			glMultiTexCoord2d;
-		const PFNGLMULTITEXCOORD2DVPROC			glMultiTexCoord2dv;
-		const PFNGLMULTITEXCOORD2FPROC			glMultiTexCoord2f;
-		const PFNGLMULTITEXCOORD2FVPROC			glMultiTexCoord2fv;
-		const PFNGLMULTITEXCOORD2IPROC			glMultiTexCoord2i;
-		const PFNGLMULTITEXCOORD2IVPROC			glMultiTexCoord2iv;
-		const PFNGLMULTITEXCOORD2SPROC			glMultiTexCoord2s;
-		const PFNGLMULTITEXCOORD2SVPROC			glMultiTexCoord2sv;
-		const PFNGLMULTITEXCOORD3DPROC			glMultiTexCoord3d;
-		const PFNGLMULTITEXCOORD3DVPROC			glMultiTexCoord3dv;
-		const PFNGLMULTITEXCOORD3FPROC			glMultiTexCoord3f;
-		const PFNGLMULTITEXCOORD3FVPROC			glMultiTexCoord3fv;
-		const PFNGLMULTITEXCOORD3IPROC			glMultiTexCoord3i;
-		const PFNGLMULTITEXCOORD3IVPROC			glMultiTexCoord3iv;
-		const PFNGLMULTITEXCOORD3SPROC			glMultiTexCoord3s;
-		const PFNGLMULTITEXCOORD3SVPROC			glMultiTexCoord3sv;
-		const PFNGLMULTITEXCOORD4DPROC			glMultiTexCoord4d;
-		const PFNGLMULTITEXCOORD4DVPROC			glMultiTexCoord4dv;
-		const PFNGLMULTITEXCOORD4FPROC			glMultiTexCoord4f;
-		const PFNGLMULTITEXCOORD4FVPROC			glMultiTexCoord4fv;
-		const PFNGLMULTITEXCOORD4IPROC			glMultiTexCoord4i;
-		const PFNGLMULTITEXCOORD4IVPROC			glMultiTexCoord4iv;
-		const PFNGLMULTITEXCOORD4SPROC			glMultiTexCoord4s;
-		const PFNGLMULTITEXCOORD4SVPROC			glMultiTexCoord4sv;
-		const PFNGLLOADTRANSPOSEMATRIXFPROC		glLoadTransposeMatrixf;
-		const PFNGLLOADTRANSPOSEMATRIXDPROC		glLoadTransposeMatrixd;
-		const PFNGLMULTTRANSPOSEMATRIXFPROC		glMultTransposeMatrixf;
-		const PFNGLMULTTRANSPOSEMATRIXDPROC		glMultTransposeMatrixd;
+		const PFNGLACTIVETEXTUREPROC			glActiveTexture				= nullptr;
+		const PFNGLSAMPLECOVERAGEPROC			glSampleCoverage			= nullptr;
+		const PFNGLCOMPRESSEDTEXIMAGE3DPROC		glCompressedTexImage3D		= nullptr;
+		const PFNGLCOMPRESSEDTEXIMAGE2DPROC		glCompressedTexImage2D		= nullptr;
+		const PFNGLCOMPRESSEDTEXIMAGE1DPROC		glCompressedTexImage1D		= nullptr;
+		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC	glCompressedTexSubImage3D	= nullptr;
+		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC	glCompressedTexSubImage2D	= nullptr;
+		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC	glCompressedTexSubImage1D	= nullptr;
+		const PFNGLGETCOMPRESSEDTEXIMAGEPROC	glGetCompressedTexImage		= nullptr;
+		const PFNGLCLIENTACTIVETEXTUREPROC		glClientActiveTexture		= nullptr;
+		const PFNGLMULTITEXCOORD1DPROC			glMultiTexCoord1d			= nullptr;
+		const PFNGLMULTITEXCOORD1DVPROC			glMultiTexCoord1dv			= nullptr;
+		const PFNGLMULTITEXCOORD1FPROC			glMultiTexCoord1f			= nullptr;
+		const PFNGLMULTITEXCOORD1FVPROC			glMultiTexCoord1fv			= nullptr;
+		const PFNGLMULTITEXCOORD1IPROC			glMultiTexCoord1i			= nullptr;
+		const PFNGLMULTITEXCOORD1IVPROC			glMultiTexCoord1iv			= nullptr;
+		const PFNGLMULTITEXCOORD1SPROC			glMultiTexCoord1s			= nullptr;
+		const PFNGLMULTITEXCOORD1SVPROC			glMultiTexCoord1sv			= nullptr;
+		const PFNGLMULTITEXCOORD2DPROC			glMultiTexCoord2d			= nullptr;
+		const PFNGLMULTITEXCOORD2DVPROC			glMultiTexCoord2dv			= nullptr;
+		const PFNGLMULTITEXCOORD2FPROC			glMultiTexCoord2f			= nullptr;
+		const PFNGLMULTITEXCOORD2FVPROC			glMultiTexCoord2fv			= nullptr;
+		const PFNGLMULTITEXCOORD2IPROC			glMultiTexCoord2i			= nullptr;
+		const PFNGLMULTITEXCOORD2IVPROC			glMultiTexCoord2iv			= nullptr;
+		const PFNGLMULTITEXCOORD2SPROC			glMultiTexCoord2s			= nullptr;
+		const PFNGLMULTITEXCOORD2SVPROC			glMultiTexCoord2sv			= nullptr;
+		const PFNGLMULTITEXCOORD3DPROC			glMultiTexCoord3d			= nullptr;
+		const PFNGLMULTITEXCOORD3DVPROC			glMultiTexCoord3dv			= nullptr;
+		const PFNGLMULTITEXCOORD3FPROC			glMultiTexCoord3f			= nullptr;
+		const PFNGLMULTITEXCOORD3FVPROC			glMultiTexCoord3fv			= nullptr;
+		const PFNGLMULTITEXCOORD3IPROC			glMultiTexCoord3i			= nullptr;
+		const PFNGLMULTITEXCOORD3IVPROC			glMultiTexCoord3iv			= nullptr;
+		const PFNGLMULTITEXCOORD3SPROC			glMultiTexCoord3s			= nullptr;
+		const PFNGLMULTITEXCOORD3SVPROC			glMultiTexCoord3sv			= nullptr;
+		const PFNGLMULTITEXCOORD4DPROC			glMultiTexCoord4d			= nullptr;
+		const PFNGLMULTITEXCOORD4DVPROC			glMultiTexCoord4dv			= nullptr;
+		const PFNGLMULTITEXCOORD4FPROC			glMultiTexCoord4f			= nullptr;
+		const PFNGLMULTITEXCOORD4FVPROC			glMultiTexCoord4fv			= nullptr;
+		const PFNGLMULTITEXCOORD4IPROC			glMultiTexCoord4i			= nullptr;
+		const PFNGLMULTITEXCOORD4IVPROC			glMultiTexCoord4iv			= nullptr;
+		const PFNGLMULTITEXCOORD4SPROC			glMultiTexCoord4s			= nullptr;
+		const PFNGLMULTITEXCOORD4SVPROC			glMultiTexCoord4sv			= nullptr;
+		const PFNGLLOADTRANSPOSEMATRIXFPROC		glLoadTransposeMatrixf		= nullptr;
+		const PFNGLLOADTRANSPOSEMATRIXDPROC		glLoadTransposeMatrixd		= nullptr;
+		const PFNGLMULTTRANSPOSEMATRIXFPROC		glMultTransposeMatrixf		= nullptr;
+		const PFNGLMULTTRANSPOSEMATRIXDPROC		glMultTransposeMatrixd		= nullptr;
 	protected:
-		inline explicit Interface_1_3(const EmptyTag&);
+		inline Interface_1_3() = default;
 		inline Interface_1_3(
 			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
 			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
@@ -396,55 +394,55 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate;
-		const PFNGLMULTIDRAWARRAYSPROC			glMultiDrawArrays;
-		const PFNGLMULTIDRAWELEMENTSPROC		glMultiDrawElements;
-		const PFNGLPOINTPARAMETERFPROC			glPointParameterf;
-		const PFNGLPOINTPARAMETERFVPROC			glPointParameterfv;
-		const PFNGLPOINTPARAMETERIPROC			glPointParameteri;
-		const PFNGLPOINTPARAMETERIVPROC			glPointParameteriv;
-		const PFNGLFOGCOORDFPROC				glFogCoordf;
-		const PFNGLFOGCOORDFVPROC				glFogCoordfv;
-		const PFNGLFOGCOORDDPROC				glFogCoordd;
-		const PFNGLFOGCOORDDVPROC				glFogCoorddv;
-		const PFNGLFOGCOORDPOINTERPROC			glFogCoordPointer;
-		const PFNGLSECONDARYCOLOR3BPROC			glSecondaryColor3b;
-		const PFNGLSECONDARYCOLOR3BVPROC		glSecondaryColor3bv;
-		const PFNGLSECONDARYCOLOR3DPROC			glSecondaryColor3d;
-		const PFNGLSECONDARYCOLOR3DVPROC		glSecondaryColor3dv;
-		const PFNGLSECONDARYCOLOR3FPROC			glSecondaryColor3f;
-		const PFNGLSECONDARYCOLOR3FVPROC		glSecondaryColor3fv;
-		const PFNGLSECONDARYCOLOR3IPROC			glSecondaryColor3i;
-		const PFNGLSECONDARYCOLOR3IVPROC		glSecondaryColor3iv;
-		const PFNGLSECONDARYCOLOR3SPROC			glSecondaryColor3s;
-		const PFNGLSECONDARYCOLOR3SVPROC		glSecondaryColor3sv;
-		const PFNGLSECONDARYCOLOR3UBPROC		glSecondaryColor3ub;
-		const PFNGLSECONDARYCOLOR3UBVPROC		glSecondaryColor3ubv;
-		const PFNGLSECONDARYCOLOR3UIPROC		glSecondaryColor3ui;
-		const PFNGLSECONDARYCOLOR3UIVPROC		glSecondaryColor3uiv;
-		const PFNGLSECONDARYCOLOR3USPROC		glSecondaryColor3us;
-		const PFNGLSECONDARYCOLOR3USVPROC		glSecondaryColor3usv;
-		const PFNGLSECONDARYCOLORPOINTERPROC	glSecondaryColorPointer;
-		const PFNGLWINDOWPOS2DPROC				glWindowPos2d;
-		const PFNGLWINDOWPOS2DVPROC				glWindowPos2dv;
-		const PFNGLWINDOWPOS2FPROC				glWindowPos2f;
-		const PFNGLWINDOWPOS2FVPROC				glWindowPos2fv;
-		const PFNGLWINDOWPOS2IPROC				glWindowPos2i;
-		const PFNGLWINDOWPOS2IVPROC				glWindowPos2iv;
-		const PFNGLWINDOWPOS2SPROC				glWindowPos2s;
-		const PFNGLWINDOWPOS2SVPROC				glWindowPos2sv;
-		const PFNGLWINDOWPOS3DPROC				glWindowPos3d;
-		const PFNGLWINDOWPOS3DVPROC				glWindowPos3dv;
-		const PFNGLWINDOWPOS3FPROC				glWindowPos3f;
-		const PFNGLWINDOWPOS3FVPROC				glWindowPos3fv;
-		const PFNGLWINDOWPOS3IPROC				glWindowPos3i;
-		const PFNGLWINDOWPOS3IVPROC				glWindowPos3iv;
-		const PFNGLWINDOWPOS3SPROC				glWindowPos3s;
-		const PFNGLWINDOWPOS3SVPROC				glWindowPos3sv;
-		const PFNGLBLENDCOLORPROC				glBlendColor;
-		const PFNGLBLENDEQUATIONPROC			glBlendEquation;
+		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate			= nullptr;
+		const PFNGLMULTIDRAWARRAYSPROC			glMultiDrawArrays			= nullptr;
+		const PFNGLMULTIDRAWELEMENTSPROC		glMultiDrawElements			= nullptr;
+		const PFNGLPOINTPARAMETERFPROC			glPointParameterf			= nullptr;
+		const PFNGLPOINTPARAMETERFVPROC			glPointParameterfv			= nullptr;
+		const PFNGLPOINTPARAMETERIPROC			glPointParameteri			= nullptr;
+		const PFNGLPOINTPARAMETERIVPROC			glPointParameteriv			= nullptr;
+		const PFNGLFOGCOORDFPROC				glFogCoordf					= nullptr;
+		const PFNGLFOGCOORDFVPROC				glFogCoordfv				= nullptr;
+		const PFNGLFOGCOORDDPROC				glFogCoordd					= nullptr;
+		const PFNGLFOGCOORDDVPROC				glFogCoorddv				= nullptr;
+		const PFNGLFOGCOORDPOINTERPROC			glFogCoordPointer			= nullptr;
+		const PFNGLSECONDARYCOLOR3BPROC			glSecondaryColor3b			= nullptr;
+		const PFNGLSECONDARYCOLOR3BVPROC		glSecondaryColor3bv			= nullptr;
+		const PFNGLSECONDARYCOLOR3DPROC			glSecondaryColor3d			= nullptr;
+		const PFNGLSECONDARYCOLOR3DVPROC		glSecondaryColor3dv			= nullptr;
+		const PFNGLSECONDARYCOLOR3FPROC			glSecondaryColor3f			= nullptr;
+		const PFNGLSECONDARYCOLOR3FVPROC		glSecondaryColor3fv			= nullptr;
+		const PFNGLSECONDARYCOLOR3IPROC			glSecondaryColor3i			= nullptr;
+		const PFNGLSECONDARYCOLOR3IVPROC		glSecondaryColor3iv			= nullptr;
+		const PFNGLSECONDARYCOLOR3SPROC			glSecondaryColor3s			= nullptr;
+		const PFNGLSECONDARYCOLOR3SVPROC		glSecondaryColor3sv			= nullptr;
+		const PFNGLSECONDARYCOLOR3UBPROC		glSecondaryColor3ub			= nullptr;
+		const PFNGLSECONDARYCOLOR3UBVPROC		glSecondaryColor3ubv		= nullptr;
+		const PFNGLSECONDARYCOLOR3UIPROC		glSecondaryColor3ui			= nullptr;
+		const PFNGLSECONDARYCOLOR3UIVPROC		glSecondaryColor3uiv		= nullptr;
+		const PFNGLSECONDARYCOLOR3USPROC		glSecondaryColor3us			= nullptr;
+		const PFNGLSECONDARYCOLOR3USVPROC		glSecondaryColor3usv		= nullptr;
+		const PFNGLSECONDARYCOLORPOINTERPROC	glSecondaryColorPointer		= nullptr;
+		const PFNGLWINDOWPOS2DPROC				glWindowPos2d				= nullptr;
+		const PFNGLWINDOWPOS2DVPROC				glWindowPos2dv				= nullptr;
+		const PFNGLWINDOWPOS2FPROC				glWindowPos2f				= nullptr;
+		const PFNGLWINDOWPOS2FVPROC				glWindowPos2fv				= nullptr;
+		const PFNGLWINDOWPOS2IPROC				glWindowPos2i				= nullptr;
+		const PFNGLWINDOWPOS2IVPROC				glWindowPos2iv				= nullptr;
+		const PFNGLWINDOWPOS2SPROC				glWindowPos2s				= nullptr;
+		const PFNGLWINDOWPOS2SVPROC				glWindowPos2sv				= nullptr;
+		const PFNGLWINDOWPOS3DPROC				glWindowPos3d				= nullptr;
+		const PFNGLWINDOWPOS3DVPROC				glWindowPos3dv				= nullptr;
+		const PFNGLWINDOWPOS3FPROC				glWindowPos3f				= nullptr;
+		const PFNGLWINDOWPOS3FVPROC				glWindowPos3fv				= nullptr;
+		const PFNGLWINDOWPOS3IPROC				glWindowPos3i				= nullptr;
+		const PFNGLWINDOWPOS3IVPROC				glWindowPos3iv				= nullptr;
+		const PFNGLWINDOWPOS3SPROC				glWindowPos3s				= nullptr;
+		const PFNGLWINDOWPOS3SVPROC				glWindowPos3sv				= nullptr;
+		const PFNGLBLENDCOLORPROC				glBlendColor				= nullptr;
+		const PFNGLBLENDEQUATIONPROC			glBlendEquation				= nullptr;
 	protected:
-		inline explicit Interface_1_4(const EmptyTag&);
+		inline Interface_1_4() = default;
 		inline Interface_1_4(
 			const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
 			const PFNGLMULTIDRAWARRAYSPROC			glMultiDrawArrays_,
@@ -499,27 +497,27 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLGENQUERIESPROC				glGenQueries;
-		const PFNGLDELETEQUERIESPROC			glDeleteQueries;
-		const PFNGLISQUERYPROC					glIsQuery;
-		const PFNGLBEGINQUERYPROC				glBeginQuery;
-		const PFNGLENDQUERYPROC					glEndQuery;
-		const PFNGLGETQUERYIVPROC				glGetQueryiv;
-		const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv;
-		const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv;
-		const PFNGLBINDBUFFERPROC				glBindBuffer;
-		const PFNGLDELETEBUFFERSPROC			glDeleteBuffers;
-		const PFNGLGENBUFFERSPROC				glGenBuffers;
-		const PFNGLISBUFFERPROC					glIsBuffer;
-		const PFNGLBUFFERDATAPROC				glBufferData;
-		const PFNGLBUFFERSUBDATAPROC			glBufferSubData;
-		const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData;
-		const PFNGLMAPBUFFERPROC				glMapBuffer;
-		const PFNGLUNMAPBUFFERPROC				glUnmapBuffer;
-		const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv;
-		const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv;
+		const PFNGLGENQUERIESPROC				glGenQueries			= nullptr;
+		const PFNGLDELETEQUERIESPROC			glDeleteQueries			= nullptr;
+		const PFNGLISQUERYPROC					glIsQuery				= nullptr;
+		const PFNGLBEGINQUERYPROC				glBeginQuery			= nullptr;
+		const PFNGLENDQUERYPROC					glEndQuery				= nullptr;
+		const PFNGLGETQUERYIVPROC				glGetQueryiv			= nullptr;
+		const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv		= nullptr;
+		const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv		= nullptr;
+		const PFNGLBINDBUFFERPROC				glBindBuffer			= nullptr;
+		const PFNGLDELETEBUFFERSPROC			glDeleteBuffers			= nullptr;
+		const PFNGLGENBUFFERSPROC				glGenBuffers			= nullptr;
+		const PFNGLISBUFFERPROC					glIsBuffer				= nullptr;
+		const PFNGLBUFFERDATAPROC				glBufferData			= nullptr;
+		const PFNGLBUFFERSUBDATAPROC			glBufferSubData			= nullptr;
+		const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData		= nullptr;
+		const PFNGLMAPBUFFERPROC				glMapBuffer				= nullptr;
+		const PFNGLUNMAPBUFFERPROC				glUnmapBuffer			= nullptr;
+		const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv	= nullptr;
+		const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv		= nullptr;
 	protected:
-		inline explicit Interface_1_5(const EmptyTag&);
+		inline Interface_1_5() = default;
 		inline Interface_1_5(
 			const PFNGLGENQUERIESPROC				glGenQueries_,
 			const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
@@ -553,101 +551,101 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLBLENDEQUATIONSEPARATEPROC			glBlendEquationSeparate;
-		const PFNGLDRAWBUFFERSPROC						glDrawBuffers;
-		const PFNGLSTENCILOPSEPARATEPROC				glStencilOpSeparate;
-		const PFNGLSTENCILFUNCSEPARATEPROC				glStencilFuncSeparate;
-		const PFNGLSTENCILMASKSEPARATEPROC				glStencilMaskSeparate;
-		const PFNGLATTACHSHADERPROC						glAttachShader;
-		const PFNGLBINDATTRIBLOCATIONPROC				glBindAttribLocation;
-		const PFNGLCOMPILESHADERPROC					glCompileShader;
-		const PFNGLCREATEPROGRAMPROC					glCreateProgram;
-		const PFNGLCREATESHADERPROC						glCreateShader;
-		const PFNGLDELETEPROGRAMPROC					glDeleteProgram;
-		const PFNGLDELETESHADERPROC						glDeleteShader;
-		const PFNGLDETACHSHADERPROC						glDetachShader;
-		const PFNGLDISABLEVERTEXATTRIBARRAYPROC			glDisableVertexAttribArray;
-		const PFNGLENABLEVERTEXATTRIBARRAYPROC			glEnableVertexAttribArray;
-		const PFNGLGETACTIVEATTRIBPROC					glGetActiveAttrib;
-		const PFNGLGETACTIVEUNIFORMPROC					glGetActiveUniform;
-		const PFNGLGETATTACHEDSHADERSPROC				glGetAttachedShaders;
-		const PFNGLGETATTRIBLOCATIONPROC				glGetAttribLocation;
-		const PFNGLGETPROGRAMIVPROC						glGetProgramiv;
-		const PFNGLGETPROGRAMINFOLOGPROC				glGetProgramInfoLog;
-		const PFNGLGETSHADERIVPROC						glGetShaderiv;
-		const PFNGLGETSHADERINFOLOGPROC					glGetShaderInfoLog;
-		const PFNGLGETSHADERSOURCEPROC					glGetShaderSource;
-		const PFNGLGETUNIFORMLOCATIONPROC				glGetUniformLocation;
-		const PFNGLGETUNIFORMFVPROC						glGetUniformfv;
-		const PFNGLGETUNIFORMIVPROC						glGetUniformiv;
-		const PFNGLGETVERTEXATTRIBDVPROC				glGetVertexAttribdv;
-		const PFNGLGETVERTEXATTRIBFVPROC				glGetVertexAttribfv;
-		const PFNGLGETVERTEXATTRIBIVPROC				glGetVertexAttribiv;
-		const PFNGLGETVERTEXATTRIBPOINTERVPROC			glGetVertexAttribPointerv;
-		const PFNGLISPROGRAMPROC						glIsProgram;
-		const PFNGLISSHADERPROC							glIsShader;
-		const PFNGLLINKPROGRAMPROC						glLinkProgram;
-		const PFNGLSHADERSOURCEPROC						glShaderSource;
-		const PFNGLUSEPROGRAMPROC						glUseProgram;
-		const PFNGLUNIFORM1FPROC						glUniform1f;
-		const PFNGLUNIFORM2FPROC						glUniform2f;
-		const PFNGLUNIFORM3FPROC						glUniform3f;
-		const PFNGLUNIFORM4FPROC						glUniform4f;
-		const PFNGLUNIFORM1IPROC						glUniform1i;
-		const PFNGLUNIFORM2IPROC						glUniform2i;
-		const PFNGLUNIFORM3IPROC						glUniform3i;
-		const PFNGLUNIFORM4IPROC						glUniform4i;
-		const PFNGLUNIFORM1FVPROC						glUniform1fv;
-		const PFNGLUNIFORM2FVPROC						glUniform2fv;
-		const PFNGLUNIFORM3FVPROC						glUniform3fv;
-		const PFNGLUNIFORM4FVPROC						glUniform4fv;
-		const PFNGLUNIFORM1IVPROC						glUniform1iv;
-		const PFNGLUNIFORM2IVPROC						glUniform2iv;
-		const PFNGLUNIFORM3IVPROC						glUniform3iv;
-		const PFNGLUNIFORM4IVPROC						glUniform4iv;
-		const PFNGLUNIFORMMATRIX2FVPROC					glUniformMatrix2fv;
-		const PFNGLUNIFORMMATRIX3FVPROC					glUniformMatrix3fv;
-		const PFNGLUNIFORMMATRIX4FVPROC					glUniformMatrix4fv;
-		const PFNGLVALIDATEPROGRAMPROC					glValidateProgram;
-		const PFNGLVERTEXATTRIB1DPROC					glVertexAttrib1d;
-		const PFNGLVERTEXATTRIB1DVPROC					glVertexAttrib1dv;
-		const PFNGLVERTEXATTRIB1FPROC					glVertexAttrib1f;
-		const PFNGLVERTEXATTRIB1FVPROC					glVertexAttrib1fv;
-		const PFNGLVERTEXATTRIB1SPROC					glVertexAttrib1s;
-		const PFNGLVERTEXATTRIB1SVPROC					glVertexAttrib1sv;
-		const PFNGLVERTEXATTRIB2DPROC					glVertexAttrib2d;
-		const PFNGLVERTEXATTRIB2DVPROC					glVertexAttrib2dv;
-		const PFNGLVERTEXATTRIB2FPROC					glVertexAttrib2f;
-		const PFNGLVERTEXATTRIB2FVPROC					glVertexAttrib2fv;
-		const PFNGLVERTEXATTRIB2SPROC					glVertexAttrib2s;
-		const PFNGLVERTEXATTRIB2SVPROC					glVertexAttrib2sv;
-		const PFNGLVERTEXATTRIB3DPROC					glVertexAttrib3d;
-		const PFNGLVERTEXATTRIB3DVPROC					glVertexAttrib3dv;
-		const PFNGLVERTEXATTRIB3FPROC					glVertexAttrib3f;
-		const PFNGLVERTEXATTRIB3FVPROC					glVertexAttrib3fv;
-		const PFNGLVERTEXATTRIB3SPROC					glVertexAttrib3s;
-		const PFNGLVERTEXATTRIB3SVPROC					glVertexAttrib3sv;
-		const PFNGLVERTEXATTRIB4NBVPROC					glVertexAttrib4Nbv;
-		const PFNGLVERTEXATTRIB4NIVPROC					glVertexAttrib4Niv;
-		const PFNGLVERTEXATTRIB4NSVPROC					glVertexAttrib4Nsv;
-		const PFNGLVERTEXATTRIB4NUBPROC					glVertexAttrib4Nub;
-		const PFNGLVERTEXATTRIB4NUBVPROC				glVertexAttrib4Nubv;
-		const PFNGLVERTEXATTRIB4NUIVPROC				glVertexAttrib4Nuiv;
-		const PFNGLVERTEXATTRIB4NUSVPROC				glVertexAttrib4Nusv;
-		const PFNGLVERTEXATTRIB4BVPROC					glVertexAttrib4bv;
-		const PFNGLVERTEXATTRIB4DPROC					glVertexAttrib4d;
-		const PFNGLVERTEXATTRIB4DVPROC					glVertexAttrib4dv;
-		const PFNGLVERTEXATTRIB4FPROC					glVertexAttrib4f;
-		const PFNGLVERTEXATTRIB4FVPROC					glVertexAttrib4fv;
-		const PFNGLVERTEXATTRIB4IVPROC					glVertexAttrib4iv;
-		const PFNGLVERTEXATTRIB4SPROC					glVertexAttrib4s;
-		const PFNGLVERTEXATTRIB4SVPROC					glVertexAttrib4sv;
-		const PFNGLVERTEXATTRIB4UBVPROC					glVertexAttrib4ubv;
-		const PFNGLVERTEXATTRIB4UIVPROC					glVertexAttrib4uiv;
-		const PFNGLVERTEXATTRIB4USVPROC					glVertexAttrib4usv;
-		const PFNGLVERTEXATTRIBPOINTERPROC				glVertexAttribPointer;
+		const PFNGLBLENDEQUATIONSEPARATEPROC			glBlendEquationSeparate				= nullptr;
+		const PFNGLDRAWBUFFERSPROC						glDrawBuffers						= nullptr;
+		const PFNGLSTENCILOPSEPARATEPROC				glStencilOpSeparate					= nullptr;
+		const PFNGLSTENCILFUNCSEPARATEPROC				glStencilFuncSeparate				= nullptr;
+		const PFNGLSTENCILMASKSEPARATEPROC				glStencilMaskSeparate				= nullptr;
+		const PFNGLATTACHSHADERPROC						glAttachShader						= nullptr;
+		const PFNGLBINDATTRIBLOCATIONPROC				glBindAttribLocation				= nullptr;
+		const PFNGLCOMPILESHADERPROC					glCompileShader						= nullptr;
+		const PFNGLCREATEPROGRAMPROC					glCreateProgram						= nullptr;
+		const PFNGLCREATESHADERPROC						glCreateShader						= nullptr;
+		const PFNGLDELETEPROGRAMPROC					glDeleteProgram						= nullptr;
+		const PFNGLDELETESHADERPROC						glDeleteShader						= nullptr;
+		const PFNGLDETACHSHADERPROC						glDetachShader						= nullptr;
+		const PFNGLDISABLEVERTEXATTRIBARRAYPROC			glDisableVertexAttribArray			= nullptr;
+		const PFNGLENABLEVERTEXATTRIBARRAYPROC			glEnableVertexAttribArray			= nullptr;
+		const PFNGLGETACTIVEATTRIBPROC					glGetActiveAttrib					= nullptr;
+		const PFNGLGETACTIVEUNIFORMPROC					glGetActiveUniform					= nullptr;
+		const PFNGLGETATTACHEDSHADERSPROC				glGetAttachedShaders				= nullptr;
+		const PFNGLGETATTRIBLOCATIONPROC				glGetAttribLocation					= nullptr;
+		const PFNGLGETPROGRAMIVPROC						glGetProgramiv						= nullptr;
+		const PFNGLGETPROGRAMINFOLOGPROC				glGetProgramInfoLog					= nullptr;
+		const PFNGLGETSHADERIVPROC						glGetShaderiv						= nullptr;
+		const PFNGLGETSHADERINFOLOGPROC					glGetShaderInfoLog					= nullptr;
+		const PFNGLGETSHADERSOURCEPROC					glGetShaderSource					= nullptr;
+		const PFNGLGETUNIFORMLOCATIONPROC				glGetUniformLocation				= nullptr;
+		const PFNGLGETUNIFORMFVPROC						glGetUniformfv						= nullptr;
+		const PFNGLGETUNIFORMIVPROC						glGetUniformiv						= nullptr;
+		const PFNGLGETVERTEXATTRIBDVPROC				glGetVertexAttribdv					= nullptr;
+		const PFNGLGETVERTEXATTRIBFVPROC				glGetVertexAttribfv					= nullptr;
+		const PFNGLGETVERTEXATTRIBIVPROC				glGetVertexAttribiv					= nullptr;
+		const PFNGLGETVERTEXATTRIBPOINTERVPROC			glGetVertexAttribPointerv			= nullptr;
+		const PFNGLISPROGRAMPROC						glIsProgram							= nullptr;
+		const PFNGLISSHADERPROC							glIsShader							= nullptr;
+		const PFNGLLINKPROGRAMPROC						glLinkProgram						= nullptr;
+		const PFNGLSHADERSOURCEPROC						glShaderSource						= nullptr;
+		const PFNGLUSEPROGRAMPROC						glUseProgram						= nullptr;
+		const PFNGLUNIFORM1FPROC						glUniform1f							= nullptr;
+		const PFNGLUNIFORM2FPROC						glUniform2f							= nullptr;
+		const PFNGLUNIFORM3FPROC						glUniform3f							= nullptr;
+		const PFNGLUNIFORM4FPROC						glUniform4f							= nullptr;
+		const PFNGLUNIFORM1IPROC						glUniform1i							= nullptr;
+		const PFNGLUNIFORM2IPROC						glUniform2i							= nullptr;
+		const PFNGLUNIFORM3IPROC						glUniform3i							= nullptr;
+		const PFNGLUNIFORM4IPROC						glUniform4i							= nullptr;
+		const PFNGLUNIFORM1FVPROC						glUniform1fv						= nullptr;
+		const PFNGLUNIFORM2FVPROC						glUniform2fv						= nullptr;
+		const PFNGLUNIFORM3FVPROC						glUniform3fv						= nullptr;
+		const PFNGLUNIFORM4FVPROC						glUniform4fv						= nullptr;
+		const PFNGLUNIFORM1IVPROC						glUniform1iv						= nullptr;
+		const PFNGLUNIFORM2IVPROC						glUniform2iv						= nullptr;
+		const PFNGLUNIFORM3IVPROC						glUniform3iv						= nullptr;
+		const PFNGLUNIFORM4IVPROC						glUniform4iv						= nullptr;
+		const PFNGLUNIFORMMATRIX2FVPROC					glUniformMatrix2fv					= nullptr;
+		const PFNGLUNIFORMMATRIX3FVPROC					glUniformMatrix3fv					= nullptr;
+		const PFNGLUNIFORMMATRIX4FVPROC					glUniformMatrix4fv					= nullptr;
+		const PFNGLVALIDATEPROGRAMPROC					glValidateProgram					= nullptr;
+		const PFNGLVERTEXATTRIB1DPROC					glVertexAttrib1d					= nullptr;
+		const PFNGLVERTEXATTRIB1DVPROC					glVertexAttrib1dv					= nullptr;
+		const PFNGLVERTEXATTRIB1FPROC					glVertexAttrib1f					= nullptr;
+		const PFNGLVERTEXATTRIB1FVPROC					glVertexAttrib1fv					= nullptr;
+		const PFNGLVERTEXATTRIB1SPROC					glVertexAttrib1s					= nullptr;
+		const PFNGLVERTEXATTRIB1SVPROC					glVertexAttrib1sv					= nullptr;
+		const PFNGLVERTEXATTRIB2DPROC					glVertexAttrib2d					= nullptr;
+		const PFNGLVERTEXATTRIB2DVPROC					glVertexAttrib2dv					= nullptr;
+		const PFNGLVERTEXATTRIB2FPROC					glVertexAttrib2f					= nullptr;
+		const PFNGLVERTEXATTRIB2FVPROC					glVertexAttrib2fv					= nullptr;
+		const PFNGLVERTEXATTRIB2SPROC					glVertexAttrib2s					= nullptr;
+		const PFNGLVERTEXATTRIB2SVPROC					glVertexAttrib2sv					= nullptr;
+		const PFNGLVERTEXATTRIB3DPROC					glVertexAttrib3d					= nullptr;
+		const PFNGLVERTEXATTRIB3DVPROC					glVertexAttrib3dv					= nullptr;
+		const PFNGLVERTEXATTRIB3FPROC					glVertexAttrib3f					= nullptr;
+		const PFNGLVERTEXATTRIB3FVPROC					glVertexAttrib3fv					= nullptr;
+		const PFNGLVERTEXATTRIB3SPROC					glVertexAttrib3s					= nullptr;
+		const PFNGLVERTEXATTRIB3SVPROC					glVertexAttrib3sv					= nullptr;
+		const PFNGLVERTEXATTRIB4NBVPROC					glVertexAttrib4Nbv					= nullptr;
+		const PFNGLVERTEXATTRIB4NIVPROC					glVertexAttrib4Niv					= nullptr;
+		const PFNGLVERTEXATTRIB4NSVPROC					glVertexAttrib4Nsv					= nullptr;
+		const PFNGLVERTEXATTRIB4NUBPROC					glVertexAttrib4Nub					= nullptr;
+		const PFNGLVERTEXATTRIB4NUBVPROC				glVertexAttrib4Nubv					= nullptr;
+		const PFNGLVERTEXATTRIB4NUIVPROC				glVertexAttrib4Nuiv					= nullptr;
+		const PFNGLVERTEXATTRIB4NUSVPROC				glVertexAttrib4Nusv					= nullptr;
+		const PFNGLVERTEXATTRIB4BVPROC					glVertexAttrib4bv					= nullptr;
+		const PFNGLVERTEXATTRIB4DPROC					glVertexAttrib4d					= nullptr;
+		const PFNGLVERTEXATTRIB4DVPROC					glVertexAttrib4dv					= nullptr;
+		const PFNGLVERTEXATTRIB4FPROC					glVertexAttrib4f					= nullptr;
+		const PFNGLVERTEXATTRIB4FVPROC					glVertexAttrib4fv					= nullptr;
+		const PFNGLVERTEXATTRIB4IVPROC					glVertexAttrib4iv					= nullptr;
+		const PFNGLVERTEXATTRIB4SPROC					glVertexAttrib4s					= nullptr;
+		const PFNGLVERTEXATTRIB4SVPROC					glVertexAttrib4sv					= nullptr;
+		const PFNGLVERTEXATTRIB4UBVPROC					glVertexAttrib4ubv					= nullptr;
+		const PFNGLVERTEXATTRIB4UIVPROC					glVertexAttrib4uiv					= nullptr;
+		const PFNGLVERTEXATTRIB4USVPROC					glVertexAttrib4usv					= nullptr;
+		const PFNGLVERTEXATTRIBPOINTERPROC				glVertexAttribPointer				= nullptr;
 	protected:
-		inline explicit Interface_2_0(const EmptyTag&);
+		inline Interface_2_0() = default;
 		inline Interface_2_0(
 			const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
 			const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
@@ -946,14 +944,14 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLUNIFORMMATRIX2X3FVPROC glUniformMatrix2x3fv;
-		const PFNGLUNIFORMMATRIX3X2FVPROC glUniformMatrix3x2fv;
-		const PFNGLUNIFORMMATRIX2X4FVPROC glUniformMatrix2x4fv;
-		const PFNGLUNIFORMMATRIX4X2FVPROC glUniformMatrix4x2fv;
-		const PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
-		const PFNGLUNIFORMMATRIX4X3FVPROC glUniformMatrix4x3fv;
+		const PFNGLUNIFORMMATRIX2X3FVPROC glUniformMatrix2x3fv	= nullptr;
+		const PFNGLUNIFORMMATRIX3X2FVPROC glUniformMatrix3x2fv	= nullptr;
+		const PFNGLUNIFORMMATRIX2X4FVPROC glUniformMatrix2x4fv	= nullptr;
+		const PFNGLUNIFORMMATRIX4X2FVPROC glUniformMatrix4x2fv	= nullptr;
+		const PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv	= nullptr;
+		const PFNGLUNIFORMMATRIX4X3FVPROC glUniformMatrix4x3fv	= nullptr;
 	protected:
-		inline explicit Interface_2_1(const EmptyTag&);
+		inline Interface_2_1() = default;
 		inline Interface_2_1(
 			const PFNGLUNIFORMMATRIX2X3FVPROC& glUniformMatrix2x3fv_,
 			const PFNGLUNIFORMMATRIX3X2FVPROC& glUniformMatrix3x2fv_,
@@ -967,92 +965,92 @@ namespace OpenGL
 		public virtual Interface
 	{
 	protected:
-		const PFNGLCOLORMASKIPROC										glColorMaski;
-		const PFNGLGETBOOLEANI_VPROC									glGetBooleani_v;
-		const PFNGLGETINTEGERI_VPROC									glGetIntegeri_v;
-		const PFNGLENABLEIPROC											glEnablei;
-		const PFNGLDISABLEIPROC											glDisablei;
-		const PFNGLISENABLEDIPROC										glIsEnabledi;
-		const PFNGLBEGINTRANSFORMFEEDBACKPROC							glBeginTransformFeedback;
-		const PFNGLENDTRANSFORMFEEDBACKPROC								glEndTransformFeedback;
-		const PFNGLBINDBUFFERRANGEPROC									glBindBufferRange;
-		const PFNGLBINDBUFFERBASEPROC									glBindBufferBase;
-		const PFNGLTRANSFORMFEEDBACKVARYINGSPROC						glTransformFeedbackVaryings;
-		const PFNGLGETTRANSFORMFEEDBACKVARYINGPROC						glGetTransformFeedbackVarying;
-		const PFNGLCLAMPCOLORPROC										glClampColor;
-		const PFNGLBEGINCONDITIONALRENDERPROC							glBeginConditionalRender;
-		const PFNGLENDCONDITIONALRENDERPROC								glEndConditionalRender;
-		const PFNGLVERTEXATTRIBIPOINTERPROC								glVertexAttribIPointer;
-		const PFNGLGETVERTEXATTRIBIIVPROC								glGetVertexAttribIiv;
-		const PFNGLGETVERTEXATTRIBIUIVPROC								glGetVertexAttribIuiv;
-		const PFNGLVERTEXATTRIBI1IPROC									glVertexAttribI1i;
-		const PFNGLVERTEXATTRIBI2IPROC									glVertexAttribI2i;
-		const PFNGLVERTEXATTRIBI3IPROC									glVertexAttribI3i;
-		const PFNGLVERTEXATTRIBI4IPROC									glVertexAttribI4i;
-		const PFNGLVERTEXATTRIBI1UIPROC									glVertexAttribI1ui;
-		const PFNGLVERTEXATTRIBI2UIPROC									glVertexAttribI2ui;
-		const PFNGLVERTEXATTRIBI3UIPROC									glVertexAttribI3ui;
-		const PFNGLVERTEXATTRIBI4UIPROC									glVertexAttribI4ui;
-		const PFNGLVERTEXATTRIBI1IVPROC									glVertexAttribI1iv;
-		const PFNGLVERTEXATTRIBI2IVPROC									glVertexAttribI2iv;
-		const PFNGLVERTEXATTRIBI3IVPROC									glVertexAttribI3iv;
-		const PFNGLVERTEXATTRIBI4IVPROC									glVertexAttribI4iv;
-		const PFNGLVERTEXATTRIBI1UIVPROC								glVertexAttribI1uiv;
-		const PFNGLVERTEXATTRIBI2UIVPROC								glVertexAttribI2uiv;
-		const PFNGLVERTEXATTRIBI3UIVPROC								glVertexAttribI3uiv;
-		const PFNGLVERTEXATTRIBI4UIVPROC								glVertexAttribI4uiv;
-		const PFNGLVERTEXATTRIBI4BVPROC									glVertexAttribI4bv;
-		const PFNGLVERTEXATTRIBI4SVPROC									glVertexAttribI4sv;
-		const PFNGLVERTEXATTRIBI4UBVPROC								glVertexAttribI4ubv;
-		const PFNGLVERTEXATTRIBI4USVPROC								glVertexAttribI4usv;
-		const PFNGLGETUNIFORMUIVPROC									glGetUniformuiv;
-		const PFNGLBINDFRAGDATALOCATIONPROC								glBindFragDataLocation;
-		const PFNGLGETFRAGDATALOCATIONPROC								glGetFragDataLocation;
-		const PFNGLUNIFORM1UIPROC										glUniform1ui;
-		const PFNGLUNIFORM2UIPROC										glUniform2ui;
-		const PFNGLUNIFORM3UIPROC										glUniform3ui;
-		const PFNGLUNIFORM4UIPROC										glUniform4ui;
-		const PFNGLUNIFORM1UIVPROC										glUniform1uiv;
-		const PFNGLUNIFORM2UIVPROC										glUniform2uiv;
-		const PFNGLUNIFORM3UIVPROC										glUniform3uiv;
-		const PFNGLUNIFORM4UIVPROC										glUniform4uiv;
-		const PFNGLTEXPARAMETERIIVPROC									glTexParameterIiv;
-		const PFNGLTEXPARAMETERIUIVPROC									glTexParameterIuiv;
-		const PFNGLGETTEXPARAMETERIIVPROC								glGetTexParameterIiv;
-		const PFNGLGETTEXPARAMETERIUIVPROC								glGetTexParameterIuiv;
-		const PFNGLCLEARBUFFERIVPROC									glClearBufferiv;
-		const PFNGLCLEARBUFFERUIVPROC									glClearBufferuiv;
-		const PFNGLCLEARBUFFERFVPROC									glClearBufferfv;
-		const PFNGLCLEARBUFFERFIPROC									glClearBufferfi;
-		const PFNGLGETSTRINGIPROC										glGetStringi;
-		const PFNGLISRENDERBUFFERPROC									glIsRenderbuffer;
-		const PFNGLBINDRENDERBUFFERPROC									glBindRenderbuffer;
-		const PFNGLDELETERENDERBUFFERSPROC								glDeleteRenderbuffers;
-		const PFNGLGENRENDERBUFFERSPROC									glGenRenderbuffers;
-		const PFNGLRENDERBUFFERSTORAGEPROC								glRenderbufferStorage;
-		const PFNGLGETRENDERBUFFERPARAMETERIVPROC						glGetRenderbufferParameteriv;
-		const PFNGLISFRAMEBUFFERPROC									glIsFramebuffer;
-		const PFNGLBINDFRAMEBUFFERPROC									glBindFramebuffer;
-		const PFNGLDELETEFRAMEBUFFERSPROC								glDeleteFramebuffers;
-		const PFNGLGENFRAMEBUFFERSPROC									glGenFramebuffers;
-		const PFNGLCHECKFRAMEBUFFERSTATUSPROC							glCheckFramebufferStatus;
-		const PFNGLFRAMEBUFFERTEXTURE1DPROC								glFramebufferTexture1D;
-		const PFNGLFRAMEBUFFERTEXTURE2DPROC								glFramebufferTexture2D;
-		const PFNGLFRAMEBUFFERTEXTURE3DPROC								glFramebufferTexture3D;
-		const PFNGLFRAMEBUFFERRENDERBUFFERPROC							glFramebufferRenderbuffer;
-		const PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC				glGetFramebufferAttachmentParameteriv;
-		const PFNGLGENERATEMIPMAPPROC									glGenerateMipmap;
-		const PFNGLBLITFRAMEBUFFERPROC									glBlitFramebuffer;
-		const PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC					glRenderbufferStorageMultisample;
-		const PFNGLFRAMEBUFFERTEXTURELAYERPROC							glFramebufferTextureLayer;
-		const PFNGLMAPBUFFERRANGEPROC									glMapBufferRange;
-		const PFNGLFLUSHMAPPEDBUFFERRANGEPROC							glFlushMappedBufferRange;
-		const PFNGLBINDVERTEXARRAYPROC									glBindVertexArray;
-		const PFNGLDELETEVERTEXARRAYSPROC								glDeleteVertexArrays;
-		const PFNGLGENVERTEXARRAYSPROC									glGenVertexArrays;
-		const PFNGLISVERTEXARRAYPROC									glIsVertexArray;
+		const PFNGLCOLORMASKIPROC										glColorMaski							= nullptr;
+		const PFNGLGETBOOLEANI_VPROC									glGetBooleani_v							= nullptr;
+		const PFNGLGETINTEGERI_VPROC									glGetIntegeri_v							= nullptr;
+		const PFNGLENABLEIPROC											glEnablei								= nullptr;
+		const PFNGLDISABLEIPROC											glDisablei								= nullptr;
+		const PFNGLISENABLEDIPROC										glIsEnabledi							= nullptr;
+		const PFNGLBEGINTRANSFORMFEEDBACKPROC							glBeginTransformFeedback				= nullptr;
+		const PFNGLENDTRANSFORMFEEDBACKPROC								glEndTransformFeedback					= nullptr;
+		const PFNGLBINDBUFFERRANGEPROC									glBindBufferRange						= nullptr;
+		const PFNGLBINDBUFFERBASEPROC									glBindBufferBase						= nullptr;
+		const PFNGLTRANSFORMFEEDBACKVARYINGSPROC						glTransformFeedbackVaryings				= nullptr;
+		const PFNGLGETTRANSFORMFEEDBACKVARYINGPROC						glGetTransformFeedbackVarying			= nullptr;
+		const PFNGLCLAMPCOLORPROC										glClampColor							= nullptr;
+		const PFNGLBEGINCONDITIONALRENDERPROC							glBeginConditionalRender				= nullptr;
+		const PFNGLENDCONDITIONALRENDERPROC								glEndConditionalRender					= nullptr;
+		const PFNGLVERTEXATTRIBIPOINTERPROC								glVertexAttribIPointer					= nullptr;
+		const PFNGLGETVERTEXATTRIBIIVPROC								glGetVertexAttribIiv					= nullptr;
+		const PFNGLGETVERTEXATTRIBIUIVPROC								glGetVertexAttribIuiv					= nullptr;
+		const PFNGLVERTEXATTRIBI1IPROC									glVertexAttribI1i						= nullptr;
+		const PFNGLVERTEXATTRIBI2IPROC									glVertexAttribI2i						= nullptr;
+		const PFNGLVERTEXATTRIBI3IPROC									glVertexAttribI3i						= nullptr;
+		const PFNGLVERTEXATTRIBI4IPROC									glVertexAttribI4i						= nullptr;
+		const PFNGLVERTEXATTRIBI1UIPROC									glVertexAttribI1ui						= nullptr;
+		const PFNGLVERTEXATTRIBI2UIPROC									glVertexAttribI2ui						= nullptr;
+		const PFNGLVERTEXATTRIBI3UIPROC									glVertexAttribI3ui						= nullptr;
+		const PFNGLVERTEXATTRIBI4UIPROC									glVertexAttribI4ui						= nullptr;
+		const PFNGLVERTEXATTRIBI1IVPROC									glVertexAttribI1iv						= nullptr;
+		const PFNGLVERTEXATTRIBI2IVPROC									glVertexAttribI2iv						= nullptr;
+		const PFNGLVERTEXATTRIBI3IVPROC									glVertexAttribI3iv						= nullptr;
+		const PFNGLVERTEXATTRIBI4IVPROC									glVertexAttribI4iv						= nullptr;
+		const PFNGLVERTEXATTRIBI1UIVPROC								glVertexAttribI1uiv						= nullptr;
+		const PFNGLVERTEXATTRIBI2UIVPROC								glVertexAttribI2uiv						= nullptr;
+		const PFNGLVERTEXATTRIBI3UIVPROC								glVertexAttribI3uiv						= nullptr;
+		const PFNGLVERTEXATTRIBI4UIVPROC								glVertexAttribI4uiv						= nullptr;
+		const PFNGLVERTEXATTRIBI4BVPROC									glVertexAttribI4bv						= nullptr;
+		const PFNGLVERTEXATTRIBI4SVPROC									glVertexAttribI4sv						= nullptr;
+		const PFNGLVERTEXATTRIBI4UBVPROC								glVertexAttribI4ubv						= nullptr;
+		const PFNGLVERTEXATTRIBI4USVPROC								glVertexAttribI4usv						= nullptr;
+		const PFNGLGETUNIFORMUIVPROC									glGetUniformuiv							= nullptr;
+		const PFNGLBINDFRAGDATALOCATIONPROC								glBindFragDataLocation					= nullptr;
+		const PFNGLGETFRAGDATALOCATIONPROC								glGetFragDataLocation					= nullptr;
+		const PFNGLUNIFORM1UIPROC										glUniform1ui							= nullptr;
+		const PFNGLUNIFORM2UIPROC										glUniform2ui							= nullptr;
+		const PFNGLUNIFORM3UIPROC										glUniform3ui							= nullptr;
+		const PFNGLUNIFORM4UIPROC										glUniform4ui							= nullptr;
+		const PFNGLUNIFORM1UIVPROC										glUniform1uiv							= nullptr;
+		const PFNGLUNIFORM2UIVPROC										glUniform2uiv							= nullptr;
+		const PFNGLUNIFORM3UIVPROC										glUniform3uiv							= nullptr;
+		const PFNGLUNIFORM4UIVPROC										glUniform4uiv							= nullptr;
+		const PFNGLTEXPARAMETERIIVPROC									glTexParameterIiv						= nullptr;
+		const PFNGLTEXPARAMETERIUIVPROC									glTexParameterIuiv						= nullptr;
+		const PFNGLGETTEXPARAMETERIIVPROC								glGetTexParameterIiv					= nullptr;
+		const PFNGLGETTEXPARAMETERIUIVPROC								glGetTexParameterIuiv					= nullptr;
+		const PFNGLCLEARBUFFERIVPROC									glClearBufferiv							= nullptr;
+		const PFNGLCLEARBUFFERUIVPROC									glClearBufferuiv						= nullptr;
+		const PFNGLCLEARBUFFERFVPROC									glClearBufferfv							= nullptr;
+		const PFNGLCLEARBUFFERFIPROC									glClearBufferfi							= nullptr;
+		const PFNGLGETSTRINGIPROC										glGetStringi							= nullptr;
+		const PFNGLISRENDERBUFFERPROC									glIsRenderbuffer						= nullptr;
+		const PFNGLBINDRENDERBUFFERPROC									glBindRenderbuffer						= nullptr;
+		const PFNGLDELETERENDERBUFFERSPROC								glDeleteRenderbuffers					= nullptr;
+		const PFNGLGENRENDERBUFFERSPROC									glGenRenderbuffers						= nullptr;
+		const PFNGLRENDERBUFFERSTORAGEPROC								glRenderbufferStorage					= nullptr;
+		const PFNGLGETRENDERBUFFERPARAMETERIVPROC						glGetRenderbufferParameteriv			= nullptr;
+		const PFNGLISFRAMEBUFFERPROC									glIsFramebuffer							= nullptr;
+		const PFNGLBINDFRAMEBUFFERPROC									glBindFramebuffer						= nullptr;
+		const PFNGLDELETEFRAMEBUFFERSPROC								glDeleteFramebuffers					= nullptr;
+		const PFNGLGENFRAMEBUFFERSPROC									glGenFramebuffers						= nullptr;
+		const PFNGLCHECKFRAMEBUFFERSTATUSPROC							glCheckFramebufferStatus				= nullptr;
+		const PFNGLFRAMEBUFFERTEXTURE1DPROC								glFramebufferTexture1D					= nullptr;
+		const PFNGLFRAMEBUFFERTEXTURE2DPROC								glFramebufferTexture2D					= nullptr;
+		const PFNGLFRAMEBUFFERTEXTURE3DPROC								glFramebufferTexture3D					= nullptr;
+		const PFNGLFRAMEBUFFERRENDERBUFFERPROC							glFramebufferRenderbuffer				= nullptr;
+		const PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC				glGetFramebufferAttachmentParameteriv	= nullptr;
+		const PFNGLGENERATEMIPMAPPROC									glGenerateMipmap						= nullptr;
+		const PFNGLBLITFRAMEBUFFERPROC									glBlitFramebuffer						= nullptr;
+		const PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC					glRenderbufferStorageMultisample		= nullptr;
+		const PFNGLFRAMEBUFFERTEXTURELAYERPROC							glFramebufferTextureLayer				= nullptr;
+		const PFNGLMAPBUFFERRANGEPROC									glMapBufferRange						= nullptr;
+		const PFNGLFLUSHMAPPEDBUFFERRANGEPROC							glFlushMappedBufferRange				= nullptr;
+		const PFNGLBINDVERTEXARRAYPROC									glBindVertexArray						= nullptr;
+		const PFNGLDELETEVERTEXARRAYSPROC								glDeleteVertexArrays					= nullptr;
+		const PFNGLGENVERTEXARRAYSPROC									glGenVertexArrays						= nullptr;
+		const PFNGLISVERTEXARRAYPROC									glIsVertexArray							= nullptr;
 	protected:
-		inline explicit Interface_3_0(const EmptyTag&);
+		inline Interface_3_0() = default;
 		inline Interface_3_0(
 			const PFNGLCOLORMASKIPROC&										glColorMaski_,
 			const PFNGLGETBOOLEANI_VPROC&									glGetBooleani_v_,
@@ -1198,13 +1196,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_1_2
-	Interface_1_2::Interface_1_2(const EmptyTag&):
-		glDrawRangeElements		(),
-		glTexImage3D			(),
-		glTexSubImage3D			(),
-		glCopyTexSubImage3D		()
-	{
-	}
 	Interface_1_2::Interface_1_2(
 		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
 		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
@@ -1219,55 +1210,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_1_3
-	Interface_1_3::Interface_1_3(const EmptyTag&):
-		glActiveTexture					(),
-		glSampleCoverage				(),
-		glCompressedTexImage3D			(),
-		glCompressedTexImage2D			(),
-		glCompressedTexImage1D			(),
-		glCompressedTexSubImage3D		(),
-		glCompressedTexSubImage2D		(),
-		glCompressedTexSubImage1D		(),
-		glGetCompressedTexImage			(),
-		glClientActiveTexture			(),
-		glMultiTexCoord1d				(),
-		glMultiTexCoord1dv				(),
-		glMultiTexCoord1f				(),
-		glMultiTexCoord1fv				(),
-		glMultiTexCoord1i				(),
-		glMultiTexCoord1iv				(),
-		glMultiTexCoord1s				(),
-		glMultiTexCoord1sv				(),
-		glMultiTexCoord2d				(),
-		glMultiTexCoord2dv				(),
-		glMultiTexCoord2f				(),
-		glMultiTexCoord2fv				(),
-		glMultiTexCoord2i				(),
-		glMultiTexCoord2iv				(),
-		glMultiTexCoord2s				(),
-		glMultiTexCoord2sv				(),
-		glMultiTexCoord3d				(),
-		glMultiTexCoord3dv				(),
-		glMultiTexCoord3f				(),
-		glMultiTexCoord3fv				(),
-		glMultiTexCoord3i				(),
-		glMultiTexCoord3iv				(),
-		glMultiTexCoord3s				(),
-		glMultiTexCoord3sv				(),
-		glMultiTexCoord4d				(),
-		glMultiTexCoord4dv				(),
-		glMultiTexCoord4f				(),
-		glMultiTexCoord4fv				(),
-		glMultiTexCoord4i				(),
-		glMultiTexCoord4iv				(),
-		glMultiTexCoord4s				(),
-		glMultiTexCoord4sv				(),
-		glLoadTransposeMatrixf			(),
-		glLoadTransposeMatrixd			(),
-		glMultTransposeMatrixf			(),
-		glMultTransposeMatrixd			()
-	{
-	}
 	Interface_1_3::Interface_1_3(
 		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
 		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
@@ -1366,56 +1308,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_1_4
-	Interface_1_4::Interface_1_4(const EmptyTag&):
-		glBlendFuncSeparate		(),
-		glMultiDrawArrays		(),
-		glMultiDrawElements		(),
-		glPointParameterf		(),
-		glPointParameterfv		(),
-		glPointParameteri		(),
-		glPointParameteriv		(),
-		glFogCoordf				(),
-		glFogCoordfv			(),
-		glFogCoordd				(),
-		glFogCoorddv			(),
-		glFogCoordPointer		(),
-		glSecondaryColor3b		(),
-		glSecondaryColor3bv		(),
-		glSecondaryColor3d		(),
-		glSecondaryColor3dv		(),
-		glSecondaryColor3f		(),
-		glSecondaryColor3fv		(),
-		glSecondaryColor3i		(),
-		glSecondaryColor3iv		(),
-		glSecondaryColor3s		(),
-		glSecondaryColor3sv		(),
-		glSecondaryColor3ub		(),
-		glSecondaryColor3ubv	(),
-		glSecondaryColor3ui		(),
-		glSecondaryColor3uiv	(),
-		glSecondaryColor3us		(),
-		glSecondaryColor3usv	(),
-		glSecondaryColorPointer	(),
-		glWindowPos2d			(),
-		glWindowPos2dv			(),
-		glWindowPos2f			(),
-		glWindowPos2fv			(),
-		glWindowPos2i			(),
-		glWindowPos2iv			(),
-		glWindowPos2s			(),
-		glWindowPos2sv			(),
-		glWindowPos3d			(),
-		glWindowPos3dv			(),
-		glWindowPos3f			(),
-		glWindowPos3fv			(),
-		glWindowPos3i			(),
-		glWindowPos3iv			(),
-		glWindowPos3s			(),
-		glWindowPos3sv			(),
-		glBlendColor			(),
-		glBlendEquation			()
-	{
-	}
 	Interface_1_4::Interface_1_4(
 		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
 		const PFNGLMULTIDRAWARRAYSPROC			glMultiDrawArrays_,
@@ -1516,28 +1408,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_1_5
-	Interface_1_5::Interface_1_5(const EmptyTag&):
-		glGenQueries				(),
-		glDeleteQueries				(),
-		glIsQuery					(),
-		glBeginQuery				(),
-		glEndQuery					(),
-		glGetQueryiv				(),
-		glGetQueryObjectiv			(),
-		glGetQueryObjectuiv			(),
-		glBindBuffer				(),
-		glDeleteBuffers				(),
-		glGenBuffers				(),
-		glIsBuffer					(),
-		glBufferData				(),
-		glBufferSubData				(),
-		glGetBufferSubData			(),
-		glMapBuffer					(),
-		glUnmapBuffer				(),
-		glGetBufferParameteriv		(),
-		glGetBufferPointerv			()
-	{
-	}
 	Interface_1_5::Interface_1_5(
 			const PFNGLGENQUERIESPROC				glGenQueries_,
 			const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
@@ -1623,102 +1493,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_2_0
-	Interface_2_0::Interface_2_0(const EmptyTag&):
-		glBlendEquationSeparate				(),
-		glDrawBuffers						(),
-		glStencilOpSeparate					(),
-		glStencilFuncSeparate				(),
-		glStencilMaskSeparate				(),
-		glAttachShader						(),
-		glBindAttribLocation				(),
-		glCompileShader						(),
-		glCreateProgram						(),
-		glCreateShader						(),
-		glDeleteProgram						(),
-		glDeleteShader						(),
-		glDetachShader						(),
-		glDisableVertexAttribArray			(),
-		glEnableVertexAttribArray			(),
-		glGetActiveAttrib					(),
-		glGetActiveUniform					(),
-		glGetAttachedShaders				(),
-		glGetAttribLocation					(),
-		glGetProgramiv						(),
-		glGetProgramInfoLog					(),
-		glGetShaderiv						(),
-		glGetShaderInfoLog					(),
-		glGetShaderSource					(),
-		glGetUniformLocation				(),
-		glGetUniformfv						(),
-		glGetUniformiv						(),
-		glGetVertexAttribdv					(),
-		glGetVertexAttribfv					(),
-		glGetVertexAttribiv					(),
-		glGetVertexAttribPointerv			(),
-		glIsProgram							(),
-		glIsShader							(),
-		glLinkProgram						(),
-		glShaderSource						(),
-		glUseProgram						(),
-		glUniform1f							(),
-		glUniform2f							(),
-		glUniform3f							(),
-		glUniform4f							(),
-		glUniform1i							(),
-		glUniform2i							(),
-		glUniform3i							(),
-		glUniform4i							(),
-		glUniform1fv						(),
-		glUniform2fv						(),
-		glUniform3fv						(),
-		glUniform4fv						(),
-		glUniform1iv						(),
-		glUniform2iv						(),
-		glUniform3iv						(),
-		glUniform4iv						(),
-		glUniformMatrix2fv					(),
-		glUniformMatrix3fv					(),
-		glUniformMatrix4fv					(),
-		glValidateProgram					(),
-		glVertexAttrib1d					(),
-		glVertexAttrib1dv					(),
-		glVertexAttrib1f					(),
-		glVertexAttrib1fv					(),
-		glVertexAttrib1s					(),
-		glVertexAttrib1sv					(),
-		glVertexAttrib2d					(),
-		glVertexAttrib2dv					(),
-		glVertexAttrib2f					(),
-		glVertexAttrib2fv					(),
-		glVertexAttrib2s					(),
-		glVertexAttrib2sv					(),
-		glVertexAttrib3d					(),
-		glVertexAttrib3dv					(),
-		glVertexAttrib3f					(),
-		glVertexAttrib3fv					(),
-		glVertexAttrib3s					(),
-		glVertexAttrib3sv					(),
-		glVertexAttrib4Nbv					(),
-		glVertexAttrib4Niv					(),
-		glVertexAttrib4Nsv					(),
-		glVertexAttrib4Nub					(),
-		glVertexAttrib4Nubv					(),
-		glVertexAttrib4Nuiv					(),
-		glVertexAttrib4Nusv					(),
-		glVertexAttrib4bv					(),
-		glVertexAttrib4d					(),
-		glVertexAttrib4dv					(),
-		glVertexAttrib4f					(),
-		glVertexAttrib4fv					(),
-		glVertexAttrib4iv					(),
-		glVertexAttrib4s					(),
-		glVertexAttrib4sv					(),
-		glVertexAttrib4ubv					(),
-		glVertexAttrib4uiv					(),
-		glVertexAttrib4usv					(),
-		glVertexAttribPointer				()
-	{
-	}
 	Interface_2_0::Interface_2_0(
 		const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
 		const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
@@ -1911,15 +1685,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_2_1
-	Interface_2_1::Interface_2_1(const EmptyTag&):
-		glUniformMatrix2x3fv(),
-		glUniformMatrix3x2fv(),
-		glUniformMatrix2x4fv(),
-		glUniformMatrix4x2fv(),
-		glUniformMatrix3x4fv(),
-		glUniformMatrix4x3fv()
-	{
-	}
 	Interface_2_1::Interface_2_1(
 		const PFNGLUNIFORMMATRIX2X3FVPROC& glUniformMatrix2x3fv_,
 		const PFNGLUNIFORMMATRIX3X2FVPROC& glUniformMatrix3x2fv_,
@@ -1938,93 +1703,6 @@ namespace OpenGL
 	}
 #pragma endregion
 #pragma region Interface_3_0
-	Interface_3_0::Interface_3_0(const EmptyTag&):
-		glColorMaski								(),
-		glGetBooleani_v								(),
-		glGetIntegeri_v								(),
-		glEnablei									(),
-		glDisablei									(),
-		glIsEnabledi								(),
-		glBeginTransformFeedback					(),
-		glEndTransformFeedback						(),
-		glBindBufferRange							(),
-		glBindBufferBase							(),
-		glTransformFeedbackVaryings					(),
-		glGetTransformFeedbackVarying				(),
-		glClampColor								(),
-		glBeginConditionalRender					(),
-		glEndConditionalRender						(),
-		glVertexAttribIPointer						(),
-		glGetVertexAttribIiv						(),
-		glGetVertexAttribIuiv						(),
-		glVertexAttribI1i							(),
-		glVertexAttribI2i							(),
-		glVertexAttribI3i							(),
-		glVertexAttribI4i							(),
-		glVertexAttribI1ui							(),
-		glVertexAttribI2ui							(),
-		glVertexAttribI3ui							(),
-		glVertexAttribI4ui							(),
-		glVertexAttribI1iv							(),
-		glVertexAttribI2iv							(),
-		glVertexAttribI3iv							(),
-		glVertexAttribI4iv							(),
-		glVertexAttribI1uiv							(),
-		glVertexAttribI2uiv							(),
-		glVertexAttribI3uiv							(),
-		glVertexAttribI4uiv							(),
-		glVertexAttribI4bv							(),
-		glVertexAttribI4sv							(),
-		glVertexAttribI4ubv							(),
-		glVertexAttribI4usv							(),
-		glGetUniformuiv								(),
-		glBindFragDataLocation						(),
-		glGetFragDataLocation						(),
-		glUniform1ui								(),
-		glUniform2ui								(),
-		glUniform3ui								(),
-		glUniform4ui								(),
-		glUniform1uiv								(),
-		glUniform2uiv								(),
-		glUniform3uiv								(),
-		glUniform4uiv								(),
-		glTexParameterIiv							(),
-		glTexParameterIuiv							(),
-		glGetTexParameterIiv						(),
-		glGetTexParameterIuiv						(),
-		glClearBufferiv								(),
-		glClearBufferuiv							(),
-		glClearBufferfv								(),
-		glClearBufferfi								(),
-		glGetStringi								(),
-		glIsRenderbuffer							(),
-		glBindRenderbuffer							(),
-		glDeleteRenderbuffers						(),
-		glGenRenderbuffers							(),
-		glRenderbufferStorage						(),
-		glGetRenderbufferParameteriv				(),
-		glIsFramebuffer								(),
-		glBindFramebuffer							(),
-		glDeleteFramebuffers						(),
-		glGenFramebuffers							(),
-		glCheckFramebufferStatus					(),
-		glFramebufferTexture1D						(),
-		glFramebufferTexture2D						(),
-		glFramebufferTexture3D						(),
-		glFramebufferRenderbuffer					(),
-		glGetFramebufferAttachmentParameteriv		(),
-		glGenerateMipmap							(),
-		glBlitFramebuffer							(),
-		glRenderbufferStorageMultisample			(),
-		glFramebufferTextureLayer					(),
-		glMapBufferRange							(),
-		glFlushMappedBufferRange					(),
-		glBindVertexArray							(),
-		glDeleteVertexArrays						(),
-		glGenVertexArrays							(),
-		glIsVertexArray								()
-	{
-	}
 	Interface_3_0::Interface_3_0(
 		const PFNGLCOLORMASKIPROC&										glColorMaski_,
 		const PFNGLGETBOOLEANI_VPROC&									glGetBooleani_v_,
@@ -2207,2330 +1885,53 @@ namespace OpenGL
 		public Context_1_0,
 		public virtual Interface_1_2
 	{
-	protected:
-		inline explicit Context_1_2(const EmptyTag&);
-		inline Context_1_2(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
-		);
 	};
 	class Context_1_3:
 		public Context_1_2,
 		public virtual Interface_1_3
 	{
-	protected:
-		inline Context_1_3(const EmptyTag&);
-		inline Context_1_3(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-			// Version 1.3
-			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-			const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-			const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-			const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-			const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-			const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-			const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-			const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-			const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-			const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-			const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-			const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-			const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-			const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-			const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-			const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-			const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-			const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-			const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-			const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-			const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-			const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-			const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-			const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-			const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-			const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-			const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-			const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-			const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-			const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-			const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-			const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-			const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-			const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-			const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-			const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-			const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-			const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-			const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-			const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-			const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_
-		);
 	};
 	class Context_1_4:
 		public Context_1_3,
 		public virtual Interface_1_4
 	{
-	protected:
-		inline Context_1_4(const EmptyTag&);
-		inline Context_1_4(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-			// Version 1.3
-			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-			const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-			const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-			const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-			const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-			const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-			const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-			const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-			const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-			const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-			const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-			const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-			const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-			const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-			const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-			const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-			const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-			const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-			const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-			const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-			const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-			const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-			const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-			const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-			const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-			const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-			const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-			const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-			const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-			const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-			const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-			const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-			const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-			const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-			const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-			const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-			const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-			const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-			const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-			const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-			const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-			// Version 1.4
-			const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-			const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-			const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-			const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-			const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-			const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-			const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-			const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-			const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-			const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-			const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-			const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-			const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-			const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-			const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-			const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-			const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-			const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-			const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-			const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-			const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-			const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-			const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-			const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-			const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-			const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-			const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-			const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-			const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-			const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-			const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-			const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-			const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-			const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-			const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-			const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-			const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-			const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-			const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-			const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-			const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-			const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-			const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-			const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-			const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-			const PFNGLBLENDCOLORPROC&				glBlendColor_,
-			const PFNGLBLENDEQUATIONPROC&			glBlendEquation_
-		);
 	};
 	class Context_1_5:
 		public Context_1_4,
 		public virtual Interface_1_5
 	{
-	protected:
-		inline Context_1_5(const EmptyTag&);
-		inline Context_1_5(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-			// Version 1.3
-			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-			const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-			const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-			const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-			const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-			const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-			const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-			const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-			const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-			const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-			const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-			const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-			const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-			const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-			const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-			const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-			const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-			const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-			const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-			const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-			const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-			const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-			const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-			const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-			const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-			const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-			const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-			const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-			const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-			const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-			const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-			const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-			const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-			const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-			const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-			const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-			const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-			const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-			const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-			const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-			const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-			// Version 1.4
-			const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-			const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-			const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-			const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-			const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-			const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-			const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-			const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-			const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-			const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-			const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-			const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-			const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-			const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-			const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-			const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-			const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-			const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-			const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-			const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-			const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-			const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-			const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-			const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-			const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-			const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-			const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-			const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-			const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-			const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-			const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-			const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-			const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-			const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-			const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-			const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-			const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-			const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-			const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-			const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-			const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-			const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-			const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-			const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-			const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-			const PFNGLBLENDCOLORPROC&				glBlendColor_,
-			const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-			// Version 1.5
-			const PFNGLGENQUERIESPROC				glGenQueries_,
-			const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-			const PFNGLISQUERYPROC					glIsQuery_,
-			const PFNGLBEGINQUERYPROC				glBeginQuery_,
-			const PFNGLENDQUERYPROC					glEndQuery_,
-			const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-			const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-			const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-			const PFNGLBINDBUFFERPROC				glBindBuffer_,
-			const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-			const PFNGLGENBUFFERSPROC				glGenBuffers_,
-			const PFNGLISBUFFERPROC					glIsBuffer_,
-			const PFNGLBUFFERDATAPROC				glBufferData_,
-			const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-			const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-			const PFNGLMAPBUFFERPROC				glMapBuffer_,
-			const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-			const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-			const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_
-		);
 	};
 	class Context_2_0:
 		public Context_1_5,
 		public virtual Interface_2_0
 	{
-	protected:
-		inline Context_2_0(const EmptyTag&);
-		inline Context_2_0(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-			// Version 1.3
-			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-			const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-			const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-			const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-			const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-			const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-			const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-			const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-			const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-			const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-			const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-			const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-			const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-			const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-			const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-			const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-			const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-			const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-			const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-			const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-			const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-			const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-			const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-			const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-			const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-			const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-			const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-			const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-			const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-			const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-			const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-			const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-			const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-			const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-			const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-			const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-			const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-			const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-			const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-			const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-			const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-			// Version 1.4
-			const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-			const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-			const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-			const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-			const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-			const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-			const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-			const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-			const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-			const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-			const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-			const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-			const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-			const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-			const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-			const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-			const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-			const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-			const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-			const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-			const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-			const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-			const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-			const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-			const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-			const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-			const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-			const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-			const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-			const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-			const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-			const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-			const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-			const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-			const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-			const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-			const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-			const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-			const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-			const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-			const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-			const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-			const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-			const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-			const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-			const PFNGLBLENDCOLORPROC&				glBlendColor_,
-			const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-			// Version 1.5
-			const PFNGLGENQUERIESPROC				glGenQueries_,
-			const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-			const PFNGLISQUERYPROC					glIsQuery_,
-			const PFNGLBEGINQUERYPROC				glBeginQuery_,
-			const PFNGLENDQUERYPROC					glEndQuery_,
-			const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-			const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-			const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-			const PFNGLBINDBUFFERPROC				glBindBuffer_,
-			const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-			const PFNGLGENBUFFERSPROC				glGenBuffers_,
-			const PFNGLISBUFFERPROC					glIsBuffer_,
-			const PFNGLBUFFERDATAPROC				glBufferData_,
-			const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-			const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-			const PFNGLMAPBUFFERPROC				glMapBuffer_,
-			const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-			const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-			const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_,
-			// Version 2.0
-			const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
-			const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
-			const PFNGLSTENCILOPSEPARATEPROC&				glStencilOpSeparate_,
-			const PFNGLSTENCILFUNCSEPARATEPROC&				glStencilFuncSeparate_,
-			const PFNGLSTENCILMASKSEPARATEPROC&				glStencilMaskSeparate_,
-			const PFNGLATTACHSHADERPROC&					glAttachShader_,
-			const PFNGLBINDATTRIBLOCATIONPROC&				glBindAttribLocation_,
-			const PFNGLCOMPILESHADERPROC&					glCompileShader_,
-			const PFNGLCREATEPROGRAMPROC&					glCreateProgram_,
-			const PFNGLCREATESHADERPROC&					glCreateShader_,
-			const PFNGLDELETEPROGRAMPROC&					glDeleteProgram_,
-			const PFNGLDELETESHADERPROC&					glDeleteShader_,
-			const PFNGLDETACHSHADERPROC&					glDetachShader_,
-			const PFNGLDISABLEVERTEXATTRIBARRAYPROC&		glDisableVertexAttribArray_,
-			const PFNGLENABLEVERTEXATTRIBARRAYPROC&			glEnableVertexAttribArray_,
-			const PFNGLGETACTIVEATTRIBPROC&					glGetActiveAttrib_,
-			const PFNGLGETACTIVEUNIFORMPROC&				glGetActiveUniform_,
-			const PFNGLGETATTACHEDSHADERSPROC&				glGetAttachedShaders_,
-			const PFNGLGETATTRIBLOCATIONPROC&				glGetAttribLocation_,
-			const PFNGLGETPROGRAMIVPROC&					glGetProgramiv_,
-			const PFNGLGETPROGRAMINFOLOGPROC&				glGetProgramInfoLog_,
-			const PFNGLGETSHADERIVPROC&						glGetShaderiv_,
-			const PFNGLGETSHADERINFOLOGPROC&				glGetShaderInfoLog_,
-			const PFNGLGETSHADERSOURCEPROC&					glGetShaderSource_,
-			const PFNGLGETUNIFORMLOCATIONPROC&				glGetUniformLocation_,
-			const PFNGLGETUNIFORMFVPROC&					glGetUniformfv_,
-			const PFNGLGETUNIFORMIVPROC&					glGetUniformiv_,
-			const PFNGLGETVERTEXATTRIBDVPROC&				glGetVertexAttribdv_,
-			const PFNGLGETVERTEXATTRIBFVPROC&				glGetVertexAttribfv_,
-			const PFNGLGETVERTEXATTRIBIVPROC&				glGetVertexAttribiv_,
-			const PFNGLGETVERTEXATTRIBPOINTERVPROC&			glGetVertexAttribPointerv_,
-			const PFNGLISPROGRAMPROC&						glIsProgram_,
-			const PFNGLISSHADERPROC&						glIsShader_,
-			const PFNGLLINKPROGRAMPROC&						glLinkProgram_,
-			const PFNGLSHADERSOURCEPROC&					glShaderSource_,
-			const PFNGLUSEPROGRAMPROC&						glUseProgram_,
-			const PFNGLUNIFORM1FPROC&						glUniform1f_,
-			const PFNGLUNIFORM2FPROC&						glUniform2f_,
-			const PFNGLUNIFORM3FPROC&						glUniform3f_,
-			const PFNGLUNIFORM4FPROC&						glUniform4f_,
-			const PFNGLUNIFORM1IPROC&						glUniform1i_,
-			const PFNGLUNIFORM2IPROC&						glUniform2i_,
-			const PFNGLUNIFORM3IPROC&						glUniform3i_,
-			const PFNGLUNIFORM4IPROC&						glUniform4i_,
-			const PFNGLUNIFORM1FVPROC&						glUniform1fv_,
-			const PFNGLUNIFORM2FVPROC&						glUniform2fv_,
-			const PFNGLUNIFORM3FVPROC&						glUniform3fv_,
-			const PFNGLUNIFORM4FVPROC&						glUniform4fv_,
-			const PFNGLUNIFORM1IVPROC&						glUniform1iv_,
-			const PFNGLUNIFORM2IVPROC&						glUniform2iv_,
-			const PFNGLUNIFORM3IVPROC&						glUniform3iv_,
-			const PFNGLUNIFORM4IVPROC&						glUniform4iv_,
-			const PFNGLUNIFORMMATRIX2FVPROC&				glUniformMatrix2fv_,
-			const PFNGLUNIFORMMATRIX3FVPROC&				glUniformMatrix3fv_,
-			const PFNGLUNIFORMMATRIX4FVPROC&				glUniformMatrix4fv_,
-			const PFNGLVALIDATEPROGRAMPROC&					glValidateProgram_,
-			const PFNGLVERTEXATTRIB1DPROC&					glVertexAttrib1d_,
-			const PFNGLVERTEXATTRIB1DVPROC&					glVertexAttrib1dv_,
-			const PFNGLVERTEXATTRIB1FPROC&					glVertexAttrib1f_,
-			const PFNGLVERTEXATTRIB1FVPROC&					glVertexAttrib1fv_,
-			const PFNGLVERTEXATTRIB1SPROC&					glVertexAttrib1s_,
-			const PFNGLVERTEXATTRIB1SVPROC&					glVertexAttrib1sv_,
-			const PFNGLVERTEXATTRIB2DPROC&					glVertexAttrib2d_,
-			const PFNGLVERTEXATTRIB2DVPROC&					glVertexAttrib2dv_,
-			const PFNGLVERTEXATTRIB2FPROC&					glVertexAttrib2f_,
-			const PFNGLVERTEXATTRIB2FVPROC&					glVertexAttrib2fv_,
-			const PFNGLVERTEXATTRIB2SPROC&					glVertexAttrib2s_,
-			const PFNGLVERTEXATTRIB2SVPROC&					glVertexAttrib2sv_,
-			const PFNGLVERTEXATTRIB3DPROC&					glVertexAttrib3d_,
-			const PFNGLVERTEXATTRIB3DVPROC&					glVertexAttrib3dv_,
-			const PFNGLVERTEXATTRIB3FPROC&					glVertexAttrib3f_,
-			const PFNGLVERTEXATTRIB3FVPROC&					glVertexAttrib3fv_,
-			const PFNGLVERTEXATTRIB3SPROC&					glVertexAttrib3s_,
-			const PFNGLVERTEXATTRIB3SVPROC&					glVertexAttrib3sv_,
-			const PFNGLVERTEXATTRIB4NBVPROC&				glVertexAttrib4Nbv_,
-			const PFNGLVERTEXATTRIB4NIVPROC&				glVertexAttrib4Niv_,
-			const PFNGLVERTEXATTRIB4NSVPROC&				glVertexAttrib4Nsv_,
-			const PFNGLVERTEXATTRIB4NUBPROC&				glVertexAttrib4Nub_,
-			const PFNGLVERTEXATTRIB4NUBVPROC&				glVertexAttrib4Nubv_,
-			const PFNGLVERTEXATTRIB4NUIVPROC&				glVertexAttrib4Nuiv_,
-			const PFNGLVERTEXATTRIB4NUSVPROC&				glVertexAttrib4Nusv_,
-			const PFNGLVERTEXATTRIB4BVPROC&					glVertexAttrib4bv_,
-			const PFNGLVERTEXATTRIB4DPROC&					glVertexAttrib4d_,
-			const PFNGLVERTEXATTRIB4DVPROC&					glVertexAttrib4dv_,
-			const PFNGLVERTEXATTRIB4FPROC&					glVertexAttrib4f_,
-			const PFNGLVERTEXATTRIB4FVPROC&					glVertexAttrib4fv_,
-			const PFNGLVERTEXATTRIB4IVPROC&					glVertexAttrib4iv_,
-			const PFNGLVERTEXATTRIB4SPROC&					glVertexAttrib4s_,
-			const PFNGLVERTEXATTRIB4SVPROC&					glVertexAttrib4sv_,
-			const PFNGLVERTEXATTRIB4UBVPROC&				glVertexAttrib4ubv_,
-			const PFNGLVERTEXATTRIB4UIVPROC&				glVertexAttrib4uiv_,
-			const PFNGLVERTEXATTRIB4USVPROC&				glVertexAttrib4usv_,
-			const PFNGLVERTEXATTRIBPOINTERPROC&				glVertexAttribPointer_
-		);
 	};
 	class Context_2_1:
 		public Context_2_0,
 		public virtual Interface_2_1
 	{
-	protected:
-		inline Context_2_1(const EmptyTag&);
-		inline Context_2_1(
-			// Version 1.2
-			const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-			const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-			const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-			const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-			// Version 1.3
-			const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-			const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-			const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-			const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-			const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-			const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-			const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-			const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-			const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-			const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-			const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-			const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-			const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-			const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-			const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-			const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-			const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-			const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-			const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-			const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-			const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-			const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-			const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-			const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-			const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-			const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-			const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-			const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-			const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-			const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-			const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-			const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-			const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-			const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-			const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-			const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-			const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-			const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-			const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-			const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-			const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-			const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-			const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-			const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-			// Version 1.4
-			const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-			const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-			const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-			const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-			const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-			const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-			const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-			const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-			const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-			const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-			const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-			const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-			const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-			const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-			const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-			const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-			const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-			const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-			const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-			const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-			const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-			const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-			const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-			const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-			const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-			const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-			const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-			const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-			const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-			const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-			const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-			const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-			const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-			const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-			const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-			const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-			const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-			const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-			const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-			const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-			const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-			const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-			const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-			const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-			const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-			const PFNGLBLENDCOLORPROC&				glBlendColor_,
-			const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-			// Version 1.5
-			const PFNGLGENQUERIESPROC				glGenQueries_,
-			const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-			const PFNGLISQUERYPROC					glIsQuery_,
-			const PFNGLBEGINQUERYPROC				glBeginQuery_,
-			const PFNGLENDQUERYPROC					glEndQuery_,
-			const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-			const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-			const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-			const PFNGLBINDBUFFERPROC				glBindBuffer_,
-			const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-			const PFNGLGENBUFFERSPROC				glGenBuffers_,
-			const PFNGLISBUFFERPROC					glIsBuffer_,
-			const PFNGLBUFFERDATAPROC				glBufferData_,
-			const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-			const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-			const PFNGLMAPBUFFERPROC				glMapBuffer_,
-			const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-			const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-			const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_,
-			// Version 2.0
-			const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
-			const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
-			const PFNGLSTENCILOPSEPARATEPROC&				glStencilOpSeparate_,
-			const PFNGLSTENCILFUNCSEPARATEPROC&				glStencilFuncSeparate_,
-			const PFNGLSTENCILMASKSEPARATEPROC&				glStencilMaskSeparate_,
-			const PFNGLATTACHSHADERPROC&					glAttachShader_,
-			const PFNGLBINDATTRIBLOCATIONPROC&				glBindAttribLocation_,
-			const PFNGLCOMPILESHADERPROC&					glCompileShader_,
-			const PFNGLCREATEPROGRAMPROC&					glCreateProgram_,
-			const PFNGLCREATESHADERPROC&					glCreateShader_,
-			const PFNGLDELETEPROGRAMPROC&					glDeleteProgram_,
-			const PFNGLDELETESHADERPROC&					glDeleteShader_,
-			const PFNGLDETACHSHADERPROC&					glDetachShader_,
-			const PFNGLDISABLEVERTEXATTRIBARRAYPROC&		glDisableVertexAttribArray_,
-			const PFNGLENABLEVERTEXATTRIBARRAYPROC&			glEnableVertexAttribArray_,
-			const PFNGLGETACTIVEATTRIBPROC&					glGetActiveAttrib_,
-			const PFNGLGETACTIVEUNIFORMPROC&				glGetActiveUniform_,
-			const PFNGLGETATTACHEDSHADERSPROC&				glGetAttachedShaders_,
-			const PFNGLGETATTRIBLOCATIONPROC&				glGetAttribLocation_,
-			const PFNGLGETPROGRAMIVPROC&					glGetProgramiv_,
-			const PFNGLGETPROGRAMINFOLOGPROC&				glGetProgramInfoLog_,
-			const PFNGLGETSHADERIVPROC&						glGetShaderiv_,
-			const PFNGLGETSHADERINFOLOGPROC&				glGetShaderInfoLog_,
-			const PFNGLGETSHADERSOURCEPROC&					glGetShaderSource_,
-			const PFNGLGETUNIFORMLOCATIONPROC&				glGetUniformLocation_,
-			const PFNGLGETUNIFORMFVPROC&					glGetUniformfv_,
-			const PFNGLGETUNIFORMIVPROC&					glGetUniformiv_,
-			const PFNGLGETVERTEXATTRIBDVPROC&				glGetVertexAttribdv_,
-			const PFNGLGETVERTEXATTRIBFVPROC&				glGetVertexAttribfv_,
-			const PFNGLGETVERTEXATTRIBIVPROC&				glGetVertexAttribiv_,
-			const PFNGLGETVERTEXATTRIBPOINTERVPROC&			glGetVertexAttribPointerv_,
-			const PFNGLISPROGRAMPROC&						glIsProgram_,
-			const PFNGLISSHADERPROC&						glIsShader_,
-			const PFNGLLINKPROGRAMPROC&						glLinkProgram_,
-			const PFNGLSHADERSOURCEPROC&					glShaderSource_,
-			const PFNGLUSEPROGRAMPROC&						glUseProgram_,
-			const PFNGLUNIFORM1FPROC&						glUniform1f_,
-			const PFNGLUNIFORM2FPROC&						glUniform2f_,
-			const PFNGLUNIFORM3FPROC&						glUniform3f_,
-			const PFNGLUNIFORM4FPROC&						glUniform4f_,
-			const PFNGLUNIFORM1IPROC&						glUniform1i_,
-			const PFNGLUNIFORM2IPROC&						glUniform2i_,
-			const PFNGLUNIFORM3IPROC&						glUniform3i_,
-			const PFNGLUNIFORM4IPROC&						glUniform4i_,
-			const PFNGLUNIFORM1FVPROC&						glUniform1fv_,
-			const PFNGLUNIFORM2FVPROC&						glUniform2fv_,
-			const PFNGLUNIFORM3FVPROC&						glUniform3fv_,
-			const PFNGLUNIFORM4FVPROC&						glUniform4fv_,
-			const PFNGLUNIFORM1IVPROC&						glUniform1iv_,
-			const PFNGLUNIFORM2IVPROC&						glUniform2iv_,
-			const PFNGLUNIFORM3IVPROC&						glUniform3iv_,
-			const PFNGLUNIFORM4IVPROC&						glUniform4iv_,
-			const PFNGLUNIFORMMATRIX2FVPROC&				glUniformMatrix2fv_,
-			const PFNGLUNIFORMMATRIX3FVPROC&				glUniformMatrix3fv_,
-			const PFNGLUNIFORMMATRIX4FVPROC&				glUniformMatrix4fv_,
-			const PFNGLVALIDATEPROGRAMPROC&					glValidateProgram_,
-			const PFNGLVERTEXATTRIB1DPROC&					glVertexAttrib1d_,
-			const PFNGLVERTEXATTRIB1DVPROC&					glVertexAttrib1dv_,
-			const PFNGLVERTEXATTRIB1FPROC&					glVertexAttrib1f_,
-			const PFNGLVERTEXATTRIB1FVPROC&					glVertexAttrib1fv_,
-			const PFNGLVERTEXATTRIB1SPROC&					glVertexAttrib1s_,
-			const PFNGLVERTEXATTRIB1SVPROC&					glVertexAttrib1sv_,
-			const PFNGLVERTEXATTRIB2DPROC&					glVertexAttrib2d_,
-			const PFNGLVERTEXATTRIB2DVPROC&					glVertexAttrib2dv_,
-			const PFNGLVERTEXATTRIB2FPROC&					glVertexAttrib2f_,
-			const PFNGLVERTEXATTRIB2FVPROC&					glVertexAttrib2fv_,
-			const PFNGLVERTEXATTRIB2SPROC&					glVertexAttrib2s_,
-			const PFNGLVERTEXATTRIB2SVPROC&					glVertexAttrib2sv_,
-			const PFNGLVERTEXATTRIB3DPROC&					glVertexAttrib3d_,
-			const PFNGLVERTEXATTRIB3DVPROC&					glVertexAttrib3dv_,
-			const PFNGLVERTEXATTRIB3FPROC&					glVertexAttrib3f_,
-			const PFNGLVERTEXATTRIB3FVPROC&					glVertexAttrib3fv_,
-			const PFNGLVERTEXATTRIB3SPROC&					glVertexAttrib3s_,
-			const PFNGLVERTEXATTRIB3SVPROC&					glVertexAttrib3sv_,
-			const PFNGLVERTEXATTRIB4NBVPROC&				glVertexAttrib4Nbv_,
-			const PFNGLVERTEXATTRIB4NIVPROC&				glVertexAttrib4Niv_,
-			const PFNGLVERTEXATTRIB4NSVPROC&				glVertexAttrib4Nsv_,
-			const PFNGLVERTEXATTRIB4NUBPROC&				glVertexAttrib4Nub_,
-			const PFNGLVERTEXATTRIB4NUBVPROC&				glVertexAttrib4Nubv_,
-			const PFNGLVERTEXATTRIB4NUIVPROC&				glVertexAttrib4Nuiv_,
-			const PFNGLVERTEXATTRIB4NUSVPROC&				glVertexAttrib4Nusv_,
-			const PFNGLVERTEXATTRIB4BVPROC&					glVertexAttrib4bv_,
-			const PFNGLVERTEXATTRIB4DPROC&					glVertexAttrib4d_,
-			const PFNGLVERTEXATTRIB4DVPROC&					glVertexAttrib4dv_,
-			const PFNGLVERTEXATTRIB4FPROC&					glVertexAttrib4f_,
-			const PFNGLVERTEXATTRIB4FVPROC&					glVertexAttrib4fv_,
-			const PFNGLVERTEXATTRIB4IVPROC&					glVertexAttrib4iv_,
-			const PFNGLVERTEXATTRIB4SPROC&					glVertexAttrib4s_,
-			const PFNGLVERTEXATTRIB4SVPROC&					glVertexAttrib4sv_,
-			const PFNGLVERTEXATTRIB4UBVPROC&				glVertexAttrib4ubv_,
-			const PFNGLVERTEXATTRIB4UIVPROC&				glVertexAttrib4uiv_,
-			const PFNGLVERTEXATTRIB4USVPROC&				glVertexAttrib4usv_,
-			const PFNGLVERTEXATTRIBPOINTERPROC&				glVertexAttribPointer_,
-			// Version 2.1
-			const PFNGLUNIFORMMATRIX2X3FVPROC&	glUniformMatrix2x3fv_,
-			const PFNGLUNIFORMMATRIX3X2FVPROC&	glUniformMatrix3x2fv_,
-			const PFNGLUNIFORMMATRIX2X4FVPROC&	glUniformMatrix2x4fv_,
-			const PFNGLUNIFORMMATRIX4X2FVPROC&	glUniformMatrix4x2fv_,
-			const PFNGLUNIFORMMATRIX3X4FVPROC&	glUniformMatrix3x4fv_,
-			const PFNGLUNIFORMMATRIX4X3FVPROC&	glUniformMatrix4x3fv_
-		);
 	};
 	class Context_3_0:
 		public Context_2_1,
 		public virtual Interface_3_0
 	{
-	protected:
-		inline Context_3_0(const EmptyTag&);
 	};
 
 #pragma region Context_1_0
 #pragma endregion
 #pragma region Context_1_2
-	Context_1_2::Context_1_2(const EmptyTag&):
-		Context_1_0(),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag())
-	{
-	}
-	Context_1_2::Context_1_2(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&	glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&			glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&		glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&	glCopyTexSubImage3D_
-	):
-		Context_1_0(),
-		Interface_1_0(),
-		Interface_1_2(
-			glDrawRangeElements_	,
-			glTexImage3D_			,
-			glTexSubImage3D_		,
-			glCopyTexSubImage3D_	
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_1_3
-	Context_1_3::Context_1_3(const EmptyTag&):
-		Context_1_2(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag())
-	{
-	}
-	Context_1_3::Context_1_3(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-		// Version 1.3
-		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-		const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-		const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-		const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-		const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-		const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-		const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-		const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-		const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-		const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-		const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-		const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-		const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-		const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-		const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-		const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-		const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-		const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-		const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-		const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-		const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-		const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-		const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-		const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-		const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-		const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-		const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-		const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-		const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-		const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-		const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-		const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-		const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-		const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-		const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-		const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-		const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-		const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_
-	):
-		Context_1_2(EmptyTag()),
-		Interface_1_2(
-			glDrawRangeElements_,
-			glTexImage3D_,
-			glTexSubImage3D_,
-			glCopyTexSubImage3D_
-		),
-		Interface_1_3(
-			glActiveTexture_,
-			glSampleCoverage_,
-			glCompressedTexImage3D_,
-			glCompressedTexImage2D_,
-			glCompressedTexImage1D_,
-			glCompressedTexSubImage3D_,
-			glCompressedTexSubImage2D_,
-			glCompressedTexSubImage1D_,
-			glGetCompressedTexImage_,
-			glClientActiveTexture_,
-			glMultiTexCoord1d_,
-			glMultiTexCoord1dv_,
-			glMultiTexCoord1f_,
-			glMultiTexCoord1fv_,
-			glMultiTexCoord1i_,
-			glMultiTexCoord1iv_,
-			glMultiTexCoord1s_,
-			glMultiTexCoord1sv_,
-			glMultiTexCoord2d_,
-			glMultiTexCoord2dv_,
-			glMultiTexCoord2f_,
-			glMultiTexCoord2fv_,
-			glMultiTexCoord2i_,
-			glMultiTexCoord2iv_,
-			glMultiTexCoord2s_,
-			glMultiTexCoord2sv_,
-			glMultiTexCoord3d_,
-			glMultiTexCoord3dv_,
-			glMultiTexCoord3f_,
-			glMultiTexCoord3fv_,
-			glMultiTexCoord3i_,
-			glMultiTexCoord3iv_,
-			glMultiTexCoord3s_,
-			glMultiTexCoord3sv_,
-			glMultiTexCoord4d_,
-			glMultiTexCoord4dv_,
-			glMultiTexCoord4f_,
-			glMultiTexCoord4fv_,
-			glMultiTexCoord4i_,
-			glMultiTexCoord4iv_,
-			glMultiTexCoord4s_,
-			glMultiTexCoord4sv_,
-			glLoadTransposeMatrixf_,
-			glLoadTransposeMatrixd_,
-			glMultTransposeMatrixf_,
-			glMultTransposeMatrixd_
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_1_4
-	Context_1_4::Context_1_4(const EmptyTag&):
-		Context_1_3(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag()),
-		Interface_1_4(EmptyTag())
-	{
-	}
-	Context_1_4::Context_1_4(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-		// Version 1.3
-		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-		const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-		const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-		const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-		const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-		const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-		const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-		const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-		const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-		const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-		const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-		const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-		const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-		const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-		const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-		const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-		const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-		const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-		const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-		const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-		const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-		const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-		const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-		const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-		const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-		const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-		const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-		const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-		const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-		const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-		const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-		const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-		const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-		const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-		const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-		const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-		const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-		const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-		// Version 1.4
-		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-		const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-		const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-		const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-		const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-		const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-		const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-		const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-		const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-		const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-		const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-		const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-		const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-		const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-		const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-		const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-		const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-		const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-		const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-		const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-		const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-		const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-		const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-		const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-		const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-		const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-		const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-		const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-		const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-		const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-		const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-		const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-		const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-		const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-		const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-		const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-		const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-		const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-		const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-		const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-		const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-		const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-		const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-		const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-		const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-		const PFNGLBLENDCOLORPROC&				glBlendColor_,
-		const PFNGLBLENDEQUATIONPROC&			glBlendEquation_
-	):
-		Context_1_3(EmptyTag()),
-		Interface_1_2(
-			glDrawRangeElements_,
-			glTexImage3D_,
-			glTexSubImage3D_,
-			glCopyTexSubImage3D_
-		),
-		Interface_1_3(
-			glActiveTexture_,
-			glSampleCoverage_,
-			glCompressedTexImage3D_,
-			glCompressedTexImage2D_,
-			glCompressedTexImage1D_,
-			glCompressedTexSubImage3D_,
-			glCompressedTexSubImage2D_,
-			glCompressedTexSubImage1D_,
-			glGetCompressedTexImage_,
-			glClientActiveTexture_,
-			glMultiTexCoord1d_,
-			glMultiTexCoord1dv_,
-			glMultiTexCoord1f_,
-			glMultiTexCoord1fv_,
-			glMultiTexCoord1i_,
-			glMultiTexCoord1iv_,
-			glMultiTexCoord1s_,
-			glMultiTexCoord1sv_,
-			glMultiTexCoord2d_,
-			glMultiTexCoord2dv_,
-			glMultiTexCoord2f_,
-			glMultiTexCoord2fv_,
-			glMultiTexCoord2i_,
-			glMultiTexCoord2iv_,
-			glMultiTexCoord2s_,
-			glMultiTexCoord2sv_,
-			glMultiTexCoord3d_,
-			glMultiTexCoord3dv_,
-			glMultiTexCoord3f_,
-			glMultiTexCoord3fv_,
-			glMultiTexCoord3i_,
-			glMultiTexCoord3iv_,
-			glMultiTexCoord3s_,
-			glMultiTexCoord3sv_,
-			glMultiTexCoord4d_,
-			glMultiTexCoord4dv_,
-			glMultiTexCoord4f_,
-			glMultiTexCoord4fv_,
-			glMultiTexCoord4i_,
-			glMultiTexCoord4iv_,
-			glMultiTexCoord4s_,
-			glMultiTexCoord4sv_,
-			glLoadTransposeMatrixf_,
-			glLoadTransposeMatrixd_,
-			glMultTransposeMatrixf_,
-			glMultTransposeMatrixd_
-		),
-		Interface_1_4(
-			glBlendFuncSeparate_,
-			glMultiDrawArrays_,
-			glMultiDrawElements_,
-			glPointParameterf_,
-			glPointParameterfv_,
-			glPointParameteri_,
-			glPointParameteriv_,
-			glFogCoordf_,
-			glFogCoordfv_,
-			glFogCoordd_,
-			glFogCoorddv_,
-			glFogCoordPointer_,
-			glSecondaryColor3b_,
-			glSecondaryColor3bv_,
-			glSecondaryColor3d_,
-			glSecondaryColor3dv_,
-			glSecondaryColor3f_,
-			glSecondaryColor3fv_,
-			glSecondaryColor3i_,
-			glSecondaryColor3iv_,
-			glSecondaryColor3s_,
-			glSecondaryColor3sv_,
-			glSecondaryColor3ub_,
-			glSecondaryColor3ubv_,
-			glSecondaryColor3ui_,
-			glSecondaryColor3uiv_,
-			glSecondaryColor3us_,
-			glSecondaryColor3usv_,
-			glSecondaryColorPointer_,
-			glWindowPos2d_,
-			glWindowPos2dv_,
-			glWindowPos2f_,
-			glWindowPos2fv_,
-			glWindowPos2i_,
-			glWindowPos2iv_,
-			glWindowPos2s_,
-			glWindowPos2sv_,
-			glWindowPos3d_,
-			glWindowPos3dv_,
-			glWindowPos3f_,
-			glWindowPos3fv_,
-			glWindowPos3i_,
-			glWindowPos3iv_,
-			glWindowPos3s_,
-			glWindowPos3sv_,
-			glBlendColor_,
-			glBlendEquation_
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_1_5
-	Context_1_5::Context_1_5(const EmptyTag&):
-		Context_1_4(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag()),
-		Interface_1_4(EmptyTag()),
-		Interface_1_5(EmptyTag())
-	{
-	}
-	Context_1_5::Context_1_5(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-		// Version 1.3
-		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-		const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-		const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-		const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-		const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-		const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-		const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-		const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-		const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-		const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-		const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-		const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-		const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-		const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-		const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-		const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-		const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-		const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-		const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-		const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-		const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-		const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-		const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-		const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-		const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-		const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-		const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-		const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-		const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-		const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-		const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-		const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-		const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-		const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-		const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-		const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-		const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-		const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-		// Version 1.4
-		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-		const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-		const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-		const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-		const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-		const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-		const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-		const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-		const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-		const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-		const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-		const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-		const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-		const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-		const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-		const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-		const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-		const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-		const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-		const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-		const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-		const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-		const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-		const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-		const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-		const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-		const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-		const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-		const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-		const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-		const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-		const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-		const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-		const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-		const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-		const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-		const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-		const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-		const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-		const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-		const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-		const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-		const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-		const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-		const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-		const PFNGLBLENDCOLORPROC&				glBlendColor_,
-		const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-		// Version 1.5
-		const PFNGLGENQUERIESPROC				glGenQueries_,
-		const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-		const PFNGLISQUERYPROC					glIsQuery_,
-		const PFNGLBEGINQUERYPROC				glBeginQuery_,
-		const PFNGLENDQUERYPROC					glEndQuery_,
-		const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-		const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-		const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-		const PFNGLBINDBUFFERPROC				glBindBuffer_,
-		const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-		const PFNGLGENBUFFERSPROC				glGenBuffers_,
-		const PFNGLISBUFFERPROC					glIsBuffer_,
-		const PFNGLBUFFERDATAPROC				glBufferData_,
-		const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-		const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-		const PFNGLMAPBUFFERPROC				glMapBuffer_,
-		const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-		const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-		const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_
-	):
-		Context_1_4(EmptyTag()),
-		Interface_1_2(
-			glDrawRangeElements_,
-			glTexImage3D_,
-			glTexSubImage3D_,
-			glCopyTexSubImage3D_
-		),
-		Interface_1_3(
-			glActiveTexture_,
-			glSampleCoverage_,
-			glCompressedTexImage3D_,
-			glCompressedTexImage2D_,
-			glCompressedTexImage1D_,
-			glCompressedTexSubImage3D_,
-			glCompressedTexSubImage2D_,
-			glCompressedTexSubImage1D_,
-			glGetCompressedTexImage_,
-			glClientActiveTexture_,
-			glMultiTexCoord1d_,
-			glMultiTexCoord1dv_,
-			glMultiTexCoord1f_,
-			glMultiTexCoord1fv_,
-			glMultiTexCoord1i_,
-			glMultiTexCoord1iv_,
-			glMultiTexCoord1s_,
-			glMultiTexCoord1sv_,
-			glMultiTexCoord2d_,
-			glMultiTexCoord2dv_,
-			glMultiTexCoord2f_,
-			glMultiTexCoord2fv_,
-			glMultiTexCoord2i_,
-			glMultiTexCoord2iv_,
-			glMultiTexCoord2s_,
-			glMultiTexCoord2sv_,
-			glMultiTexCoord3d_,
-			glMultiTexCoord3dv_,
-			glMultiTexCoord3f_,
-			glMultiTexCoord3fv_,
-			glMultiTexCoord3i_,
-			glMultiTexCoord3iv_,
-			glMultiTexCoord3s_,
-			glMultiTexCoord3sv_,
-			glMultiTexCoord4d_,
-			glMultiTexCoord4dv_,
-			glMultiTexCoord4f_,
-			glMultiTexCoord4fv_,
-			glMultiTexCoord4i_,
-			glMultiTexCoord4iv_,
-			glMultiTexCoord4s_,
-			glMultiTexCoord4sv_,
-			glLoadTransposeMatrixf_,
-			glLoadTransposeMatrixd_,
-			glMultTransposeMatrixf_,
-			glMultTransposeMatrixd_
-		),
-		Interface_1_4(
-			glBlendFuncSeparate_,
-			glMultiDrawArrays_,
-			glMultiDrawElements_,
-			glPointParameterf_,
-			glPointParameterfv_,
-			glPointParameteri_,
-			glPointParameteriv_,
-			glFogCoordf_,
-			glFogCoordfv_,
-			glFogCoordd_,
-			glFogCoorddv_,
-			glFogCoordPointer_,
-			glSecondaryColor3b_,
-			glSecondaryColor3bv_,
-			glSecondaryColor3d_,
-			glSecondaryColor3dv_,
-			glSecondaryColor3f_,
-			glSecondaryColor3fv_,
-			glSecondaryColor3i_,
-			glSecondaryColor3iv_,
-			glSecondaryColor3s_,
-			glSecondaryColor3sv_,
-			glSecondaryColor3ub_,
-			glSecondaryColor3ubv_,
-			glSecondaryColor3ui_,
-			glSecondaryColor3uiv_,
-			glSecondaryColor3us_,
-			glSecondaryColor3usv_,
-			glSecondaryColorPointer_,
-			glWindowPos2d_,
-			glWindowPos2dv_,
-			glWindowPos2f_,
-			glWindowPos2fv_,
-			glWindowPos2i_,
-			glWindowPos2iv_,
-			glWindowPos2s_,
-			glWindowPos2sv_,
-			glWindowPos3d_,
-			glWindowPos3dv_,
-			glWindowPos3f_,
-			glWindowPos3fv_,
-			glWindowPos3i_,
-			glWindowPos3iv_,
-			glWindowPos3s_,
-			glWindowPos3sv_,
-			glBlendColor_,
-			glBlendEquation_
-		),
-		Interface_1_5(
-			glGenQueries_,
-			glDeleteQueries_,
-			glIsQuery_,
-			glBeginQuery_,
-			glEndQuery_,
-			glGetQueryiv_,
-			glGetQueryObjectiv_,
-			glGetQueryObjectuiv_,
-			glBindBuffer_,
-			glDeleteBuffers_,
-			glGenBuffers_,
-			glIsBuffer_,
-			glBufferData_,
-			glBufferSubData_,
-			glGetBufferSubData_,
-			glMapBuffer_,
-			glUnmapBuffer_,
-			glGetBufferParameteriv_,
-			glGetBufferPointerv_
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_2_0
-	Context_2_0::Context_2_0(const EmptyTag&):
-		Context_1_5(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag()),
-		Interface_1_4(EmptyTag()),
-		Interface_1_5(EmptyTag()),
-		Interface_2_0(EmptyTag())
-	{
-	}
-	Context_2_0::Context_2_0(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-		// Version 1.3
-		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-		const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-		const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-		const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-		const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-		const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-		const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-		const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-		const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-		const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-		const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-		const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-		const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-		const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-		const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-		const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-		const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-		const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-		const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-		const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-		const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-		const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-		const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-		const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-		const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-		const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-		const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-		const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-		const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-		const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-		const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-		const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-		const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-		const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-		const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-		const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-		const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-		const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-		// Version 1.4
-		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-		const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-		const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-		const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-		const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-		const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-		const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-		const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-		const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-		const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-		const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-		const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-		const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-		const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-		const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-		const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-		const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-		const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-		const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-		const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-		const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-		const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-		const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-		const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-		const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-		const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-		const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-		const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-		const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-		const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-		const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-		const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-		const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-		const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-		const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-		const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-		const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-		const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-		const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-		const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-		const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-		const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-		const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-		const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-		const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-		const PFNGLBLENDCOLORPROC&				glBlendColor_,
-		const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-		// Version 1.5
-		const PFNGLGENQUERIESPROC				glGenQueries_,
-		const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-		const PFNGLISQUERYPROC					glIsQuery_,
-		const PFNGLBEGINQUERYPROC				glBeginQuery_,
-		const PFNGLENDQUERYPROC					glEndQuery_,
-		const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-		const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-		const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-		const PFNGLBINDBUFFERPROC				glBindBuffer_,
-		const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-		const PFNGLGENBUFFERSPROC				glGenBuffers_,
-		const PFNGLISBUFFERPROC					glIsBuffer_,
-		const PFNGLBUFFERDATAPROC				glBufferData_,
-		const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-		const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-		const PFNGLMAPBUFFERPROC				glMapBuffer_,
-		const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-		const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-		const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_,
-		// Version 2.0
-		const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
-		const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
-		const PFNGLSTENCILOPSEPARATEPROC&				glStencilOpSeparate_,
-		const PFNGLSTENCILFUNCSEPARATEPROC&				glStencilFuncSeparate_,
-		const PFNGLSTENCILMASKSEPARATEPROC&				glStencilMaskSeparate_,
-		const PFNGLATTACHSHADERPROC&					glAttachShader_,
-		const PFNGLBINDATTRIBLOCATIONPROC&				glBindAttribLocation_,
-		const PFNGLCOMPILESHADERPROC&					glCompileShader_,
-		const PFNGLCREATEPROGRAMPROC&					glCreateProgram_,
-		const PFNGLCREATESHADERPROC&					glCreateShader_,
-		const PFNGLDELETEPROGRAMPROC&					glDeleteProgram_,
-		const PFNGLDELETESHADERPROC&					glDeleteShader_,
-		const PFNGLDETACHSHADERPROC&					glDetachShader_,
-		const PFNGLDISABLEVERTEXATTRIBARRAYPROC&		glDisableVertexAttribArray_,
-		const PFNGLENABLEVERTEXATTRIBARRAYPROC&			glEnableVertexAttribArray_,
-		const PFNGLGETACTIVEATTRIBPROC&					glGetActiveAttrib_,
-		const PFNGLGETACTIVEUNIFORMPROC&				glGetActiveUniform_,
-		const PFNGLGETATTACHEDSHADERSPROC&				glGetAttachedShaders_,
-		const PFNGLGETATTRIBLOCATIONPROC&				glGetAttribLocation_,
-		const PFNGLGETPROGRAMIVPROC&					glGetProgramiv_,
-		const PFNGLGETPROGRAMINFOLOGPROC&				glGetProgramInfoLog_,
-		const PFNGLGETSHADERIVPROC&						glGetShaderiv_,
-		const PFNGLGETSHADERINFOLOGPROC&				glGetShaderInfoLog_,
-		const PFNGLGETSHADERSOURCEPROC&					glGetShaderSource_,
-		const PFNGLGETUNIFORMLOCATIONPROC&				glGetUniformLocation_,
-		const PFNGLGETUNIFORMFVPROC&					glGetUniformfv_,
-		const PFNGLGETUNIFORMIVPROC&					glGetUniformiv_,
-		const PFNGLGETVERTEXATTRIBDVPROC&				glGetVertexAttribdv_,
-		const PFNGLGETVERTEXATTRIBFVPROC&				glGetVertexAttribfv_,
-		const PFNGLGETVERTEXATTRIBIVPROC&				glGetVertexAttribiv_,
-		const PFNGLGETVERTEXATTRIBPOINTERVPROC&			glGetVertexAttribPointerv_,
-		const PFNGLISPROGRAMPROC&						glIsProgram_,
-		const PFNGLISSHADERPROC&						glIsShader_,
-		const PFNGLLINKPROGRAMPROC&						glLinkProgram_,
-		const PFNGLSHADERSOURCEPROC&					glShaderSource_,
-		const PFNGLUSEPROGRAMPROC&						glUseProgram_,
-		const PFNGLUNIFORM1FPROC&						glUniform1f_,
-		const PFNGLUNIFORM2FPROC&						glUniform2f_,
-		const PFNGLUNIFORM3FPROC&						glUniform3f_,
-		const PFNGLUNIFORM4FPROC&						glUniform4f_,
-		const PFNGLUNIFORM1IPROC&						glUniform1i_,
-		const PFNGLUNIFORM2IPROC&						glUniform2i_,
-		const PFNGLUNIFORM3IPROC&						glUniform3i_,
-		const PFNGLUNIFORM4IPROC&						glUniform4i_,
-		const PFNGLUNIFORM1FVPROC&						glUniform1fv_,
-		const PFNGLUNIFORM2FVPROC&						glUniform2fv_,
-		const PFNGLUNIFORM3FVPROC&						glUniform3fv_,
-		const PFNGLUNIFORM4FVPROC&						glUniform4fv_,
-		const PFNGLUNIFORM1IVPROC&						glUniform1iv_,
-		const PFNGLUNIFORM2IVPROC&						glUniform2iv_,
-		const PFNGLUNIFORM3IVPROC&						glUniform3iv_,
-		const PFNGLUNIFORM4IVPROC&						glUniform4iv_,
-		const PFNGLUNIFORMMATRIX2FVPROC&				glUniformMatrix2fv_,
-		const PFNGLUNIFORMMATRIX3FVPROC&				glUniformMatrix3fv_,
-		const PFNGLUNIFORMMATRIX4FVPROC&				glUniformMatrix4fv_,
-		const PFNGLVALIDATEPROGRAMPROC&					glValidateProgram_,
-		const PFNGLVERTEXATTRIB1DPROC&					glVertexAttrib1d_,
-		const PFNGLVERTEXATTRIB1DVPROC&					glVertexAttrib1dv_,
-		const PFNGLVERTEXATTRIB1FPROC&					glVertexAttrib1f_,
-		const PFNGLVERTEXATTRIB1FVPROC&					glVertexAttrib1fv_,
-		const PFNGLVERTEXATTRIB1SPROC&					glVertexAttrib1s_,
-		const PFNGLVERTEXATTRIB1SVPROC&					glVertexAttrib1sv_,
-		const PFNGLVERTEXATTRIB2DPROC&					glVertexAttrib2d_,
-		const PFNGLVERTEXATTRIB2DVPROC&					glVertexAttrib2dv_,
-		const PFNGLVERTEXATTRIB2FPROC&					glVertexAttrib2f_,
-		const PFNGLVERTEXATTRIB2FVPROC&					glVertexAttrib2fv_,
-		const PFNGLVERTEXATTRIB2SPROC&					glVertexAttrib2s_,
-		const PFNGLVERTEXATTRIB2SVPROC&					glVertexAttrib2sv_,
-		const PFNGLVERTEXATTRIB3DPROC&					glVertexAttrib3d_,
-		const PFNGLVERTEXATTRIB3DVPROC&					glVertexAttrib3dv_,
-		const PFNGLVERTEXATTRIB3FPROC&					glVertexAttrib3f_,
-		const PFNGLVERTEXATTRIB3FVPROC&					glVertexAttrib3fv_,
-		const PFNGLVERTEXATTRIB3SPROC&					glVertexAttrib3s_,
-		const PFNGLVERTEXATTRIB3SVPROC&					glVertexAttrib3sv_,
-		const PFNGLVERTEXATTRIB4NBVPROC&				glVertexAttrib4Nbv_,
-		const PFNGLVERTEXATTRIB4NIVPROC&				glVertexAttrib4Niv_,
-		const PFNGLVERTEXATTRIB4NSVPROC&				glVertexAttrib4Nsv_,
-		const PFNGLVERTEXATTRIB4NUBPROC&				glVertexAttrib4Nub_,
-		const PFNGLVERTEXATTRIB4NUBVPROC&				glVertexAttrib4Nubv_,
-		const PFNGLVERTEXATTRIB4NUIVPROC&				glVertexAttrib4Nuiv_,
-		const PFNGLVERTEXATTRIB4NUSVPROC&				glVertexAttrib4Nusv_,
-		const PFNGLVERTEXATTRIB4BVPROC&					glVertexAttrib4bv_,
-		const PFNGLVERTEXATTRIB4DPROC&					glVertexAttrib4d_,
-		const PFNGLVERTEXATTRIB4DVPROC&					glVertexAttrib4dv_,
-		const PFNGLVERTEXATTRIB4FPROC&					glVertexAttrib4f_,
-		const PFNGLVERTEXATTRIB4FVPROC&					glVertexAttrib4fv_,
-		const PFNGLVERTEXATTRIB4IVPROC&					glVertexAttrib4iv_,
-		const PFNGLVERTEXATTRIB4SPROC&					glVertexAttrib4s_,
-		const PFNGLVERTEXATTRIB4SVPROC&					glVertexAttrib4sv_,
-		const PFNGLVERTEXATTRIB4UBVPROC&				glVertexAttrib4ubv_,
-		const PFNGLVERTEXATTRIB4UIVPROC&				glVertexAttrib4uiv_,
-		const PFNGLVERTEXATTRIB4USVPROC&				glVertexAttrib4usv_,
-		const PFNGLVERTEXATTRIBPOINTERPROC&				glVertexAttribPointer_
-	):
-		Context_1_5(EmptyTag()),
-		Interface_1_2(
-			glDrawRangeElements_,
-			glTexImage3D_,
-			glTexSubImage3D_,
-			glCopyTexSubImage3D_
-		),
-		Interface_1_3(
-			glActiveTexture_,
-			glSampleCoverage_,
-			glCompressedTexImage3D_,
-			glCompressedTexImage2D_,
-			glCompressedTexImage1D_,
-			glCompressedTexSubImage3D_,
-			glCompressedTexSubImage2D_,
-			glCompressedTexSubImage1D_,
-			glGetCompressedTexImage_,
-			glClientActiveTexture_,
-			glMultiTexCoord1d_,
-			glMultiTexCoord1dv_,
-			glMultiTexCoord1f_,
-			glMultiTexCoord1fv_,
-			glMultiTexCoord1i_,
-			glMultiTexCoord1iv_,
-			glMultiTexCoord1s_,
-			glMultiTexCoord1sv_,
-			glMultiTexCoord2d_,
-			glMultiTexCoord2dv_,
-			glMultiTexCoord2f_,
-			glMultiTexCoord2fv_,
-			glMultiTexCoord2i_,
-			glMultiTexCoord2iv_,
-			glMultiTexCoord2s_,
-			glMultiTexCoord2sv_,
-			glMultiTexCoord3d_,
-			glMultiTexCoord3dv_,
-			glMultiTexCoord3f_,
-			glMultiTexCoord3fv_,
-			glMultiTexCoord3i_,
-			glMultiTexCoord3iv_,
-			glMultiTexCoord3s_,
-			glMultiTexCoord3sv_,
-			glMultiTexCoord4d_,
-			glMultiTexCoord4dv_,
-			glMultiTexCoord4f_,
-			glMultiTexCoord4fv_,
-			glMultiTexCoord4i_,
-			glMultiTexCoord4iv_,
-			glMultiTexCoord4s_,
-			glMultiTexCoord4sv_,
-			glLoadTransposeMatrixf_,
-			glLoadTransposeMatrixd_,
-			glMultTransposeMatrixf_,
-			glMultTransposeMatrixd_
-		),
-		Interface_1_4(
-			glBlendFuncSeparate_,
-			glMultiDrawArrays_,
-			glMultiDrawElements_,
-			glPointParameterf_,
-			glPointParameterfv_,
-			glPointParameteri_,
-			glPointParameteriv_,
-			glFogCoordf_,
-			glFogCoordfv_,
-			glFogCoordd_,
-			glFogCoorddv_,
-			glFogCoordPointer_,
-			glSecondaryColor3b_,
-			glSecondaryColor3bv_,
-			glSecondaryColor3d_,
-			glSecondaryColor3dv_,
-			glSecondaryColor3f_,
-			glSecondaryColor3fv_,
-			glSecondaryColor3i_,
-			glSecondaryColor3iv_,
-			glSecondaryColor3s_,
-			glSecondaryColor3sv_,
-			glSecondaryColor3ub_,
-			glSecondaryColor3ubv_,
-			glSecondaryColor3ui_,
-			glSecondaryColor3uiv_,
-			glSecondaryColor3us_,
-			glSecondaryColor3usv_,
-			glSecondaryColorPointer_,
-			glWindowPos2d_,
-			glWindowPos2dv_,
-			glWindowPos2f_,
-			glWindowPos2fv_,
-			glWindowPos2i_,
-			glWindowPos2iv_,
-			glWindowPos2s_,
-			glWindowPos2sv_,
-			glWindowPos3d_,
-			glWindowPos3dv_,
-			glWindowPos3f_,
-			glWindowPos3fv_,
-			glWindowPos3i_,
-			glWindowPos3iv_,
-			glWindowPos3s_,
-			glWindowPos3sv_,
-			glBlendColor_,
-			glBlendEquation_
-		),
-		Interface_1_5(
-			glGenQueries_,
-			glDeleteQueries_,
-			glIsQuery_,
-			glBeginQuery_,
-			glEndQuery_,
-			glGetQueryiv_,
-			glGetQueryObjectiv_,
-			glGetQueryObjectuiv_,
-			glBindBuffer_,
-			glDeleteBuffers_,
-			glGenBuffers_,
-			glIsBuffer_,
-			glBufferData_,
-			glBufferSubData_,
-			glGetBufferSubData_,
-			glMapBuffer_,
-			glUnmapBuffer_,
-			glGetBufferParameteriv_,
-			glGetBufferPointerv_
-		),
-		Interface_2_0(
-			glBlendEquationSeparate_,
-			glDrawBuffers_,
-			glStencilOpSeparate_,
-			glStencilFuncSeparate_,
-			glStencilMaskSeparate_,
-			glAttachShader_,
-			glBindAttribLocation_,
-			glCompileShader_,
-			glCreateProgram_,
-			glCreateShader_,
-			glDeleteProgram_,
-			glDeleteShader_,
-			glDetachShader_,
-			glDisableVertexAttribArray_,
-			glEnableVertexAttribArray_,
-			glGetActiveAttrib_,
-			glGetActiveUniform_,
-			glGetAttachedShaders_,
-			glGetAttribLocation_,
-			glGetProgramiv_,
-			glGetProgramInfoLog_,
-			glGetShaderiv_,
-			glGetShaderInfoLog_,
-			glGetShaderSource_,
-			glGetUniformLocation_,
-			glGetUniformfv_,
-			glGetUniformiv_,
-			glGetVertexAttribdv_,
-			glGetVertexAttribfv_,
-			glGetVertexAttribiv_,
-			glGetVertexAttribPointerv_,
-			glIsProgram_,
-			glIsShader_,
-			glLinkProgram_,
-			glShaderSource_,
-			glUseProgram_,
-			glUniform1f_,
-			glUniform2f_,
-			glUniform3f_,
-			glUniform4f_,
-			glUniform1i_,
-			glUniform2i_,
-			glUniform3i_,
-			glUniform4i_,
-			glUniform1fv_,
-			glUniform2fv_,
-			glUniform3fv_,
-			glUniform4fv_,
-			glUniform1iv_,
-			glUniform2iv_,
-			glUniform3iv_,
-			glUniform4iv_,
-			glUniformMatrix2fv_,
-			glUniformMatrix3fv_,
-			glUniformMatrix4fv_,
-			glValidateProgram_,
-			glVertexAttrib1d_,
-			glVertexAttrib1dv_,
-			glVertexAttrib1f_,
-			glVertexAttrib1fv_,
-			glVertexAttrib1s_,
-			glVertexAttrib1sv_,
-			glVertexAttrib2d_,
-			glVertexAttrib2dv_,
-			glVertexAttrib2f_,
-			glVertexAttrib2fv_,
-			glVertexAttrib2s_,
-			glVertexAttrib2sv_,
-			glVertexAttrib3d_,
-			glVertexAttrib3dv_,
-			glVertexAttrib3f_,
-			glVertexAttrib3fv_,
-			glVertexAttrib3s_,
-			glVertexAttrib3sv_,
-			glVertexAttrib4Nbv_,
-			glVertexAttrib4Niv_,
-			glVertexAttrib4Nsv_,
-			glVertexAttrib4Nub_,
-			glVertexAttrib4Nubv_,
-			glVertexAttrib4Nuiv_,
-			glVertexAttrib4Nusv_,
-			glVertexAttrib4bv_,
-			glVertexAttrib4d_,
-			glVertexAttrib4dv_,
-			glVertexAttrib4f_,
-			glVertexAttrib4fv_,
-			glVertexAttrib4iv_,
-			glVertexAttrib4s_,
-			glVertexAttrib4sv_,
-			glVertexAttrib4ubv_,
-			glVertexAttrib4uiv_,
-			glVertexAttrib4usv_,
-			glVertexAttribPointer_
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_2_1
-	Context_2_1::Context_2_1(const EmptyTag&):
-		Context_2_0(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag()),
-		Interface_1_4(EmptyTag()),
-		Interface_1_5(EmptyTag()),
-		Interface_2_0(EmptyTag()),
-		Interface_2_1(EmptyTag())
-	{
-	}
-	Context_2_1::Context_2_1(
-		// Version 1.2
-		const PFNGLDRAWRANGEELEMENTSPROC&		glDrawRangeElements_,
-		const PFNGLTEXIMAGE3DPROC&				glTexImage3D_,
-		const PFNGLTEXSUBIMAGE3DPROC&			glTexSubImage3D_,
-		const PFNGLCOPYTEXSUBIMAGE3DPROC&		glCopyTexSubImage3D_,
-		// Version 1.3
-		const PFNGLACTIVETEXTUREPROC&			glActiveTexture_,
-		const PFNGLSAMPLECOVERAGEPROC&			glSampleCoverage_,
-		const PFNGLCOMPRESSEDTEXIMAGE3DPROC&	glCompressedTexImage3D_,
-		const PFNGLCOMPRESSEDTEXIMAGE2DPROC&	glCompressedTexImage2D_,
-		const PFNGLCOMPRESSEDTEXIMAGE1DPROC&	glCompressedTexImage1D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE3DPROC&	glCompressedTexSubImage3D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC&	glCompressedTexSubImage2D_,
-		const PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC&	glCompressedTexSubImage1D_,
-		const PFNGLGETCOMPRESSEDTEXIMAGEPROC&	glGetCompressedTexImage_,
-		const PFNGLCLIENTACTIVETEXTUREPROC&		glClientActiveTexture_,
-		const PFNGLMULTITEXCOORD1DPROC&			glMultiTexCoord1d_,
-		const PFNGLMULTITEXCOORD1DVPROC&		glMultiTexCoord1dv_,
-		const PFNGLMULTITEXCOORD1FPROC&			glMultiTexCoord1f_,
-		const PFNGLMULTITEXCOORD1FVPROC&		glMultiTexCoord1fv_,
-		const PFNGLMULTITEXCOORD1IPROC&			glMultiTexCoord1i_,
-		const PFNGLMULTITEXCOORD1IVPROC&		glMultiTexCoord1iv_,
-		const PFNGLMULTITEXCOORD1SPROC&			glMultiTexCoord1s_,
-		const PFNGLMULTITEXCOORD1SVPROC&		glMultiTexCoord1sv_,
-		const PFNGLMULTITEXCOORD2DPROC&			glMultiTexCoord2d_,
-		const PFNGLMULTITEXCOORD2DVPROC&		glMultiTexCoord2dv_,
-		const PFNGLMULTITEXCOORD2FPROC&			glMultiTexCoord2f_,
-		const PFNGLMULTITEXCOORD2FVPROC&		glMultiTexCoord2fv_,
-		const PFNGLMULTITEXCOORD2IPROC&			glMultiTexCoord2i_,
-		const PFNGLMULTITEXCOORD2IVPROC&		glMultiTexCoord2iv_,
-		const PFNGLMULTITEXCOORD2SPROC&			glMultiTexCoord2s_,
-		const PFNGLMULTITEXCOORD2SVPROC&		glMultiTexCoord2sv_,
-		const PFNGLMULTITEXCOORD3DPROC&			glMultiTexCoord3d_,
-		const PFNGLMULTITEXCOORD3DVPROC&		glMultiTexCoord3dv_,
-		const PFNGLMULTITEXCOORD3FPROC&			glMultiTexCoord3f_,
-		const PFNGLMULTITEXCOORD3FVPROC&		glMultiTexCoord3fv_,
-		const PFNGLMULTITEXCOORD3IPROC&			glMultiTexCoord3i_,
-		const PFNGLMULTITEXCOORD3IVPROC&		glMultiTexCoord3iv_,
-		const PFNGLMULTITEXCOORD3SPROC&			glMultiTexCoord3s_,
-		const PFNGLMULTITEXCOORD3SVPROC&		glMultiTexCoord3sv_,
-		const PFNGLMULTITEXCOORD4DPROC&			glMultiTexCoord4d_,
-		const PFNGLMULTITEXCOORD4DVPROC&		glMultiTexCoord4dv_,
-		const PFNGLMULTITEXCOORD4FPROC&			glMultiTexCoord4f_,
-		const PFNGLMULTITEXCOORD4FVPROC&		glMultiTexCoord4fv_,
-		const PFNGLMULTITEXCOORD4IPROC&			glMultiTexCoord4i_,
-		const PFNGLMULTITEXCOORD4IVPROC&		glMultiTexCoord4iv_,
-		const PFNGLMULTITEXCOORD4SPROC&			glMultiTexCoord4s_,
-		const PFNGLMULTITEXCOORD4SVPROC&		glMultiTexCoord4sv_,
-		const PFNGLLOADTRANSPOSEMATRIXFPROC&	glLoadTransposeMatrixf_,
-		const PFNGLLOADTRANSPOSEMATRIXDPROC&	glLoadTransposeMatrixd_,
-		const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
-		const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_,
-		// Version 1.4
-		const PFNGLBLENDFUNCSEPARATEPROC		glBlendFuncSeparate_,
-		const PFNGLMULTIDRAWARRAYSPROC&			glMultiDrawArrays_,
-		const PFNGLMULTIDRAWELEMENTSPROC&		glMultiDrawElements_,
-		const PFNGLPOINTPARAMETERFPROC&			glPointParameterf_,
-		const PFNGLPOINTPARAMETERFVPROC&		glPointParameterfv_,
-		const PFNGLPOINTPARAMETERIPROC&			glPointParameteri_,
-		const PFNGLPOINTPARAMETERIVPROC&		glPointParameteriv_,
-		const PFNGLFOGCOORDFPROC&				glFogCoordf_,
-		const PFNGLFOGCOORDFVPROC&				glFogCoordfv_,
-		const PFNGLFOGCOORDDPROC&				glFogCoordd_,
-		const PFNGLFOGCOORDDVPROC&				glFogCoorddv_,
-		const PFNGLFOGCOORDPOINTERPROC&			glFogCoordPointer_,
-		const PFNGLSECONDARYCOLOR3BPROC&		glSecondaryColor3b_,
-		const PFNGLSECONDARYCOLOR3BVPROC&		glSecondaryColor3bv_,
-		const PFNGLSECONDARYCOLOR3DPROC&		glSecondaryColor3d_,
-		const PFNGLSECONDARYCOLOR3DVPROC&		glSecondaryColor3dv_,
-		const PFNGLSECONDARYCOLOR3FPROC&		glSecondaryColor3f_,
-		const PFNGLSECONDARYCOLOR3FVPROC&		glSecondaryColor3fv_,
-		const PFNGLSECONDARYCOLOR3IPROC&		glSecondaryColor3i_,
-		const PFNGLSECONDARYCOLOR3IVPROC&		glSecondaryColor3iv_,
-		const PFNGLSECONDARYCOLOR3SPROC&		glSecondaryColor3s_,
-		const PFNGLSECONDARYCOLOR3SVPROC&		glSecondaryColor3sv_,
-		const PFNGLSECONDARYCOLOR3UBPROC&		glSecondaryColor3ub_,
-		const PFNGLSECONDARYCOLOR3UBVPROC&		glSecondaryColor3ubv_,
-		const PFNGLSECONDARYCOLOR3UIPROC&		glSecondaryColor3ui_,
-		const PFNGLSECONDARYCOLOR3UIVPROC&		glSecondaryColor3uiv_,
-		const PFNGLSECONDARYCOLOR3USPROC&		glSecondaryColor3us_,
-		const PFNGLSECONDARYCOLOR3USVPROC&		glSecondaryColor3usv_,
-		const PFNGLSECONDARYCOLORPOINTERPROC&	glSecondaryColorPointer_,
-		const PFNGLWINDOWPOS2DPROC&				glWindowPos2d_,
-		const PFNGLWINDOWPOS2DVPROC&			glWindowPos2dv_,
-		const PFNGLWINDOWPOS2FPROC&				glWindowPos2f_,
-		const PFNGLWINDOWPOS2FVPROC&			glWindowPos2fv_,
-		const PFNGLWINDOWPOS2IPROC&				glWindowPos2i_,
-		const PFNGLWINDOWPOS2IVPROC&			glWindowPos2iv_,
-		const PFNGLWINDOWPOS2SPROC&				glWindowPos2s_,
-		const PFNGLWINDOWPOS2SVPROC&			glWindowPos2sv_,
-		const PFNGLWINDOWPOS3DPROC&				glWindowPos3d_,
-		const PFNGLWINDOWPOS3DVPROC&			glWindowPos3dv_,
-		const PFNGLWINDOWPOS3FPROC&				glWindowPos3f_,
-		const PFNGLWINDOWPOS3FVPROC&			glWindowPos3fv_,
-		const PFNGLWINDOWPOS3IPROC&				glWindowPos3i_,
-		const PFNGLWINDOWPOS3IVPROC&			glWindowPos3iv_,
-		const PFNGLWINDOWPOS3SPROC&				glWindowPos3s_,
-		const PFNGLWINDOWPOS3SVPROC&			glWindowPos3sv_,
-		const PFNGLBLENDCOLORPROC&				glBlendColor_,
-		const PFNGLBLENDEQUATIONPROC&			glBlendEquation_,
-		// Version 1.5
-		const PFNGLGENQUERIESPROC				glGenQueries_,
-		const PFNGLDELETEQUERIESPROC			glDeleteQueries_,
-		const PFNGLISQUERYPROC					glIsQuery_,
-		const PFNGLBEGINQUERYPROC				glBeginQuery_,
-		const PFNGLENDQUERYPROC					glEndQuery_,
-		const PFNGLGETQUERYIVPROC				glGetQueryiv_,
-		const PFNGLGETQUERYOBJECTIVPROC			glGetQueryObjectiv_,
-		const PFNGLGETQUERYOBJECTUIVPROC		glGetQueryObjectuiv_,
-		const PFNGLBINDBUFFERPROC				glBindBuffer_,
-		const PFNGLDELETEBUFFERSPROC			glDeleteBuffers_,
-		const PFNGLGENBUFFERSPROC				glGenBuffers_,
-		const PFNGLISBUFFERPROC					glIsBuffer_,
-		const PFNGLBUFFERDATAPROC				glBufferData_,
-		const PFNGLBUFFERSUBDATAPROC			glBufferSubData_,
-		const PFNGLGETBUFFERSUBDATAPROC			glGetBufferSubData_,
-		const PFNGLMAPBUFFERPROC				glMapBuffer_,
-		const PFNGLUNMAPBUFFERPROC				glUnmapBuffer_,
-		const PFNGLGETBUFFERPARAMETERIVPROC		glGetBufferParameteriv_,
-		const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_,
-		// Version 2.0
-		const PFNGLBLENDEQUATIONSEPARATEPROC&			glBlendEquationSeparate_,
-		const PFNGLDRAWBUFFERSPROC&						glDrawBuffers_,
-		const PFNGLSTENCILOPSEPARATEPROC&				glStencilOpSeparate_,
-		const PFNGLSTENCILFUNCSEPARATEPROC&				glStencilFuncSeparate_,
-		const PFNGLSTENCILMASKSEPARATEPROC&				glStencilMaskSeparate_,
-		const PFNGLATTACHSHADERPROC&					glAttachShader_,
-		const PFNGLBINDATTRIBLOCATIONPROC&				glBindAttribLocation_,
-		const PFNGLCOMPILESHADERPROC&					glCompileShader_,
-		const PFNGLCREATEPROGRAMPROC&					glCreateProgram_,
-		const PFNGLCREATESHADERPROC&					glCreateShader_,
-		const PFNGLDELETEPROGRAMPROC&					glDeleteProgram_,
-		const PFNGLDELETESHADERPROC&					glDeleteShader_,
-		const PFNGLDETACHSHADERPROC&					glDetachShader_,
-		const PFNGLDISABLEVERTEXATTRIBARRAYPROC&		glDisableVertexAttribArray_,
-		const PFNGLENABLEVERTEXATTRIBARRAYPROC&			glEnableVertexAttribArray_,
-		const PFNGLGETACTIVEATTRIBPROC&					glGetActiveAttrib_,
-		const PFNGLGETACTIVEUNIFORMPROC&				glGetActiveUniform_,
-		const PFNGLGETATTACHEDSHADERSPROC&				glGetAttachedShaders_,
-		const PFNGLGETATTRIBLOCATIONPROC&				glGetAttribLocation_,
-		const PFNGLGETPROGRAMIVPROC&					glGetProgramiv_,
-		const PFNGLGETPROGRAMINFOLOGPROC&				glGetProgramInfoLog_,
-		const PFNGLGETSHADERIVPROC&						glGetShaderiv_,
-		const PFNGLGETSHADERINFOLOGPROC&				glGetShaderInfoLog_,
-		const PFNGLGETSHADERSOURCEPROC&					glGetShaderSource_,
-		const PFNGLGETUNIFORMLOCATIONPROC&				glGetUniformLocation_,
-		const PFNGLGETUNIFORMFVPROC&					glGetUniformfv_,
-		const PFNGLGETUNIFORMIVPROC&					glGetUniformiv_,
-		const PFNGLGETVERTEXATTRIBDVPROC&				glGetVertexAttribdv_,
-		const PFNGLGETVERTEXATTRIBFVPROC&				glGetVertexAttribfv_,
-		const PFNGLGETVERTEXATTRIBIVPROC&				glGetVertexAttribiv_,
-		const PFNGLGETVERTEXATTRIBPOINTERVPROC&			glGetVertexAttribPointerv_,
-		const PFNGLISPROGRAMPROC&						glIsProgram_,
-		const PFNGLISSHADERPROC&						glIsShader_,
-		const PFNGLLINKPROGRAMPROC&						glLinkProgram_,
-		const PFNGLSHADERSOURCEPROC&					glShaderSource_,
-		const PFNGLUSEPROGRAMPROC&						glUseProgram_,
-		const PFNGLUNIFORM1FPROC&						glUniform1f_,
-		const PFNGLUNIFORM2FPROC&						glUniform2f_,
-		const PFNGLUNIFORM3FPROC&						glUniform3f_,
-		const PFNGLUNIFORM4FPROC&						glUniform4f_,
-		const PFNGLUNIFORM1IPROC&						glUniform1i_,
-		const PFNGLUNIFORM2IPROC&						glUniform2i_,
-		const PFNGLUNIFORM3IPROC&						glUniform3i_,
-		const PFNGLUNIFORM4IPROC&						glUniform4i_,
-		const PFNGLUNIFORM1FVPROC&						glUniform1fv_,
-		const PFNGLUNIFORM2FVPROC&						glUniform2fv_,
-		const PFNGLUNIFORM3FVPROC&						glUniform3fv_,
-		const PFNGLUNIFORM4FVPROC&						glUniform4fv_,
-		const PFNGLUNIFORM1IVPROC&						glUniform1iv_,
-		const PFNGLUNIFORM2IVPROC&						glUniform2iv_,
-		const PFNGLUNIFORM3IVPROC&						glUniform3iv_,
-		const PFNGLUNIFORM4IVPROC&						glUniform4iv_,
-		const PFNGLUNIFORMMATRIX2FVPROC&				glUniformMatrix2fv_,
-		const PFNGLUNIFORMMATRIX3FVPROC&				glUniformMatrix3fv_,
-		const PFNGLUNIFORMMATRIX4FVPROC&				glUniformMatrix4fv_,
-		const PFNGLVALIDATEPROGRAMPROC&					glValidateProgram_,
-		const PFNGLVERTEXATTRIB1DPROC&					glVertexAttrib1d_,
-		const PFNGLVERTEXATTRIB1DVPROC&					glVertexAttrib1dv_,
-		const PFNGLVERTEXATTRIB1FPROC&					glVertexAttrib1f_,
-		const PFNGLVERTEXATTRIB1FVPROC&					glVertexAttrib1fv_,
-		const PFNGLVERTEXATTRIB1SPROC&					glVertexAttrib1s_,
-		const PFNGLVERTEXATTRIB1SVPROC&					glVertexAttrib1sv_,
-		const PFNGLVERTEXATTRIB2DPROC&					glVertexAttrib2d_,
-		const PFNGLVERTEXATTRIB2DVPROC&					glVertexAttrib2dv_,
-		const PFNGLVERTEXATTRIB2FPROC&					glVertexAttrib2f_,
-		const PFNGLVERTEXATTRIB2FVPROC&					glVertexAttrib2fv_,
-		const PFNGLVERTEXATTRIB2SPROC&					glVertexAttrib2s_,
-		const PFNGLVERTEXATTRIB2SVPROC&					glVertexAttrib2sv_,
-		const PFNGLVERTEXATTRIB3DPROC&					glVertexAttrib3d_,
-		const PFNGLVERTEXATTRIB3DVPROC&					glVertexAttrib3dv_,
-		const PFNGLVERTEXATTRIB3FPROC&					glVertexAttrib3f_,
-		const PFNGLVERTEXATTRIB3FVPROC&					glVertexAttrib3fv_,
-		const PFNGLVERTEXATTRIB3SPROC&					glVertexAttrib3s_,
-		const PFNGLVERTEXATTRIB3SVPROC&					glVertexAttrib3sv_,
-		const PFNGLVERTEXATTRIB4NBVPROC&				glVertexAttrib4Nbv_,
-		const PFNGLVERTEXATTRIB4NIVPROC&				glVertexAttrib4Niv_,
-		const PFNGLVERTEXATTRIB4NSVPROC&				glVertexAttrib4Nsv_,
-		const PFNGLVERTEXATTRIB4NUBPROC&				glVertexAttrib4Nub_,
-		const PFNGLVERTEXATTRIB4NUBVPROC&				glVertexAttrib4Nubv_,
-		const PFNGLVERTEXATTRIB4NUIVPROC&				glVertexAttrib4Nuiv_,
-		const PFNGLVERTEXATTRIB4NUSVPROC&				glVertexAttrib4Nusv_,
-		const PFNGLVERTEXATTRIB4BVPROC&					glVertexAttrib4bv_,
-		const PFNGLVERTEXATTRIB4DPROC&					glVertexAttrib4d_,
-		const PFNGLVERTEXATTRIB4DVPROC&					glVertexAttrib4dv_,
-		const PFNGLVERTEXATTRIB4FPROC&					glVertexAttrib4f_,
-		const PFNGLVERTEXATTRIB4FVPROC&					glVertexAttrib4fv_,
-		const PFNGLVERTEXATTRIB4IVPROC&					glVertexAttrib4iv_,
-		const PFNGLVERTEXATTRIB4SPROC&					glVertexAttrib4s_,
-		const PFNGLVERTEXATTRIB4SVPROC&					glVertexAttrib4sv_,
-		const PFNGLVERTEXATTRIB4UBVPROC&				glVertexAttrib4ubv_,
-		const PFNGLVERTEXATTRIB4UIVPROC&				glVertexAttrib4uiv_,
-		const PFNGLVERTEXATTRIB4USVPROC&				glVertexAttrib4usv_,
-		const PFNGLVERTEXATTRIBPOINTERPROC&				glVertexAttribPointer_,
-		// Version 2.1
-		const PFNGLUNIFORMMATRIX2X3FVPROC&	glUniformMatrix2x3fv_,
-		const PFNGLUNIFORMMATRIX3X2FVPROC&	glUniformMatrix3x2fv_,
-		const PFNGLUNIFORMMATRIX2X4FVPROC&	glUniformMatrix2x4fv_,
-		const PFNGLUNIFORMMATRIX4X2FVPROC&	glUniformMatrix4x2fv_,
-		const PFNGLUNIFORMMATRIX3X4FVPROC&	glUniformMatrix3x4fv_,
-		const PFNGLUNIFORMMATRIX4X3FVPROC&	glUniformMatrix4x3fv_
-	):
-		Context_2_0(EmptyTag()),
-		Interface_1_2(
-			glDrawRangeElements_,
-			glTexImage3D_,
-			glTexSubImage3D_,
-			glCopyTexSubImage3D_
-		),
-		Interface_1_3(
-			glActiveTexture_,
-			glSampleCoverage_,
-			glCompressedTexImage3D_,
-			glCompressedTexImage2D_,
-			glCompressedTexImage1D_,
-			glCompressedTexSubImage3D_,
-			glCompressedTexSubImage2D_,
-			glCompressedTexSubImage1D_,
-			glGetCompressedTexImage_,
-			glClientActiveTexture_,
-			glMultiTexCoord1d_,
-			glMultiTexCoord1dv_,
-			glMultiTexCoord1f_,
-			glMultiTexCoord1fv_,
-			glMultiTexCoord1i_,
-			glMultiTexCoord1iv_,
-			glMultiTexCoord1s_,
-			glMultiTexCoord1sv_,
-			glMultiTexCoord2d_,
-			glMultiTexCoord2dv_,
-			glMultiTexCoord2f_,
-			glMultiTexCoord2fv_,
-			glMultiTexCoord2i_,
-			glMultiTexCoord2iv_,
-			glMultiTexCoord2s_,
-			glMultiTexCoord2sv_,
-			glMultiTexCoord3d_,
-			glMultiTexCoord3dv_,
-			glMultiTexCoord3f_,
-			glMultiTexCoord3fv_,
-			glMultiTexCoord3i_,
-			glMultiTexCoord3iv_,
-			glMultiTexCoord3s_,
-			glMultiTexCoord3sv_,
-			glMultiTexCoord4d_,
-			glMultiTexCoord4dv_,
-			glMultiTexCoord4f_,
-			glMultiTexCoord4fv_,
-			glMultiTexCoord4i_,
-			glMultiTexCoord4iv_,
-			glMultiTexCoord4s_,
-			glMultiTexCoord4sv_,
-			glLoadTransposeMatrixf_,
-			glLoadTransposeMatrixd_,
-			glMultTransposeMatrixf_,
-			glMultTransposeMatrixd_
-		),
-		Interface_1_4(
-			glBlendFuncSeparate_,
-			glMultiDrawArrays_,
-			glMultiDrawElements_,
-			glPointParameterf_,
-			glPointParameterfv_,
-			glPointParameteri_,
-			glPointParameteriv_,
-			glFogCoordf_,
-			glFogCoordfv_,
-			glFogCoordd_,
-			glFogCoorddv_,
-			glFogCoordPointer_,
-			glSecondaryColor3b_,
-			glSecondaryColor3bv_,
-			glSecondaryColor3d_,
-			glSecondaryColor3dv_,
-			glSecondaryColor3f_,
-			glSecondaryColor3fv_,
-			glSecondaryColor3i_,
-			glSecondaryColor3iv_,
-			glSecondaryColor3s_,
-			glSecondaryColor3sv_,
-			glSecondaryColor3ub_,
-			glSecondaryColor3ubv_,
-			glSecondaryColor3ui_,
-			glSecondaryColor3uiv_,
-			glSecondaryColor3us_,
-			glSecondaryColor3usv_,
-			glSecondaryColorPointer_,
-			glWindowPos2d_,
-			glWindowPos2dv_,
-			glWindowPos2f_,
-			glWindowPos2fv_,
-			glWindowPos2i_,
-			glWindowPos2iv_,
-			glWindowPos2s_,
-			glWindowPos2sv_,
-			glWindowPos3d_,
-			glWindowPos3dv_,
-			glWindowPos3f_,
-			glWindowPos3fv_,
-			glWindowPos3i_,
-			glWindowPos3iv_,
-			glWindowPos3s_,
-			glWindowPos3sv_,
-			glBlendColor_,
-			glBlendEquation_
-		),
-		Interface_1_5(
-			glGenQueries_,
-			glDeleteQueries_,
-			glIsQuery_,
-			glBeginQuery_,
-			glEndQuery_,
-			glGetQueryiv_,
-			glGetQueryObjectiv_,
-			glGetQueryObjectuiv_,
-			glBindBuffer_,
-			glDeleteBuffers_,
-			glGenBuffers_,
-			glIsBuffer_,
-			glBufferData_,
-			glBufferSubData_,
-			glGetBufferSubData_,
-			glMapBuffer_,
-			glUnmapBuffer_,
-			glGetBufferParameteriv_,
-			glGetBufferPointerv_
-		),
-		Interface_2_0(
-			glBlendEquationSeparate_,
-			glDrawBuffers_,
-			glStencilOpSeparate_,
-			glStencilFuncSeparate_,
-			glStencilMaskSeparate_,
-			glAttachShader_,
-			glBindAttribLocation_,
-			glCompileShader_,
-			glCreateProgram_,
-			glCreateShader_,
-			glDeleteProgram_,
-			glDeleteShader_,
-			glDetachShader_,
-			glDisableVertexAttribArray_,
-			glEnableVertexAttribArray_,
-			glGetActiveAttrib_,
-			glGetActiveUniform_,
-			glGetAttachedShaders_,
-			glGetAttribLocation_,
-			glGetProgramiv_,
-			glGetProgramInfoLog_,
-			glGetShaderiv_,
-			glGetShaderInfoLog_,
-			glGetShaderSource_,
-			glGetUniformLocation_,
-			glGetUniformfv_,
-			glGetUniformiv_,
-			glGetVertexAttribdv_,
-			glGetVertexAttribfv_,
-			glGetVertexAttribiv_,
-			glGetVertexAttribPointerv_,
-			glIsProgram_,
-			glIsShader_,
-			glLinkProgram_,
-			glShaderSource_,
-			glUseProgram_,
-			glUniform1f_,
-			glUniform2f_,
-			glUniform3f_,
-			glUniform4f_,
-			glUniform1i_,
-			glUniform2i_,
-			glUniform3i_,
-			glUniform4i_,
-			glUniform1fv_,
-			glUniform2fv_,
-			glUniform3fv_,
-			glUniform4fv_,
-			glUniform1iv_,
-			glUniform2iv_,
-			glUniform3iv_,
-			glUniform4iv_,
-			glUniformMatrix2fv_,
-			glUniformMatrix3fv_,
-			glUniformMatrix4fv_,
-			glValidateProgram_,
-			glVertexAttrib1d_,
-			glVertexAttrib1dv_,
-			glVertexAttrib1f_,
-			glVertexAttrib1fv_,
-			glVertexAttrib1s_,
-			glVertexAttrib1sv_,
-			glVertexAttrib2d_,
-			glVertexAttrib2dv_,
-			glVertexAttrib2f_,
-			glVertexAttrib2fv_,
-			glVertexAttrib2s_,
-			glVertexAttrib2sv_,
-			glVertexAttrib3d_,
-			glVertexAttrib3dv_,
-			glVertexAttrib3f_,
-			glVertexAttrib3fv_,
-			glVertexAttrib3s_,
-			glVertexAttrib3sv_,
-			glVertexAttrib4Nbv_,
-			glVertexAttrib4Niv_,
-			glVertexAttrib4Nsv_,
-			glVertexAttrib4Nub_,
-			glVertexAttrib4Nubv_,
-			glVertexAttrib4Nuiv_,
-			glVertexAttrib4Nusv_,
-			glVertexAttrib4bv_,
-			glVertexAttrib4d_,
-			glVertexAttrib4dv_,
-			glVertexAttrib4f_,
-			glVertexAttrib4fv_,
-			glVertexAttrib4iv_,
-			glVertexAttrib4s_,
-			glVertexAttrib4sv_,
-			glVertexAttrib4ubv_,
-			glVertexAttrib4uiv_,
-			glVertexAttrib4usv_,
-			glVertexAttribPointer_
-		),
-		Interface_2_1(
-			glUniformMatrix2x3fv_,
-			glUniformMatrix3x2fv_,
-			glUniformMatrix2x4fv_,
-			glUniformMatrix4x2fv_,
-			glUniformMatrix3x4fv_,
-			glUniformMatrix4x3fv_
-		)
-	{
-	}
 #pragma endregion
 #pragma region Context_3_0
-	Context_3_0::Context_3_0(const EmptyTag&):
-		Context_2_1(EmptyTag()),
-		Interface_1_0(),
-		Interface_1_2(EmptyTag()),
-		Interface_1_3(EmptyTag()),
-		Interface_1_4(EmptyTag()),
-		Interface_1_5(EmptyTag()),
-		Interface_2_0(EmptyTag()),
-		Interface_2_1(EmptyTag()),
-		Interface_3_0(EmptyTag())
-	{
-	}
 #pragma endregion
 
 	namespace OSs
@@ -4540,6 +1941,8 @@ namespace OpenGL
 		{
 			class Context
 			{
+			protected:
+				class EmptyTag {};
 			protected:
 				using Attributes			= Vector<GLint>;
 			public:
@@ -4949,8 +2352,8 @@ namespace OpenGL
 
 			Context_1_2::Context_1_2(const Handle& handle_):
 				Windows::Context_1_0(handle_),		// TODO: need to call this before GetProcedureAddress in Interface_1_2 constructor
-				OpenGL::Context_1_2(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_1_2(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
@@ -4961,8 +2364,8 @@ namespace OpenGL
 			}
 			Context_1_2::Context_1_2(const Handle& handle_, const EmptyTag&):
 				Windows::Context_1_0(handle_),
-				OpenGL::Context_1_2(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag())
+				OpenGL::Context_1_2(),
+				Interface_1_2()
 			{
 			}
 			Context_1_2::Context_1_2(const DeviceContextHandle& deviceContextHandle_):
@@ -4984,21 +2387,21 @@ namespace OpenGL
 
 			Context_1_3::Context_1_3(const Handle& handle_, const EmptyTag&):
 				Windows::Context_1_2(handle_, EmptyTag()),
-				OpenGL::Context_1_3(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag())
+				OpenGL::Context_1_3(),
+				Interface_1_2(),
+				Interface_1_3()
 			{
 			}
 			Context_1_3::Context_1_3(const Handle& handle_):
 				Windows::Context_1_2(handle_, EmptyTag()),
-				OpenGL::Context_1_3(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_1_3(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5068,22 +2471,22 @@ namespace OpenGL
 
 			Context_1_4::Context_1_4(const Handle& handle_, const EmptyTag&):
 				Windows::Context_1_3(handle_, EmptyTag()),
-				OpenGL::Context_1_4(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag()),
-				OpenGL::Interface_1_4(EmptyTag())
+				OpenGL::Context_1_4(),
+				Interface_1_2(),
+				Interface_1_3(),
+				Interface_1_4()
 			{
 			}
 			Context_1_4::Context_1_4(const Handle& handle_):
 				Windows::Context_1_3(handle_, EmptyTag()),
-				OpenGL::Context_1_4(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_1_4(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5131,7 +2534,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				),
-				OpenGL::Interface_1_4(
+				Interface_1_4(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
@@ -5202,23 +2605,23 @@ namespace OpenGL
 
 			Context_1_5::Context_1_5(const Handle& handle_, const EmptyTag&):
 				Windows::Context_1_4(handle_, EmptyTag()),
-				OpenGL::Context_1_5(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag()),
-				OpenGL::Interface_1_4(EmptyTag()),
-				OpenGL::Interface_1_5(EmptyTag())
+				OpenGL::Context_1_5(),
+				Interface_1_2(),
+				Interface_1_3(),
+				Interface_1_4(),
+				Interface_1_5()
 			{
 			}
 			Context_1_5::Context_1_5(const Handle& handle_):
 				Windows::Context_1_4(handle_, EmptyTag()),
-				OpenGL::Context_1_5(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_1_5(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5266,7 +2669,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				),
-				OpenGL::Interface_1_4(
+				Interface_1_4(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
@@ -5315,7 +2718,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendColor,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquation,			handle_)
 				),
-				OpenGL::Interface_1_5(
+				Interface_1_5(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenQueries,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteQueries,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsQuery,					handle_),
@@ -5395,24 +2798,24 @@ namespace OpenGL
 
 			Context_2_0::Context_2_0(const Handle& handle_, const EmptyTag&):
 				Windows::Context_1_5(handle_, EmptyTag()),
-				OpenGL::Context_2_0(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag()),
-				OpenGL::Interface_1_4(EmptyTag()),
-				OpenGL::Interface_1_5(EmptyTag()),
-				OpenGL::Interface_2_0(EmptyTag())
+				OpenGL::Context_2_0(),
+				Interface_1_2(),
+				Interface_1_3(),
+				Interface_1_4(),
+				Interface_1_5(),
+				Interface_2_0()
 			{
 			}
 			Context_2_0::Context_2_0(const Handle& handle_):
 				Windows::Context_1_5(handle_, EmptyTag()),
-				OpenGL::Context_2_0(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_2_0(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5460,7 +2863,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				),
-				OpenGL::Interface_1_4(
+				Interface_1_4(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
@@ -5509,7 +2912,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendColor,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquation,			handle_)
 				),
-				OpenGL::Interface_1_5(
+				Interface_1_5(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenQueries,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteQueries,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsQuery,					handle_),
@@ -5530,7 +2933,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferParameteriv,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferPointerv,		handle_)
 				),
-				OpenGL::Interface_2_0(
+				Interface_2_0(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquationSeparate,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawBuffers,						handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilOpSeparate,				handle_),
@@ -5647,25 +3050,25 @@ namespace OpenGL
 
 			Context_2_1::Context_2_1(const Handle& handle_, const EmptyTag&):
 				Windows::Context_2_0(handle_, EmptyTag()),
-				OpenGL::Context_2_1(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag()),
-				OpenGL::Interface_1_4(EmptyTag()),
-				OpenGL::Interface_1_5(EmptyTag()),
-				OpenGL::Interface_2_0(EmptyTag()),
-				OpenGL::Interface_2_1(EmptyTag())
+				OpenGL::Context_2_1(),
+				Interface_1_2(),
+				Interface_1_3(),
+				Interface_1_4(),
+				Interface_1_5(),
+				Interface_2_0(),
+				Interface_2_1()
 			{
 			}
 			Context_2_1::Context_2_1(const Handle& handle_):
 				Windows::Context_2_0(handle_, EmptyTag()),
-				OpenGL::Context_2_1(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_2_1(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5713,7 +3116,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				),
-				OpenGL::Interface_1_4(
+				Interface_1_4(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
@@ -5762,7 +3165,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendColor,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquation,			handle_)
 				),
-				OpenGL::Interface_1_5(
+				Interface_1_5(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenQueries,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteQueries,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsQuery,					handle_),
@@ -5783,7 +3186,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferParameteriv,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferPointerv,		handle_)
 				),
-				OpenGL::Interface_2_0(
+				Interface_2_0(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquationSeparate,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawBuffers,						handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilOpSeparate,				handle_),
@@ -5908,26 +3311,26 @@ namespace OpenGL
 
 			Context_3_0::Context_3_0(const Handle& handle_, const EmptyTag&):
 				Windows::Context_2_1(handle_, EmptyTag()),
-				OpenGL::Context_3_0(EmptyTag()),
-				OpenGL::Interface_1_2(EmptyTag()),
-				OpenGL::Interface_1_3(EmptyTag()),
-				OpenGL::Interface_1_4(EmptyTag()),
-				OpenGL::Interface_1_5(EmptyTag()),
-				OpenGL::Interface_2_0(EmptyTag()),
-				OpenGL::Interface_2_1(EmptyTag()),
-				OpenGL::Interface_3_0(EmptyTag())
+				OpenGL::Context_3_0(),
+				Interface_1_2(),
+				Interface_1_3(),
+				Interface_1_4(),
+				Interface_1_5(),
+				Interface_2_0(),
+				Interface_2_1(),
+				Interface_3_0()
 			{
 			}
 			Context_3_0::Context_3_0(const Handle& handle_):
 				Windows::Context_2_1(handle_, EmptyTag()),
-				OpenGL::Context_3_0(EmptyTag()),
-				OpenGL::Interface_1_2(
+				OpenGL::Context_3_0(),
+				Interface_1_2(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
 				),
-				OpenGL::Interface_1_3(
+				Interface_1_3(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
@@ -5975,7 +3378,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
 				),
-				OpenGL::Interface_1_4(
+				Interface_1_4(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
@@ -6024,7 +3427,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendColor,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquation,			handle_)
 				),
-				OpenGL::Interface_1_5(
+				Interface_1_5(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenQueries,				handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteQueries,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsQuery,					handle_),
@@ -6045,7 +3448,7 @@ namespace OpenGL
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferParameteriv,	handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferPointerv,		handle_)
 				),
-				OpenGL::Interface_2_0(
+				Interface_2_0(
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquationSeparate,			handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawBuffers,						handle_),
 					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilOpSeparate,				handle_),
