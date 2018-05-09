@@ -963,6 +963,183 @@ namespace OpenGL
 			const PFNGLUNIFORMMATRIX4X3FVPROC& glUniformMatrix4x3fv_
 		);
 	};
+	class Interface_3_0:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLCOLORMASKIPROC										glColorMaski;
+		const PFNGLGETBOOLEANI_VPROC									glGetBooleani_v;
+		const PFNGLGETINTEGERI_VPROC									glGetIntegeri_v;
+		const PFNGLENABLEIPROC											glEnablei;
+		const PFNGLDISABLEIPROC											glDisablei;
+		const PFNGLISENABLEDIPROC										glIsEnabledi;
+		const PFNGLBEGINTRANSFORMFEEDBACKPROC							glBeginTransformFeedback;
+		const PFNGLENDTRANSFORMFEEDBACKPROC								glEndTransformFeedback;
+		const PFNGLBINDBUFFERRANGEPROC									glBindBufferRange;
+		const PFNGLBINDBUFFERBASEPROC									glBindBufferBase;
+		const PFNGLTRANSFORMFEEDBACKVARYINGSPROC						glTransformFeedbackVaryings;
+		const PFNGLGETTRANSFORMFEEDBACKVARYINGPROC						glGetTransformFeedbackVarying;
+		const PFNGLCLAMPCOLORPROC										glClampColor;
+		const PFNGLBEGINCONDITIONALRENDERPROC							glBeginConditionalRender;
+		const PFNGLENDCONDITIONALRENDERPROC								glEndConditionalRender;
+		const PFNGLVERTEXATTRIBIPOINTERPROC								glVertexAttribIPointer;
+		const PFNGLGETVERTEXATTRIBIIVPROC								glGetVertexAttribIiv;
+		const PFNGLGETVERTEXATTRIBIUIVPROC								glGetVertexAttribIuiv;
+		const PFNGLVERTEXATTRIBI1IPROC									glVertexAttribI1i;
+		const PFNGLVERTEXATTRIBI2IPROC									glVertexAttribI2i;
+		const PFNGLVERTEXATTRIBI3IPROC									glVertexAttribI3i;
+		const PFNGLVERTEXATTRIBI4IPROC									glVertexAttribI4i;
+		const PFNGLVERTEXATTRIBI1UIPROC									glVertexAttribI1ui;
+		const PFNGLVERTEXATTRIBI2UIPROC									glVertexAttribI2ui;
+		const PFNGLVERTEXATTRIBI3UIPROC									glVertexAttribI3ui;
+		const PFNGLVERTEXATTRIBI4UIPROC									glVertexAttribI4ui;
+		const PFNGLVERTEXATTRIBI1IVPROC									glVertexAttribI1iv;
+		const PFNGLVERTEXATTRIBI2IVPROC									glVertexAttribI2iv;
+		const PFNGLVERTEXATTRIBI3IVPROC									glVertexAttribI3iv;
+		const PFNGLVERTEXATTRIBI4IVPROC									glVertexAttribI4iv;
+		const PFNGLVERTEXATTRIBI1UIVPROC								glVertexAttribI1uiv;
+		const PFNGLVERTEXATTRIBI2UIVPROC								glVertexAttribI2uiv;
+		const PFNGLVERTEXATTRIBI3UIVPROC								glVertexAttribI3uiv;
+		const PFNGLVERTEXATTRIBI4UIVPROC								glVertexAttribI4uiv;
+		const PFNGLVERTEXATTRIBI4BVPROC									glVertexAttribI4bv;
+		const PFNGLVERTEXATTRIBI4SVPROC									glVertexAttribI4sv;
+		const PFNGLVERTEXATTRIBI4UBVPROC								glVertexAttribI4ubv;
+		const PFNGLVERTEXATTRIBI4USVPROC								glVertexAttribI4usv;
+		const PFNGLGETUNIFORMUIVPROC									glGetUniformuiv;
+		const PFNGLBINDFRAGDATALOCATIONPROC								glBindFragDataLocation;
+		const PFNGLGETFRAGDATALOCATIONPROC								glGetFragDataLocation;
+		const PFNGLUNIFORM1UIPROC										glUniform1ui;
+		const PFNGLUNIFORM2UIPROC										glUniform2ui;
+		const PFNGLUNIFORM3UIPROC										glUniform3ui;
+		const PFNGLUNIFORM4UIPROC										glUniform4ui;
+		const PFNGLUNIFORM1UIVPROC										glUniform1uiv;
+		const PFNGLUNIFORM2UIVPROC										glUniform2uiv;
+		const PFNGLUNIFORM3UIVPROC										glUniform3uiv;
+		const PFNGLUNIFORM4UIVPROC										glUniform4uiv;
+		const PFNGLTEXPARAMETERIIVPROC									glTexParameterIiv;
+		const PFNGLTEXPARAMETERIUIVPROC									glTexParameterIuiv;
+		const PFNGLGETTEXPARAMETERIIVPROC								glGetTexParameterIiv;
+		const PFNGLGETTEXPARAMETERIUIVPROC								glGetTexParameterIuiv;
+		const PFNGLCLEARBUFFERIVPROC									glClearBufferiv;
+		const PFNGLCLEARBUFFERUIVPROC									glClearBufferuiv;
+		const PFNGLCLEARBUFFERFVPROC									glClearBufferfv;
+		const PFNGLCLEARBUFFERFIPROC									glClearBufferfi;
+		const PFNGLGETSTRINGIPROC										glGetStringi;
+		const PFNGLISRENDERBUFFERPROC									glIsRenderbuffer;
+		const PFNGLBINDRENDERBUFFERPROC									glBindRenderbuffer;
+		const PFNGLDELETERENDERBUFFERSPROC								glDeleteRenderbuffers;
+		const PFNGLGENRENDERBUFFERSPROC									glGenRenderbuffers;
+		const PFNGLRENDERBUFFERSTORAGEPROC								glRenderbufferStorage;
+		const PFNGLGETRENDERBUFFERPARAMETERIVPROC						glGetRenderbufferParameteriv;
+		const PFNGLISFRAMEBUFFERPROC									glIsFramebuffer;
+		const PFNGLBINDFRAMEBUFFERPROC									glBindFramebuffer;
+		const PFNGLDELETEFRAMEBUFFERSPROC								glDeleteFramebuffers;
+		const PFNGLGENFRAMEBUFFERSPROC									glGenFramebuffers;
+		const PFNGLCHECKFRAMEBUFFERSTATUSPROC							glCheckFramebufferStatus;
+		const PFNGLFRAMEBUFFERTEXTURE1DPROC								glFramebufferTexture1D;
+		const PFNGLFRAMEBUFFERTEXTURE2DPROC								glFramebufferTexture2D;
+		const PFNGLFRAMEBUFFERTEXTURE3DPROC								glFramebufferTexture3D;
+		const PFNGLFRAMEBUFFERRENDERBUFFERPROC							glFramebufferRenderbuffer;
+		const PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC				glGetFramebufferAttachmentParameteriv;
+		const PFNGLGENERATEMIPMAPPROC									glGenerateMipmap;
+		const PFNGLBLITFRAMEBUFFERPROC									glBlitFramebuffer;
+		const PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC					glRenderbufferStorageMultisample;
+		const PFNGLFRAMEBUFFERTEXTURELAYERPROC							glFramebufferTextureLayer;
+		const PFNGLMAPBUFFERRANGEPROC									glMapBufferRange;
+		const PFNGLFLUSHMAPPEDBUFFERRANGEPROC							glFlushMappedBufferRange;
+		const PFNGLBINDVERTEXARRAYPROC									glBindVertexArray;
+		const PFNGLDELETEVERTEXARRAYSPROC								glDeleteVertexArrays;
+		const PFNGLGENVERTEXARRAYSPROC									glGenVertexArrays;
+		const PFNGLISVERTEXARRAYPROC									glIsVertexArray;
+	protected:
+		inline explicit Interface_3_0(const EmptyTag&);
+		inline Interface_3_0(
+			const PFNGLCOLORMASKIPROC&										glColorMaski_,
+			const PFNGLGETBOOLEANI_VPROC&									glGetBooleani_v_,
+			const PFNGLGETINTEGERI_VPROC&									glGetIntegeri_v_,
+			const PFNGLENABLEIPROC&											glEnablei_,
+			const PFNGLDISABLEIPROC&										glDisablei_,
+			const PFNGLISENABLEDIPROC&										glIsEnabledi_,
+			const PFNGLBEGINTRANSFORMFEEDBACKPROC&							glBeginTransformFeedback_,
+			const PFNGLENDTRANSFORMFEEDBACKPROC&							glEndTransformFeedback_,
+			const PFNGLBINDBUFFERRANGEPROC&									glBindBufferRange_,
+			const PFNGLBINDBUFFERBASEPROC&									glBindBufferBase_,
+			const PFNGLTRANSFORMFEEDBACKVARYINGSPROC&						glTransformFeedbackVaryings_,
+			const PFNGLGETTRANSFORMFEEDBACKVARYINGPROC&						glGetTransformFeedbackVarying_,
+			const PFNGLCLAMPCOLORPROC&										glClampColor_,
+			const PFNGLBEGINCONDITIONALRENDERPROC&							glBeginConditionalRender_,
+			const PFNGLENDCONDITIONALRENDERPROC&							glEndConditionalRender_,
+			const PFNGLVERTEXATTRIBIPOINTERPROC&							glVertexAttribIPointer_,
+			const PFNGLGETVERTEXATTRIBIIVPROC&								glGetVertexAttribIiv_,
+			const PFNGLGETVERTEXATTRIBIUIVPROC&								glGetVertexAttribIuiv_,
+			const PFNGLVERTEXATTRIBI1IPROC&									glVertexAttribI1i_,
+			const PFNGLVERTEXATTRIBI2IPROC&									glVertexAttribI2i_,
+			const PFNGLVERTEXATTRIBI3IPROC&									glVertexAttribI3i_,
+			const PFNGLVERTEXATTRIBI4IPROC&									glVertexAttribI4i_,
+			const PFNGLVERTEXATTRIBI1UIPROC&								glVertexAttribI1ui_,
+			const PFNGLVERTEXATTRIBI2UIPROC&								glVertexAttribI2ui_,
+			const PFNGLVERTEXATTRIBI3UIPROC&								glVertexAttribI3ui_,
+			const PFNGLVERTEXATTRIBI4UIPROC&								glVertexAttribI4ui_,
+			const PFNGLVERTEXATTRIBI1IVPROC&								glVertexAttribI1iv_,
+			const PFNGLVERTEXATTRIBI2IVPROC&								glVertexAttribI2iv_,
+			const PFNGLVERTEXATTRIBI3IVPROC&								glVertexAttribI3iv_,
+			const PFNGLVERTEXATTRIBI4IVPROC&								glVertexAttribI4iv_,
+			const PFNGLVERTEXATTRIBI1UIVPROC&								glVertexAttribI1uiv_,
+			const PFNGLVERTEXATTRIBI2UIVPROC&								glVertexAttribI2uiv_,
+			const PFNGLVERTEXATTRIBI3UIVPROC&								glVertexAttribI3uiv_,
+			const PFNGLVERTEXATTRIBI4UIVPROC&								glVertexAttribI4uiv_,
+			const PFNGLVERTEXATTRIBI4BVPROC&								glVertexAttribI4bv_,
+			const PFNGLVERTEXATTRIBI4SVPROC&								glVertexAttribI4sv_,
+			const PFNGLVERTEXATTRIBI4UBVPROC&								glVertexAttribI4ubv_,
+			const PFNGLVERTEXATTRIBI4USVPROC&								glVertexAttribI4usv_,
+			const PFNGLGETUNIFORMUIVPROC&									glGetUniformuiv_,
+			const PFNGLBINDFRAGDATALOCATIONPROC&							glBindFragDataLocation_,
+			const PFNGLGETFRAGDATALOCATIONPROC&								glGetFragDataLocation_,
+			const PFNGLUNIFORM1UIPROC&										glUniform1ui_,
+			const PFNGLUNIFORM2UIPROC&										glUniform2ui_,
+			const PFNGLUNIFORM3UIPROC&										glUniform3ui_,
+			const PFNGLUNIFORM4UIPROC&										glUniform4ui_,
+			const PFNGLUNIFORM1UIVPROC&										glUniform1uiv_,
+			const PFNGLUNIFORM2UIVPROC&										glUniform2uiv_,
+			const PFNGLUNIFORM3UIVPROC&										glUniform3uiv_,
+			const PFNGLUNIFORM4UIVPROC&										glUniform4uiv_,
+			const PFNGLTEXPARAMETERIIVPROC&									glTexParameterIiv_,
+			const PFNGLTEXPARAMETERIUIVPROC&								glTexParameterIuiv_,
+			const PFNGLGETTEXPARAMETERIIVPROC&								glGetTexParameterIiv_,
+			const PFNGLGETTEXPARAMETERIUIVPROC&								glGetTexParameterIuiv_,
+			const PFNGLCLEARBUFFERIVPROC&									glClearBufferiv_,
+			const PFNGLCLEARBUFFERUIVPROC&									glClearBufferuiv_,
+			const PFNGLCLEARBUFFERFVPROC&									glClearBufferfv_,
+			const PFNGLCLEARBUFFERFIPROC&									glClearBufferfi_,
+			const PFNGLGETSTRINGIPROC&										glGetStringi_,
+			const PFNGLISRENDERBUFFERPROC&									glIsRenderbuffer_,
+			const PFNGLBINDRENDERBUFFERPROC&								glBindRenderbuffer_,
+			const PFNGLDELETERENDERBUFFERSPROC&								glDeleteRenderbuffers_,
+			const PFNGLGENRENDERBUFFERSPROC&								glGenRenderbuffers_,
+			const PFNGLRENDERBUFFERSTORAGEPROC&								glRenderbufferStorage_,
+			const PFNGLGETRENDERBUFFERPARAMETERIVPROC&						glGetRenderbufferParameteriv_,
+			const PFNGLISFRAMEBUFFERPROC&									glIsFramebuffer_,
+			const PFNGLBINDFRAMEBUFFERPROC&									glBindFramebuffer_,
+			const PFNGLDELETEFRAMEBUFFERSPROC&								glDeleteFramebuffers_,
+			const PFNGLGENFRAMEBUFFERSPROC&									glGenFramebuffers_,
+			const PFNGLCHECKFRAMEBUFFERSTATUSPROC&							glCheckFramebufferStatus_,
+			const PFNGLFRAMEBUFFERTEXTURE1DPROC&							glFramebufferTexture1D_,
+			const PFNGLFRAMEBUFFERTEXTURE2DPROC&							glFramebufferTexture2D_,
+			const PFNGLFRAMEBUFFERTEXTURE3DPROC&							glFramebufferTexture3D_,
+			const PFNGLFRAMEBUFFERRENDERBUFFERPROC&							glFramebufferRenderbuffer_,
+			const PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC&				glGetFramebufferAttachmentParameteriv_,
+			const PFNGLGENERATEMIPMAPPROC&									glGenerateMipmap_,
+			const PFNGLBLITFRAMEBUFFERPROC&									glBlitFramebuffer_,
+			const PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC&					glRenderbufferStorageMultisample_,
+			const PFNGLFRAMEBUFFERTEXTURELAYERPROC&							glFramebufferTextureLayer_,
+			const PFNGLMAPBUFFERRANGEPROC&									glMapBufferRange_,
+			const PFNGLFLUSHMAPPEDBUFFERRANGEPROC&							glFlushMappedBufferRange_,
+			const PFNGLBINDVERTEXARRAYPROC&									glBindVertexArray_,
+			const PFNGLDELETEVERTEXARRAYSPROC&								glDeleteVertexArrays_,
+			const PFNGLGENVERTEXARRAYSPROC&									glGenVertexArrays_,
+			const PFNGLISVERTEXARRAYPROC&									glIsVertexArray_
+		);
+	};
 
 #pragma region Interface
 	void Interface::CheckForErrors() const
@@ -1760,6 +1937,267 @@ namespace OpenGL
 	{
 	}
 #pragma endregion
+#pragma region Interface_3_0
+	Interface_3_0::Interface_3_0(const EmptyTag&):
+		glColorMaski								(),
+		glGetBooleani_v								(),
+		glGetIntegeri_v								(),
+		glEnablei									(),
+		glDisablei									(),
+		glIsEnabledi								(),
+		glBeginTransformFeedback					(),
+		glEndTransformFeedback						(),
+		glBindBufferRange							(),
+		glBindBufferBase							(),
+		glTransformFeedbackVaryings					(),
+		glGetTransformFeedbackVarying				(),
+		glClampColor								(),
+		glBeginConditionalRender					(),
+		glEndConditionalRender						(),
+		glVertexAttribIPointer						(),
+		glGetVertexAttribIiv						(),
+		glGetVertexAttribIuiv						(),
+		glVertexAttribI1i							(),
+		glVertexAttribI2i							(),
+		glVertexAttribI3i							(),
+		glVertexAttribI4i							(),
+		glVertexAttribI1ui							(),
+		glVertexAttribI2ui							(),
+		glVertexAttribI3ui							(),
+		glVertexAttribI4ui							(),
+		glVertexAttribI1iv							(),
+		glVertexAttribI2iv							(),
+		glVertexAttribI3iv							(),
+		glVertexAttribI4iv							(),
+		glVertexAttribI1uiv							(),
+		glVertexAttribI2uiv							(),
+		glVertexAttribI3uiv							(),
+		glVertexAttribI4uiv							(),
+		glVertexAttribI4bv							(),
+		glVertexAttribI4sv							(),
+		glVertexAttribI4ubv							(),
+		glVertexAttribI4usv							(),
+		glGetUniformuiv								(),
+		glBindFragDataLocation						(),
+		glGetFragDataLocation						(),
+		glUniform1ui								(),
+		glUniform2ui								(),
+		glUniform3ui								(),
+		glUniform4ui								(),
+		glUniform1uiv								(),
+		glUniform2uiv								(),
+		glUniform3uiv								(),
+		glUniform4uiv								(),
+		glTexParameterIiv							(),
+		glTexParameterIuiv							(),
+		glGetTexParameterIiv						(),
+		glGetTexParameterIuiv						(),
+		glClearBufferiv								(),
+		glClearBufferuiv							(),
+		glClearBufferfv								(),
+		glClearBufferfi								(),
+		glGetStringi								(),
+		glIsRenderbuffer							(),
+		glBindRenderbuffer							(),
+		glDeleteRenderbuffers						(),
+		glGenRenderbuffers							(),
+		glRenderbufferStorage						(),
+		glGetRenderbufferParameteriv				(),
+		glIsFramebuffer								(),
+		glBindFramebuffer							(),
+		glDeleteFramebuffers						(),
+		glGenFramebuffers							(),
+		glCheckFramebufferStatus					(),
+		glFramebufferTexture1D						(),
+		glFramebufferTexture2D						(),
+		glFramebufferTexture3D						(),
+		glFramebufferRenderbuffer					(),
+		glGetFramebufferAttachmentParameteriv		(),
+		glGenerateMipmap							(),
+		glBlitFramebuffer							(),
+		glRenderbufferStorageMultisample			(),
+		glFramebufferTextureLayer					(),
+		glMapBufferRange							(),
+		glFlushMappedBufferRange					(),
+		glBindVertexArray							(),
+		glDeleteVertexArrays						(),
+		glGenVertexArrays							(),
+		glIsVertexArray								()
+	{
+	}
+	Interface_3_0::Interface_3_0(
+		const PFNGLCOLORMASKIPROC&										glColorMaski_,
+		const PFNGLGETBOOLEANI_VPROC&									glGetBooleani_v_,
+		const PFNGLGETINTEGERI_VPROC&									glGetIntegeri_v_,
+		const PFNGLENABLEIPROC&											glEnablei_,
+		const PFNGLDISABLEIPROC&										glDisablei_,
+		const PFNGLISENABLEDIPROC&										glIsEnabledi_,
+		const PFNGLBEGINTRANSFORMFEEDBACKPROC&							glBeginTransformFeedback_,
+		const PFNGLENDTRANSFORMFEEDBACKPROC&							glEndTransformFeedback_,
+		const PFNGLBINDBUFFERRANGEPROC&									glBindBufferRange_,
+		const PFNGLBINDBUFFERBASEPROC&									glBindBufferBase_,
+		const PFNGLTRANSFORMFEEDBACKVARYINGSPROC&						glTransformFeedbackVaryings_,
+		const PFNGLGETTRANSFORMFEEDBACKVARYINGPROC&						glGetTransformFeedbackVarying_,
+		const PFNGLCLAMPCOLORPROC&										glClampColor_,
+		const PFNGLBEGINCONDITIONALRENDERPROC&							glBeginConditionalRender_,
+		const PFNGLENDCONDITIONALRENDERPROC&							glEndConditionalRender_,
+		const PFNGLVERTEXATTRIBIPOINTERPROC&							glVertexAttribIPointer_,
+		const PFNGLGETVERTEXATTRIBIIVPROC&								glGetVertexAttribIiv_,
+		const PFNGLGETVERTEXATTRIBIUIVPROC&								glGetVertexAttribIuiv_,
+		const PFNGLVERTEXATTRIBI1IPROC&									glVertexAttribI1i_,
+		const PFNGLVERTEXATTRIBI2IPROC&									glVertexAttribI2i_,
+		const PFNGLVERTEXATTRIBI3IPROC&									glVertexAttribI3i_,
+		const PFNGLVERTEXATTRIBI4IPROC&									glVertexAttribI4i_,
+		const PFNGLVERTEXATTRIBI1UIPROC&								glVertexAttribI1ui_,
+		const PFNGLVERTEXATTRIBI2UIPROC&								glVertexAttribI2ui_,
+		const PFNGLVERTEXATTRIBI3UIPROC&								glVertexAttribI3ui_,
+		const PFNGLVERTEXATTRIBI4UIPROC&								glVertexAttribI4ui_,
+		const PFNGLVERTEXATTRIBI1IVPROC&								glVertexAttribI1iv_,
+		const PFNGLVERTEXATTRIBI2IVPROC&								glVertexAttribI2iv_,
+		const PFNGLVERTEXATTRIBI3IVPROC&								glVertexAttribI3iv_,
+		const PFNGLVERTEXATTRIBI4IVPROC&								glVertexAttribI4iv_,
+		const PFNGLVERTEXATTRIBI1UIVPROC&								glVertexAttribI1uiv_,
+		const PFNGLVERTEXATTRIBI2UIVPROC&								glVertexAttribI2uiv_,
+		const PFNGLVERTEXATTRIBI3UIVPROC&								glVertexAttribI3uiv_,
+		const PFNGLVERTEXATTRIBI4UIVPROC&								glVertexAttribI4uiv_,
+		const PFNGLVERTEXATTRIBI4BVPROC&								glVertexAttribI4bv_,
+		const PFNGLVERTEXATTRIBI4SVPROC&								glVertexAttribI4sv_,
+		const PFNGLVERTEXATTRIBI4UBVPROC&								glVertexAttribI4ubv_,
+		const PFNGLVERTEXATTRIBI4USVPROC&								glVertexAttribI4usv_,
+		const PFNGLGETUNIFORMUIVPROC&									glGetUniformuiv_,
+		const PFNGLBINDFRAGDATALOCATIONPROC&							glBindFragDataLocation_,
+		const PFNGLGETFRAGDATALOCATIONPROC&								glGetFragDataLocation_,
+		const PFNGLUNIFORM1UIPROC&										glUniform1ui_,
+		const PFNGLUNIFORM2UIPROC&										glUniform2ui_,
+		const PFNGLUNIFORM3UIPROC&										glUniform3ui_,
+		const PFNGLUNIFORM4UIPROC&										glUniform4ui_,
+		const PFNGLUNIFORM1UIVPROC&										glUniform1uiv_,
+		const PFNGLUNIFORM2UIVPROC&										glUniform2uiv_,
+		const PFNGLUNIFORM3UIVPROC&										glUniform3uiv_,
+		const PFNGLUNIFORM4UIVPROC&										glUniform4uiv_,
+		const PFNGLTEXPARAMETERIIVPROC&									glTexParameterIiv_,
+		const PFNGLTEXPARAMETERIUIVPROC&								glTexParameterIuiv_,
+		const PFNGLGETTEXPARAMETERIIVPROC&								glGetTexParameterIiv_,
+		const PFNGLGETTEXPARAMETERIUIVPROC&								glGetTexParameterIuiv_,
+		const PFNGLCLEARBUFFERIVPROC&									glClearBufferiv_,
+		const PFNGLCLEARBUFFERUIVPROC&									glClearBufferuiv_,
+		const PFNGLCLEARBUFFERFVPROC&									glClearBufferfv_,
+		const PFNGLCLEARBUFFERFIPROC&									glClearBufferfi_,
+		const PFNGLGETSTRINGIPROC&										glGetStringi_,
+		const PFNGLISRENDERBUFFERPROC&									glIsRenderbuffer_,
+		const PFNGLBINDRENDERBUFFERPROC&								glBindRenderbuffer_,
+		const PFNGLDELETERENDERBUFFERSPROC&								glDeleteRenderbuffers_,
+		const PFNGLGENRENDERBUFFERSPROC&								glGenRenderbuffers_,
+		const PFNGLRENDERBUFFERSTORAGEPROC&								glRenderbufferStorage_,
+		const PFNGLGETRENDERBUFFERPARAMETERIVPROC&						glGetRenderbufferParameteriv_,
+		const PFNGLISFRAMEBUFFERPROC&									glIsFramebuffer_,
+		const PFNGLBINDFRAMEBUFFERPROC&									glBindFramebuffer_,
+		const PFNGLDELETEFRAMEBUFFERSPROC&								glDeleteFramebuffers_,
+		const PFNGLGENFRAMEBUFFERSPROC&									glGenFramebuffers_,
+		const PFNGLCHECKFRAMEBUFFERSTATUSPROC&							glCheckFramebufferStatus_,
+		const PFNGLFRAMEBUFFERTEXTURE1DPROC&							glFramebufferTexture1D_,
+		const PFNGLFRAMEBUFFERTEXTURE2DPROC&							glFramebufferTexture2D_,
+		const PFNGLFRAMEBUFFERTEXTURE3DPROC&							glFramebufferTexture3D_,
+		const PFNGLFRAMEBUFFERRENDERBUFFERPROC&							glFramebufferRenderbuffer_,
+		const PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC&				glGetFramebufferAttachmentParameteriv_,
+		const PFNGLGENERATEMIPMAPPROC&									glGenerateMipmap_,
+		const PFNGLBLITFRAMEBUFFERPROC&									glBlitFramebuffer_,
+		const PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC&					glRenderbufferStorageMultisample_,
+		const PFNGLFRAMEBUFFERTEXTURELAYERPROC&							glFramebufferTextureLayer_,
+		const PFNGLMAPBUFFERRANGEPROC&									glMapBufferRange_,
+		const PFNGLFLUSHMAPPEDBUFFERRANGEPROC&							glFlushMappedBufferRange_,
+		const PFNGLBINDVERTEXARRAYPROC&									glBindVertexArray_,
+		const PFNGLDELETEVERTEXARRAYSPROC&								glDeleteVertexArrays_,
+		const PFNGLGENVERTEXARRAYSPROC&									glGenVertexArrays_,
+		const PFNGLISVERTEXARRAYPROC&									glIsVertexArray_
+	):
+		glColorMaski							(glColorMaski_),
+		glGetBooleani_v							(glGetBooleani_v_),
+		glGetIntegeri_v							(glGetIntegeri_v_),
+		glEnablei								(glEnablei_),
+		glDisablei								(glDisablei_),
+		glIsEnabledi							(glIsEnabledi_),
+		glBeginTransformFeedback				(glBeginTransformFeedback_),
+		glEndTransformFeedback					(glEndTransformFeedback_),
+		glBindBufferRange						(glBindBufferRange_),
+		glBindBufferBase						(glBindBufferBase_),
+		glTransformFeedbackVaryings				(glTransformFeedbackVaryings_),
+		glGetTransformFeedbackVarying			(glGetTransformFeedbackVarying_),
+		glClampColor							(glClampColor_),
+		glBeginConditionalRender				(glBeginConditionalRender_),
+		glEndConditionalRender					(glEndConditionalRender_),
+		glVertexAttribIPointer					(glVertexAttribIPointer_),
+		glGetVertexAttribIiv					(glGetVertexAttribIiv_),
+		glGetVertexAttribIuiv					(glGetVertexAttribIuiv_),
+		glVertexAttribI1i						(glVertexAttribI1i_),
+		glVertexAttribI2i						(glVertexAttribI2i_),
+		glVertexAttribI3i						(glVertexAttribI3i_),
+		glVertexAttribI4i						(glVertexAttribI4i_),
+		glVertexAttribI1ui						(glVertexAttribI1ui_),
+		glVertexAttribI2ui						(glVertexAttribI2ui_),
+		glVertexAttribI3ui						(glVertexAttribI3ui_),
+		glVertexAttribI4ui						(glVertexAttribI4ui_),
+		glVertexAttribI1iv						(glVertexAttribI1iv_),
+		glVertexAttribI2iv						(glVertexAttribI2iv_),
+		glVertexAttribI3iv						(glVertexAttribI3iv_),
+		glVertexAttribI4iv						(glVertexAttribI4iv_),
+		glVertexAttribI1uiv						(glVertexAttribI1uiv_),
+		glVertexAttribI2uiv						(glVertexAttribI2uiv_),
+		glVertexAttribI3uiv						(glVertexAttribI3uiv_),
+		glVertexAttribI4uiv						(glVertexAttribI4uiv_),
+		glVertexAttribI4bv						(glVertexAttribI4bv_),
+		glVertexAttribI4sv						(glVertexAttribI4sv_),
+		glVertexAttribI4ubv						(glVertexAttribI4ubv_),
+		glVertexAttribI4usv						(glVertexAttribI4usv_),
+		glGetUniformuiv							(glGetUniformuiv_),
+		glBindFragDataLocation					(glBindFragDataLocation_),
+		glGetFragDataLocation					(glGetFragDataLocation_),
+		glUniform1ui							(glUniform1ui_),
+		glUniform2ui							(glUniform2ui_),
+		glUniform3ui							(glUniform3ui_),
+		glUniform4ui							(glUniform4ui_),
+		glUniform1uiv							(glUniform1uiv_),
+		glUniform2uiv							(glUniform2uiv_),
+		glUniform3uiv							(glUniform3uiv_),
+		glUniform4uiv							(glUniform4uiv_),
+		glTexParameterIiv						(glTexParameterIiv_),
+		glTexParameterIuiv						(glTexParameterIuiv_),
+		glGetTexParameterIiv					(glGetTexParameterIiv_),
+		glGetTexParameterIuiv					(glGetTexParameterIuiv_),
+		glClearBufferiv							(glClearBufferiv_),
+		glClearBufferuiv						(glClearBufferuiv_),
+		glClearBufferfv							(glClearBufferfv_),
+		glClearBufferfi							(glClearBufferfi_),
+		glGetStringi							(glGetStringi_),
+		glIsRenderbuffer						(glIsRenderbuffer_),
+		glBindRenderbuffer						(glBindRenderbuffer_),
+		glDeleteRenderbuffers					(glDeleteRenderbuffers_),
+		glGenRenderbuffers						(glGenRenderbuffers_),
+		glRenderbufferStorage					(glRenderbufferStorage_),
+		glGetRenderbufferParameteriv			(glGetRenderbufferParameteriv_),
+		glIsFramebuffer							(glIsFramebuffer_),
+		glBindFramebuffer						(glBindFramebuffer_),
+		glDeleteFramebuffers					(glDeleteFramebuffers_),
+		glGenFramebuffers						(glGenFramebuffers_),
+		glCheckFramebufferStatus				(glCheckFramebufferStatus_),
+		glFramebufferTexture1D					(glFramebufferTexture1D_),
+		glFramebufferTexture2D					(glFramebufferTexture2D_),
+		glFramebufferTexture3D					(glFramebufferTexture3D_),
+		glFramebufferRenderbuffer				(glFramebufferRenderbuffer_),
+		glGetFramebufferAttachmentParameteriv	(glGetFramebufferAttachmentParameteriv_),
+		glGenerateMipmap						(glGenerateMipmap_),
+		glBlitFramebuffer						(glBlitFramebuffer_),
+		glRenderbufferStorageMultisample		(glRenderbufferStorageMultisample_),
+		glFramebufferTextureLayer				(glFramebufferTextureLayer_),
+		glMapBufferRange						(glMapBufferRange_),
+		glFlushMappedBufferRange				(glFlushMappedBufferRange_),
+		glBindVertexArray						(glBindVertexArray_),
+		glDeleteVertexArrays					(glDeleteVertexArrays_),
+		glGenVertexArrays						(glGenVertexArrays_),
+		glIsVertexArray							(glIsVertexArray_)
+	{
+	}
+#pragma endregion
 
 	class Context_1_0:
 		public virtual Interface_1_0
@@ -2530,6 +2968,13 @@ namespace OpenGL
 			const PFNGLUNIFORMMATRIX3X4FVPROC&	glUniformMatrix3x4fv_,
 			const PFNGLUNIFORMMATRIX4X3FVPROC&	glUniformMatrix4x3fv_
 		);
+	};
+	class Context_3_0:
+		public Context_2_1,
+		public virtual Interface_3_0
+	{
+	protected:
+		inline Context_3_0(const EmptyTag&);
 	};
 
 #pragma region Context_1_0
@@ -4073,6 +4518,20 @@ namespace OpenGL
 	{
 	}
 #pragma endregion
+#pragma region Context_3_0
+	Context_3_0::Context_3_0(const EmptyTag&):
+		Context_2_1(EmptyTag()),
+		Interface_1_0(),
+		Interface_1_2(EmptyTag()),
+		Interface_1_3(EmptyTag()),
+		Interface_1_4(EmptyTag()),
+		Interface_1_5(EmptyTag()),
+		Interface_2_0(EmptyTag()),
+		Interface_2_1(EmptyTag()),
+		Interface_3_0(EmptyTag())
+	{
+	}
+#pragma endregion
 
 	namespace OSs
 	{
@@ -4203,6 +4662,19 @@ namespace OpenGL
 				inline Context_2_1(const Handle& handle_, const EmptyTag&);
 			public:
 				inline Context_2_1(const DeviceContextHandle& deviceContextHandle_);
+			};
+			class Context_3_0:
+				public Context_2_1,
+				public OpenGL::Context_3_0
+			{
+			protected:
+				inline static Attributes GetAttributes();
+			private:
+				inline Context_3_0(const Handle& handle_);
+			protected:
+				inline Context_3_0(const Handle& handle_, const EmptyTag&);
+			public:
+				inline Context_3_0(const DeviceContextHandle& deviceContextHandle_);
 			};
 
 			
@@ -5419,6 +5891,354 @@ namespace OpenGL
 			}
 			Context_2_1::Context_2_1(const DeviceContextHandle& deviceContextHandle_):
 				Context_2_1(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes())))
+			{
+			}
+#pragma endregion
+#pragma region Context_3_0
+			Context_3_0::Attributes Context_3_0::GetAttributes()
+			{
+				return {
+					WGL_CONTEXT_MAJOR_VERSION_ARB,	3,
+					WGL_CONTEXT_MINOR_VERSION_ARB,	0,
+					WGL_CONTEXT_FLAGS_ARB,			0, // WGL_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB (???) | WGL_CONTEXT_DEBUG_BIT_ARB
+					WGL_CONTEXT_PROFILE_MASK_ARB,	WGL_CONTEXT_CORE_PROFILE_BIT_ARB, // WGL_CONTEXT_CORE_PROFILE_BIT_ARB / WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB
+					0, 0,
+				};
+			}
+
+			Context_3_0::Context_3_0(const Handle& handle_, const EmptyTag&):
+				Windows::Context_2_1(handle_, EmptyTag()),
+				OpenGL::Context_3_0(EmptyTag()),
+				OpenGL::Interface_1_2(EmptyTag()),
+				OpenGL::Interface_1_3(EmptyTag()),
+				OpenGL::Interface_1_4(EmptyTag()),
+				OpenGL::Interface_1_5(EmptyTag()),
+				OpenGL::Interface_2_0(EmptyTag()),
+				OpenGL::Interface_2_1(EmptyTag()),
+				OpenGL::Interface_3_0(EmptyTag())
+			{
+			}
+			Context_3_0::Context_3_0(const Handle& handle_):
+				Windows::Context_2_1(handle_, EmptyTag()),
+				OpenGL::Context_3_0(EmptyTag()),
+				OpenGL::Interface_1_2(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawRangeElements,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexImage3D,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexSubImage3D,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCopyTexSubImage3D,	handle_)
+				),
+				OpenGL::Interface_1_3(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glActiveTexture,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSampleCoverage,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage3D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage2D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexImage1D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage3D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage2D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompressedTexSubImage1D,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetCompressedTexImage,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClientActiveTexture,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord1sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord2sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord3sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4d,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4f,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4i,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4s,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiTexCoord4sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glLoadTransposeMatrixf,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glLoadTransposeMatrixd,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixf,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultTransposeMatrixd,	handle_)
+				),
+				OpenGL::Interface_1_4(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendFuncSeparate,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawArrays,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMultiDrawElements,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glPointParameterf,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glPointParameterfv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glPointParameteri,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glPointParameteriv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFogCoordf,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFogCoordfv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFogCoordd,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFogCoorddv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFogCoordPointer,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3b,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3bv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3d,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3dv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3f,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3fv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3i,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3iv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3s,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3sv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3ub,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3ubv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3ui,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3uiv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3us,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColor3usv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glSecondaryColorPointer,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2d,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2dv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2f,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2fv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2i,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2iv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2s,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos2sv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3d,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3dv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3f,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3fv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3i,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3iv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3s,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glWindowPos3sv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendColor,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquation,			handle_)
+				),
+				OpenGL::Interface_1_5(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenQueries,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteQueries,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsQuery,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBeginQuery,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glEndQuery,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetQueryiv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetQueryObjectiv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetQueryObjectuiv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindBuffer,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteBuffers,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenBuffers,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsBuffer,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBufferData,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBufferSubData,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferSubData,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMapBuffer,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUnmapBuffer,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferParameteriv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBufferPointerv,		handle_)
+				),
+				OpenGL::Interface_2_0(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlendEquationSeparate,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDrawBuffers,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilOpSeparate,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilFuncSeparate,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glStencilMaskSeparate,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glAttachShader,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindAttribLocation,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCompileShader,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCreateProgram,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCreateShader,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteProgram,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteShader,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDetachShader,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDisableVertexAttribArray,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glEnableVertexAttribArray,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetActiveAttrib,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetActiveUniform,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetAttachedShaders,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetAttribLocation,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetProgramiv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetProgramInfoLog,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetShaderiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetShaderInfoLog,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetShaderSource,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetUniformLocation,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetUniformfv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetUniformiv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribdv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribfv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribiv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribPointerv,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsProgram,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsShader,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glLinkProgram,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glShaderSource,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUseProgram,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1f,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2f,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3f,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4f,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1i,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2i,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3i,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4i,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1fv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2fv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3fv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4fv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix2fv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix3fv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix4fv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glValidateProgram,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1d,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1dv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1f,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1fv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1s,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib1sv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2d,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2dv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2f,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2fv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2s,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib2sv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3d,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3dv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3f,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3fv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3s,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib3sv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nbv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Niv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nsv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nub,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nubv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nuiv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4Nusv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4bv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4d,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4dv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4f,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4fv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4iv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4s,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4sv,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4ubv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4uiv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttrib4usv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribPointer,				handle_)
+				),
+				Interface_2_1(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix2x3fv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix3x2fv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix2x4fv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix4x2fv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix3x4fv,	handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniformMatrix4x3fv,	handle_)
+				),
+				Interface_3_0(
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glColorMaski,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetBooleani_v,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetIntegeri_v,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glEnablei,									handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDisablei,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsEnabledi,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBeginTransformFeedback,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glEndTransformFeedback,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindBufferRange,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindBufferBase,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTransformFeedbackVaryings,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetTransformFeedbackVarying,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClampColor,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBeginConditionalRender,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glEndConditionalRender,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribIPointer,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribIiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetVertexAttribIuiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI1i,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI2i,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI3i,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4i,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI1ui,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI2ui,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI3ui,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4ui,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI1iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI2iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI3iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4iv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI1uiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI2uiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI3uiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4uiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4bv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4sv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4ubv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glVertexAttribI4usv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetUniformuiv,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindFragDataLocation,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetFragDataLocation,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1ui,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2ui,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3ui,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4ui,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform1uiv,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform2uiv,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform3uiv,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glUniform4uiv,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexParameterIiv,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glTexParameterIuiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetTexParameterIiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetTexParameterIuiv,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClearBufferiv,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClearBufferuiv,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClearBufferfv,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glClearBufferfi,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetStringi,								handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsRenderbuffer,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindRenderbuffer,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteRenderbuffers,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenRenderbuffers,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glRenderbufferStorage,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetRenderbufferParameteriv,				handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsFramebuffer,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindFramebuffer,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteFramebuffers,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenFramebuffers,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glCheckFramebufferStatus,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFramebufferTexture1D,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFramebufferTexture2D,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFramebufferTexture3D,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFramebufferRenderbuffer,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGetFramebufferAttachmentParameteriv,		handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenerateMipmap,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBlitFramebuffer,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glRenderbufferStorageMultisample,			handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFramebufferTextureLayer,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glMapBufferRange,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glFlushMappedBufferRange,					handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glBindVertexArray,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glDeleteVertexArrays,						handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glGenVertexArrays,							handle_),
+					__GREAT_V_ENGINE_2__GET_PROCEDURE_ADDRESS2__(glIsVertexArray,							handle_)
+				)
+			{
+				MakeCurrent(nullptr, nullptr);
+			}
+			Context_3_0::Context_3_0(const DeviceContextHandle& deviceContextHandle_):
+				Context_3_0(MakeCurrentAndReturn(deviceContextHandle_, ObtainHandle(deviceContextHandle_, nullptr, GetAttributes())))
 			{
 			}
 #pragma endregion
