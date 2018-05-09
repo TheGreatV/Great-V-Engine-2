@@ -1507,6 +1507,599 @@ namespace OpenGL
 			const PFNGLGETQUERYINDEXEDIVPROC&					glGetQueryIndexediv_
 		);
 	};
+	class Interface_4_1:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLRELEASESHADERCOMPILERPROC			glReleaseShaderCompiler				= nullptr;
+		const PFNGLSHADERBINARYPROC						glShaderBinary						= nullptr;
+		const PFNGLGETSHADERPRECISIONFORMATPROC			glGetShaderPrecisionFormat			= nullptr;
+		const PFNGLDEPTHRANGEFPROC						glDepthRangef						= nullptr;
+		const PFNGLCLEARDEPTHFPROC						glClearDepthf						= nullptr;
+		const PFNGLGETPROGRAMBINARYPROC					glGetProgramBinary					= nullptr;
+		const PFNGLPROGRAMBINARYPROC					glProgramBinary						= nullptr;
+		const PFNGLPROGRAMPARAMETERIPROC				glProgramParameteri					= nullptr;
+		const PFNGLUSEPROGRAMSTAGESPROC					glUseProgramStages					= nullptr;
+		const PFNGLACTIVESHADERPROGRAMPROC				glActiveShaderProgram				= nullptr;
+		const PFNGLCREATESHADERPROGRAMVPROC				glCreateShaderProgramv				= nullptr;
+		const PFNGLBINDPROGRAMPIPELINEPROC				glBindProgramPipeline				= nullptr;
+		const PFNGLDELETEPROGRAMPIPELINESPROC			glDeleteProgramPipelines			= nullptr;
+		const PFNGLGENPROGRAMPIPELINESPROC				glGenProgramPipelines				= nullptr;
+		const PFNGLISPROGRAMPIPELINEPROC				glIsProgramPipeline					= nullptr;
+		const PFNGLGETPROGRAMPIPELINEIVPROC				glGetProgramPipelineiv				= nullptr;
+		const PFNGLPROGRAMUNIFORM1IPROC					glProgramUniform1i					= nullptr;
+		const PFNGLPROGRAMUNIFORM1IVPROC				glProgramUniform1iv					= nullptr;
+		const PFNGLPROGRAMUNIFORM1FPROC					glProgramUniform1f					= nullptr;
+		const PFNGLPROGRAMUNIFORM1FVPROC				glProgramUniform1fv					= nullptr;
+		const PFNGLPROGRAMUNIFORM1DPROC					glProgramUniform1d					= nullptr;
+		const PFNGLPROGRAMUNIFORM1DVPROC				glProgramUniform1dv					= nullptr;
+		const PFNGLPROGRAMUNIFORM1UIPROC				glProgramUniform1ui					= nullptr;
+		const PFNGLPROGRAMUNIFORM1UIVPROC				glProgramUniform1uiv				= nullptr;
+		const PFNGLPROGRAMUNIFORM2IPROC					glProgramUniform2i					= nullptr;
+		const PFNGLPROGRAMUNIFORM2IVPROC				glProgramUniform2iv					= nullptr;
+		const PFNGLPROGRAMUNIFORM2FPROC					glProgramUniform2f					= nullptr;
+		const PFNGLPROGRAMUNIFORM2FVPROC				glProgramUniform2fv					= nullptr;
+		const PFNGLPROGRAMUNIFORM2DPROC					glProgramUniform2d					= nullptr;
+		const PFNGLPROGRAMUNIFORM2DVPROC				glProgramUniform2dv					= nullptr;
+		const PFNGLPROGRAMUNIFORM2UIPROC				glProgramUniform2ui					= nullptr;
+		const PFNGLPROGRAMUNIFORM2UIVPROC				glProgramUniform2uiv				= nullptr;
+		const PFNGLPROGRAMUNIFORM3IPROC					glProgramUniform3i					= nullptr;
+		const PFNGLPROGRAMUNIFORM3IVPROC				glProgramUniform3iv					= nullptr;
+		const PFNGLPROGRAMUNIFORM3FPROC					glProgramUniform3f					= nullptr;
+		const PFNGLPROGRAMUNIFORM3FVPROC				glProgramUniform3fv					= nullptr;
+		const PFNGLPROGRAMUNIFORM3DPROC					glProgramUniform3d					= nullptr;
+		const PFNGLPROGRAMUNIFORM3DVPROC				glProgramUniform3dv					= nullptr;
+		const PFNGLPROGRAMUNIFORM3UIPROC				glProgramUniform3ui					= nullptr;
+		const PFNGLPROGRAMUNIFORM3UIVPROC				glProgramUniform3uiv				= nullptr;
+		const PFNGLPROGRAMUNIFORM4IPROC					glProgramUniform4i					= nullptr;
+		const PFNGLPROGRAMUNIFORM4IVPROC				glProgramUniform4iv					= nullptr;
+		const PFNGLPROGRAMUNIFORM4FPROC					glProgramUniform4f					= nullptr;
+		const PFNGLPROGRAMUNIFORM4FVPROC				glProgramUniform4fv					= nullptr;
+		const PFNGLPROGRAMUNIFORM4DPROC					glProgramUniform4d					= nullptr;
+		const PFNGLPROGRAMUNIFORM4DVPROC				glProgramUniform4dv					= nullptr;
+		const PFNGLPROGRAMUNIFORM4UIPROC				glProgramUniform4ui					= nullptr;
+		const PFNGLPROGRAMUNIFORM4UIVPROC				glProgramUniform4uiv				= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2FVPROC			glProgramUniformMatrix2fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3FVPROC			glProgramUniformMatrix3fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4FVPROC			glProgramUniformMatrix4fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2DVPROC			glProgramUniformMatrix2dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3DVPROC			glProgramUniformMatrix3dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4DVPROC			glProgramUniformMatrix4dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC		glProgramUniformMatrix2x3fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC		glProgramUniformMatrix3x2fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC		glProgramUniformMatrix2x4fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC		glProgramUniformMatrix4x2fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC		glProgramUniformMatrix3x4fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC		glProgramUniformMatrix4x3fv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC		glProgramUniformMatrix2x3dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC		glProgramUniformMatrix3x2dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC		glProgramUniformMatrix2x4dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC		glProgramUniformMatrix4x2dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC		glProgramUniformMatrix3x4dv			= nullptr;
+		const PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC		glProgramUniformMatrix4x3dv			= nullptr;
+		const PFNGLVALIDATEPROGRAMPIPELINEPROC			glValidateProgramPipeline			= nullptr;
+		const PFNGLGETPROGRAMPIPELINEINFOLOGPROC		glGetProgramPipelineInfoLog			= nullptr;
+		const PFNGLVERTEXATTRIBL1DPROC					glVertexAttribL1d					= nullptr;
+		const PFNGLVERTEXATTRIBL2DPROC					glVertexAttribL2d					= nullptr;
+		const PFNGLVERTEXATTRIBL3DPROC					glVertexAttribL3d					= nullptr;
+		const PFNGLVERTEXATTRIBL4DPROC					glVertexAttribL4d					= nullptr;
+		const PFNGLVERTEXATTRIBL1DVPROC					glVertexAttribL1dv					= nullptr;
+		const PFNGLVERTEXATTRIBL2DVPROC					glVertexAttribL2dv					= nullptr;
+		const PFNGLVERTEXATTRIBL3DVPROC					glVertexAttribL3dv					= nullptr;
+		const PFNGLVERTEXATTRIBL4DVPROC					glVertexAttribL4dv					= nullptr;
+		const PFNGLVERTEXATTRIBLPOINTERPROC				glVertexAttribLPointer				= nullptr;
+		const PFNGLGETVERTEXATTRIBLDVPROC				glGetVertexAttribLdv				= nullptr;
+		const PFNGLVIEWPORTARRAYVPROC					glViewportArrayv					= nullptr;
+		const PFNGLVIEWPORTINDEXEDFPROC					glViewportIndexedf					= nullptr;
+		const PFNGLVIEWPORTINDEXEDFVPROC				glViewportIndexedfv					= nullptr;
+		const PFNGLSCISSORARRAYVPROC					glScissorArrayv						= nullptr;
+		const PFNGLSCISSORINDEXEDPROC					glScissorIndexed					= nullptr;
+		const PFNGLSCISSORINDEXEDVPROC					glScissorIndexedv					= nullptr;
+		const PFNGLDEPTHRANGEARRAYVPROC					glDepthRangeArrayv					= nullptr;
+		const PFNGLDEPTHRANGEINDEXEDPROC				glDepthRangeIndexed					= nullptr;
+		const PFNGLGETFLOATI_VPROC						glGetFloati_v						= nullptr;
+		const PFNGLGETDOUBLEI_VPROC						glGetDoublei_v						= nullptr;
+	protected:
+		inline Interface_4_1() = default;
+		inline Interface_4_1(
+			const PFNGLRELEASESHADERCOMPILERPROC&			glReleaseShaderCompiler_,
+			const PFNGLSHADERBINARYPROC&					glShaderBinary_,	
+			const PFNGLGETSHADERPRECISIONFORMATPROC&		glGetShaderPrecisionFormat_,	
+			const PFNGLDEPTHRANGEFPROC&						glDepthRangef_,
+			const PFNGLCLEARDEPTHFPROC&						glClearDepthf_,
+			const PFNGLGETPROGRAMBINARYPROC&				glGetProgramBinary_,	
+			const PFNGLPROGRAMBINARYPROC&					glProgramBinary_,
+			const PFNGLPROGRAMPARAMETERIPROC&				glProgramParameteri_,
+			const PFNGLUSEPROGRAMSTAGESPROC&				glUseProgramStages_,	
+			const PFNGLACTIVESHADERPROGRAMPROC&				glActiveShaderProgram_,
+			const PFNGLCREATESHADERPROGRAMVPROC&			glCreateShaderProgramv_,	
+			const PFNGLBINDPROGRAMPIPELINEPROC&				glBindProgramPipeline_,
+			const PFNGLDELETEPROGRAMPIPELINESPROC&			glDeleteProgramPipelines_,
+			const PFNGLGENPROGRAMPIPELINESPROC&				glGenProgramPipelines_,
+			const PFNGLISPROGRAMPIPELINEPROC&				glIsProgramPipeline_,
+			const PFNGLGETPROGRAMPIPELINEIVPROC&			glGetProgramPipelineiv_,	
+			const PFNGLPROGRAMUNIFORM1IPROC&				glProgramUniform1i_,	
+			const PFNGLPROGRAMUNIFORM1IVPROC&				glProgramUniform1iv_,
+			const PFNGLPROGRAMUNIFORM1FPROC&				glProgramUniform1f_,	
+			const PFNGLPROGRAMUNIFORM1FVPROC&				glProgramUniform1fv_,
+			const PFNGLPROGRAMUNIFORM1DPROC&				glProgramUniform1d_,	
+			const PFNGLPROGRAMUNIFORM1DVPROC&				glProgramUniform1dv_,
+			const PFNGLPROGRAMUNIFORM1UIPROC&				glProgramUniform1ui_,
+			const PFNGLPROGRAMUNIFORM1UIVPROC&				glProgramUniform1uiv_,
+			const PFNGLPROGRAMUNIFORM2IPROC&				glProgramUniform2i_,	
+			const PFNGLPROGRAMUNIFORM2IVPROC&				glProgramUniform2iv_,
+			const PFNGLPROGRAMUNIFORM2FPROC&				glProgramUniform2f_,	
+			const PFNGLPROGRAMUNIFORM2FVPROC&				glProgramUniform2fv_,
+			const PFNGLPROGRAMUNIFORM2DPROC&				glProgramUniform2d_,	
+			const PFNGLPROGRAMUNIFORM2DVPROC&				glProgramUniform2dv_,
+			const PFNGLPROGRAMUNIFORM2UIPROC&				glProgramUniform2ui_,
+			const PFNGLPROGRAMUNIFORM2UIVPROC&				glProgramUniform2uiv_,
+			const PFNGLPROGRAMUNIFORM3IPROC&				glProgramUniform3i_,	
+			const PFNGLPROGRAMUNIFORM3IVPROC&				glProgramUniform3iv_,
+			const PFNGLPROGRAMUNIFORM3FPROC&				glProgramUniform3f_,	
+			const PFNGLPROGRAMUNIFORM3FVPROC&				glProgramUniform3fv_,
+			const PFNGLPROGRAMUNIFORM3DPROC&				glProgramUniform3d_,	
+			const PFNGLPROGRAMUNIFORM3DVPROC&				glProgramUniform3dv_,
+			const PFNGLPROGRAMUNIFORM3UIPROC&				glProgramUniform3ui_,
+			const PFNGLPROGRAMUNIFORM3UIVPROC&				glProgramUniform3uiv_,
+			const PFNGLPROGRAMUNIFORM4IPROC&				glProgramUniform4i_,	
+			const PFNGLPROGRAMUNIFORM4IVPROC&				glProgramUniform4iv_,
+			const PFNGLPROGRAMUNIFORM4FPROC&				glProgramUniform4f_,	
+			const PFNGLPROGRAMUNIFORM4FVPROC&				glProgramUniform4fv_,
+			const PFNGLPROGRAMUNIFORM4DPROC&				glProgramUniform4d_,	
+			const PFNGLPROGRAMUNIFORM4DVPROC&				glProgramUniform4dv_,
+			const PFNGLPROGRAMUNIFORM4UIPROC&				glProgramUniform4ui_,
+			const PFNGLPROGRAMUNIFORM4UIVPROC&				glProgramUniform4uiv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2FVPROC&			glProgramUniformMatrix2fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3FVPROC&			glProgramUniformMatrix3fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4FVPROC&			glProgramUniformMatrix4fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2DVPROC&			glProgramUniformMatrix2dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3DVPROC&			glProgramUniformMatrix3dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4DVPROC&			glProgramUniformMatrix4dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC&		glProgramUniformMatrix2x3fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC&		glProgramUniformMatrix3x2fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC&		glProgramUniformMatrix2x4fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC&		glProgramUniformMatrix4x2fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC&		glProgramUniformMatrix3x4fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC&		glProgramUniformMatrix4x3fv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC&		glProgramUniformMatrix2x3dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC&		glProgramUniformMatrix3x2dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC&		glProgramUniformMatrix2x4dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC&		glProgramUniformMatrix4x2dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC&		glProgramUniformMatrix3x4dv_,
+			const PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC&		glProgramUniformMatrix4x3dv_,
+			const PFNGLVALIDATEPROGRAMPIPELINEPROC&			glValidateProgramPipeline_,
+			const PFNGLGETPROGRAMPIPELINEINFOLOGPROC&		glGetProgramPipelineInfoLog_,
+			const PFNGLVERTEXATTRIBL1DPROC&					glVertexAttribL1d_,
+			const PFNGLVERTEXATTRIBL2DPROC&					glVertexAttribL2d_,
+			const PFNGLVERTEXATTRIBL3DPROC&					glVertexAttribL3d_,
+			const PFNGLVERTEXATTRIBL4DPROC&					glVertexAttribL4d_,
+			const PFNGLVERTEXATTRIBL1DVPROC&				glVertexAttribL1dv_,	
+			const PFNGLVERTEXATTRIBL2DVPROC&				glVertexAttribL2dv_,	
+			const PFNGLVERTEXATTRIBL3DVPROC&				glVertexAttribL3dv_,	
+			const PFNGLVERTEXATTRIBL4DVPROC&				glVertexAttribL4dv_,	
+			const PFNGLVERTEXATTRIBLPOINTERPROC&			glVertexAttribLPointer_,	
+			const PFNGLGETVERTEXATTRIBLDVPROC&				glGetVertexAttribLdv_,
+			const PFNGLVIEWPORTARRAYVPROC&					glViewportArrayv_,
+			const PFNGLVIEWPORTINDEXEDFPROC&				glViewportIndexedf_,	
+			const PFNGLVIEWPORTINDEXEDFVPROC&				glViewportIndexedfv_,
+			const PFNGLSCISSORARRAYVPROC&					glScissorArrayv_,
+			const PFNGLSCISSORINDEXEDPROC&					glScissorIndexed_,
+			const PFNGLSCISSORINDEXEDVPROC&					glScissorIndexedv_,
+			const PFNGLDEPTHRANGEARRAYVPROC&				glDepthRangeArrayv_,
+			const PFNGLDEPTHRANGEINDEXEDPROC&				glDepthRangeIndexed_,
+			const PFNGLGETFLOATI_VPROC&						glGetFloati_v_,
+			const PFNGLGETDOUBLEI_VPROC&					glGetDoublei_v_
+		);
+	};
+	class Interface_4_2:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC				glDrawArraysInstancedBaseInstance				= nullptr;
+		const PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC			glDrawElementsInstancedBaseInstance				= nullptr;
+		const PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC	glDrawElementsInstancedBaseVertexBaseInstance	= nullptr;
+		const PFNGLGETINTERNALFORMATIVPROC							glGetInternalformativ							= nullptr;
+		const PFNGLGETACTIVEATOMICCOUNTERBUFFERIVPROC				glGetActiveAtomicCounterBufferiv				= nullptr;
+		const PFNGLBINDIMAGETEXTUREPROC								glBindImageTexture								= nullptr;
+		const PFNGLMEMORYBARRIERPROC								glMemoryBarrier									= nullptr;
+		const PFNGLTEXSTORAGE1DPROC									glTexStorage1D									= nullptr;
+		const PFNGLTEXSTORAGE2DPROC									glTexStorage2D									= nullptr;
+		const PFNGLTEXSTORAGE3DPROC									glTexStorage3D									= nullptr;
+		const PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDPROC				glDrawTransformFeedbackInstanced				= nullptr;
+		const PFNGLDRAWTRANSFORMFEEDBACKSTREAMINSTANCEDPROC			glDrawTransformFeedbackStreamInstanced			= nullptr;
+	protected:
+		inline Interface_4_2() = default;
+		inline Interface_4_2(
+			const PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC&				glDrawArraysInstancedBaseInstance_,
+			const PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC&			glDrawElementsInstancedBaseInstance_,
+			const PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC&	glDrawElementsInstancedBaseVertexBaseInstance_,
+			const PFNGLGETINTERNALFORMATIVPROC&							glGetInternalformativ_,
+			const PFNGLGETACTIVEATOMICCOUNTERBUFFERIVPROC&				glGetActiveAtomicCounterBufferiv_,
+			const PFNGLBINDIMAGETEXTUREPROC&							glBindImageTexture_,
+			const PFNGLMEMORYBARRIERPROC&								glMemoryBarrier_,
+			const PFNGLTEXSTORAGE1DPROC&								glTexStorage1D_,
+			const PFNGLTEXSTORAGE2DPROC&								glTexStorage2D_,
+			const PFNGLTEXSTORAGE3DPROC&								glTexStorage3D_,
+			const PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDPROC&				glDrawTransformFeedbackInstanced_,
+			const PFNGLDRAWTRANSFORMFEEDBACKSTREAMINSTANCEDPROC&		glDrawTransformFeedbackStreamInstanced_
+		);
+	};
+	class Interface_4_3:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLCLEARBUFFERDATAPROC						glClearBufferData					= nullptr;
+		const PFNGLCLEARBUFFERSUBDATAPROC					glClearBufferSubData				= nullptr;
+		const PFNGLDISPATCHCOMPUTEPROC						glDispatchCompute					= nullptr;
+		const PFNGLDISPATCHCOMPUTEINDIRECTPROC				glDispatchComputeIndirect			= nullptr;
+		const PFNGLCOPYIMAGESUBDATAPROC						glCopyImageSubData					= nullptr;
+		const PFNGLFRAMEBUFFERPARAMETERIPROC				glFramebufferParameteri				= nullptr;
+		const PFNGLGETFRAMEBUFFERPARAMETERIVPROC			glGetFramebufferParameteriv			= nullptr;
+		const PFNGLGETINTERNALFORMATI64VPROC				glGetInternalformati64v				= nullptr;
+		const PFNGLINVALIDATETEXSUBIMAGEPROC				glInvalidateTexSubImage				= nullptr;
+		const PFNGLINVALIDATETEXIMAGEPROC					glInvalidateTexImage				= nullptr;
+		const PFNGLINVALIDATEBUFFERSUBDATAPROC				glInvalidateBufferSubData			= nullptr;
+		const PFNGLINVALIDATEBUFFERDATAPROC					glInvalidateBufferData				= nullptr;
+		const PFNGLINVALIDATEFRAMEBUFFERPROC				glInvalidateFramebuffer				= nullptr;
+		const PFNGLINVALIDATESUBFRAMEBUFFERPROC				glInvalidateSubFramebuffer			= nullptr;
+		const PFNGLMULTIDRAWARRAYSINDIRECTPROC				glMultiDrawArraysIndirect			= nullptr;
+		const PFNGLMULTIDRAWELEMENTSINDIRECTPROC			glMultiDrawElementsIndirect			= nullptr;
+		const PFNGLGETPROGRAMINTERFACEIVPROC				glGetProgramInterfaceiv				= nullptr;
+		const PFNGLGETPROGRAMRESOURCEINDEXPROC				glGetProgramResourceIndex			= nullptr;
+		const PFNGLGETPROGRAMRESOURCENAMEPROC				glGetProgramResourceName			= nullptr;
+		const PFNGLGETPROGRAMRESOURCEIVPROC					glGetProgramResourceiv				= nullptr;
+		const PFNGLGETPROGRAMRESOURCELOCATIONPROC			glGetProgramResourceLocation		= nullptr;
+		const PFNGLGETPROGRAMRESOURCELOCATIONINDEXPROC		glGetProgramResourceLocationIndex	= nullptr;
+		const PFNGLSHADERSTORAGEBLOCKBINDINGPROC			glShaderStorageBlockBinding			= nullptr;
+		const PFNGLTEXBUFFERRANGEPROC						glTexBufferRange					= nullptr;
+		const PFNGLTEXSTORAGE2DMULTISAMPLEPROC				glTexStorage2DMultisample			= nullptr;
+		const PFNGLTEXSTORAGE3DMULTISAMPLEPROC				glTexStorage3DMultisample			= nullptr;
+		const PFNGLTEXTUREVIEWPROC							glTextureView						= nullptr;
+		const PFNGLBINDVERTEXBUFFERPROC						glBindVertexBuffer					= nullptr;
+		const PFNGLVERTEXATTRIBFORMATPROC					glVertexAttribFormat				= nullptr;
+		const PFNGLVERTEXATTRIBIFORMATPROC					glVertexAttribIFormat				= nullptr;
+		const PFNGLVERTEXATTRIBLFORMATPROC					glVertexAttribLFormat				= nullptr;
+		const PFNGLVERTEXATTRIBBINDINGPROC					glVertexAttribBinding				= nullptr;
+		const PFNGLVERTEXBINDINGDIVISORPROC					glVertexBindingDivisor				= nullptr;
+		const PFNGLDEBUGMESSAGECONTROLPROC					glDebugMessageControl				= nullptr;
+		const PFNGLDEBUGMESSAGEINSERTPROC					glDebugMessageInsert				= nullptr;
+		const PFNGLDEBUGMESSAGECALLBACKPROC					glDebugMessageCallback				= nullptr;
+		const PFNGLGETDEBUGMESSAGELOGPROC					glGetDebugMessageLog				= nullptr;
+		const PFNGLPUSHDEBUGGROUPPROC						glPushDebugGroup					= nullptr;
+		const PFNGLPOPDEBUGGROUPPROC						glPopDebugGroup						= nullptr;
+		const PFNGLOBJECTLABELPROC							glObjectLabel						= nullptr;
+		const PFNGLGETOBJECTLABELPROC						glGetObjectLabel					= nullptr;
+		const PFNGLOBJECTPTRLABELPROC						glObjectPtrLabel					= nullptr;
+		const PFNGLGETOBJECTPTRLABELPROC					glGetObjectPtrLabel					= nullptr;
+	protected:
+		inline Interface_4_3() = default;
+		inline Interface_4_3(
+			const PFNGLCLEARBUFFERDATAPROC&						glClearBufferData_,
+			const PFNGLCLEARBUFFERSUBDATAPROC&					glClearBufferSubData_,
+			const PFNGLDISPATCHCOMPUTEPROC&						glDispatchCompute_,
+			const PFNGLDISPATCHCOMPUTEINDIRECTPROC&				glDispatchComputeIndirect_,
+			const PFNGLCOPYIMAGESUBDATAPROC&					glCopyImageSubData_,
+			const PFNGLFRAMEBUFFERPARAMETERIPROC&				glFramebufferParameteri_,
+			const PFNGLGETFRAMEBUFFERPARAMETERIVPROC&			glGetFramebufferParameteriv_,
+			const PFNGLGETINTERNALFORMATI64VPROC&				glGetInternalformati64v_,
+			const PFNGLINVALIDATETEXSUBIMAGEPROC&				glInvalidateTexSubImage_,
+			const PFNGLINVALIDATETEXIMAGEPROC&					glInvalidateTexImage_,
+			const PFNGLINVALIDATEBUFFERSUBDATAPROC&				glInvalidateBufferSubData_,
+			const PFNGLINVALIDATEBUFFERDATAPROC&				glInvalidateBufferData_,
+			const PFNGLINVALIDATEFRAMEBUFFERPROC&				glInvalidateFramebuffer_,
+			const PFNGLINVALIDATESUBFRAMEBUFFERPROC&			glInvalidateSubFramebuffer_,
+			const PFNGLMULTIDRAWARRAYSINDIRECTPROC&				glMultiDrawArraysIndirect_,
+			const PFNGLMULTIDRAWELEMENTSINDIRECTPROC&			glMultiDrawElementsIndirect_,
+			const PFNGLGETPROGRAMINTERFACEIVPROC&				glGetProgramInterfaceiv_,
+			const PFNGLGETPROGRAMRESOURCEINDEXPROC&				glGetProgramResourceIndex_,
+			const PFNGLGETPROGRAMRESOURCENAMEPROC&				glGetProgramResourceName_,
+			const PFNGLGETPROGRAMRESOURCEIVPROC&				glGetProgramResourceiv_,
+			const PFNGLGETPROGRAMRESOURCELOCATIONPROC&			glGetProgramResourceLocation_,
+			const PFNGLGETPROGRAMRESOURCELOCATIONINDEXPROC&		glGetProgramResourceLocationIndex_,
+			const PFNGLSHADERSTORAGEBLOCKBINDINGPROC&			glShaderStorageBlockBinding_,
+			const PFNGLTEXBUFFERRANGEPROC&						glTexBufferRange_,
+			const PFNGLTEXSTORAGE2DMULTISAMPLEPROC&				glTexStorage2DMultisample_,
+			const PFNGLTEXSTORAGE3DMULTISAMPLEPROC&				glTexStorage3DMultisample_,
+			const PFNGLTEXTUREVIEWPROC&							glTextureView_,
+			const PFNGLBINDVERTEXBUFFERPROC&					glBindVertexBuffer_,
+			const PFNGLVERTEXATTRIBFORMATPROC&					glVertexAttribFormat_,
+			const PFNGLVERTEXATTRIBIFORMATPROC&					glVertexAttribIFormat_,
+			const PFNGLVERTEXATTRIBLFORMATPROC&					glVertexAttribLFormat_,
+			const PFNGLVERTEXATTRIBBINDINGPROC&					glVertexAttribBinding_,
+			const PFNGLVERTEXBINDINGDIVISORPROC&				glVertexBindingDivisor_,
+			const PFNGLDEBUGMESSAGECONTROLPROC&					glDebugMessageControl_,
+			const PFNGLDEBUGMESSAGEINSERTPROC&					glDebugMessageInsert_,
+			const PFNGLDEBUGMESSAGECALLBACKPROC&				glDebugMessageCallback_,
+			const PFNGLGETDEBUGMESSAGELOGPROC&					glGetDebugMessageLog_,
+			const PFNGLPUSHDEBUGGROUPPROC&						glPushDebugGroup_,
+			const PFNGLPOPDEBUGGROUPPROC&						glPopDebugGroup_,
+			const PFNGLOBJECTLABELPROC&							glObjectLabel_,
+			const PFNGLGETOBJECTLABELPROC&						glGetObjectLabel_,
+			const PFNGLOBJECTPTRLABELPROC&						glObjectPtrLabel_,
+			const PFNGLGETOBJECTPTRLABELPROC&					glGetObjectPtrLabel_
+		);
+	};
+	class Interface_4_4:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLBUFFERSTORAGEPROC		glBufferStorage		= nullptr;
+		const PFNGLCLEARTEXIMAGEPROC		glClearTexImage		= nullptr;
+		const PFNGLCLEARTEXSUBIMAGEPROC		glClearTexSubImage	= nullptr;
+		const PFNGLBINDBUFFERSBASEPROC		glBindBuffersBase	= nullptr;
+		const PFNGLBINDBUFFERSRANGEPROC		glBindBuffersRange	= nullptr;
+		const PFNGLBINDTEXTURESPROC			glBindTextures		= nullptr;
+		const PFNGLBINDSAMPLERSPROC			glBindSamplers		= nullptr;
+		const PFNGLBINDIMAGETEXTURESPROC	glBindImageTextures	= nullptr;
+		const PFNGLBINDVERTEXBUFFERSPROC	glBindVertexBuffers	= nullptr;
+	protected:
+		inline Interface_4_4() = default;
+		inline Interface_4_4(
+			const PFNGLBUFFERSTORAGEPROC&		glBufferStorage_,
+			const PFNGLCLEARTEXIMAGEPROC&		glClearTexImage_,
+			const PFNGLCLEARTEXSUBIMAGEPROC&	glClearTexSubImage_,
+			const PFNGLBINDBUFFERSBASEPROC&		glBindBuffersBase_,
+			const PFNGLBINDBUFFERSRANGEPROC&	glBindBuffersRange_,
+			const PFNGLBINDTEXTURESPROC&		glBindTextures_,
+			const PFNGLBINDSAMPLERSPROC&		glBindSamplers_,
+			const PFNGLBINDIMAGETEXTURESPROC&	glBindImageTextures_,
+			const PFNGLBINDVERTEXBUFFERSPROC&	glBindVertexBuffers_
+		);
+	};
+	class Interface_4_5:
+		public virtual Interface
+	{
+	protected:
+		const PFNGLCLIPCONTROLPROC									glClipControl									= nullptr;
+		const PFNGLCREATETRANSFORMFEEDBACKSPROC						glCreateTransformFeedbacks						= nullptr;
+		const PFNGLTRANSFORMFEEDBACKBUFFERBASEPROC					glTransformFeedbackBufferBase					= nullptr;
+		const PFNGLTRANSFORMFEEDBACKBUFFERRANGEPROC					glTransformFeedbackBufferRange					= nullptr;
+		const PFNGLGETTRANSFORMFEEDBACKIVPROC						glGetTransformFeedbackiv						= nullptr;
+		const PFNGLGETTRANSFORMFEEDBACKI_VPROC						glGetTransformFeedbacki_v						= nullptr;
+		const PFNGLGETTRANSFORMFEEDBACKI64_VPROC					glGetTransformFeedbacki64_v						= nullptr;
+		const PFNGLCREATEBUFFERSPROC								glCreateBuffers									= nullptr;
+		const PFNGLNAMEDBUFFERSTORAGEPROC							glNamedBufferStorage							= nullptr;
+		const PFNGLNAMEDBUFFERDATAPROC								glNamedBufferData								= nullptr;
+		const PFNGLNAMEDBUFFERSUBDATAPROC							glNamedBufferSubData							= nullptr;
+		const PFNGLCOPYNAMEDBUFFERSUBDATAPROC						glCopyNamedBufferSubData						= nullptr;
+		const PFNGLCLEARNAMEDBUFFERDATAPROC							glClearNamedBufferData							= nullptr;
+		const PFNGLCLEARNAMEDBUFFERSUBDATAPROC						glClearNamedBufferSubData						= nullptr;
+		const PFNGLMAPNAMEDBUFFERPROC								glMapNamedBuffer								= nullptr;
+		const PFNGLMAPNAMEDBUFFERRANGEPROC							glMapNamedBufferRange							= nullptr;
+		const PFNGLUNMAPNAMEDBUFFERPROC								glUnmapNamedBuffer								= nullptr;
+		const PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEPROC					glFlushMappedNamedBufferRange					= nullptr;
+		const PFNGLGETNAMEDBUFFERPARAMETERIVPROC					glGetNamedBufferParameteriv						= nullptr;
+		const PFNGLGETNAMEDBUFFERPARAMETERI64VPROC					glGetNamedBufferParameteri64v					= nullptr;
+		const PFNGLGETNAMEDBUFFERPOINTERVPROC						glGetNamedBufferPointerv						= nullptr;
+		const PFNGLGETNAMEDBUFFERSUBDATAPROC						glGetNamedBufferSubData							= nullptr;
+		const PFNGLCREATEFRAMEBUFFERSPROC							glCreateFramebuffers							= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC					glNamedFramebufferRenderbuffer					= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERPARAMETERIPROC					glNamedFramebufferParameteri					= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERTEXTUREPROC						glNamedFramebufferTexture						= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC					glNamedFramebufferTextureLayer					= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERPROC					glNamedFramebufferDrawBuffer					= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC					glNamedFramebufferDrawBuffers					= nullptr;
+		const PFNGLNAMEDFRAMEBUFFERREADBUFFERPROC					glNamedFramebufferReadBuffer					= nullptr;
+		const PFNGLINVALIDATENAMEDFRAMEBUFFERDATAPROC				glInvalidateNamedFramebufferData				= nullptr;
+		const PFNGLINVALIDATENAMEDFRAMEBUFFERSUBDATAPROC			glInvalidateNamedFramebufferSubData				= nullptr;
+		const PFNGLCLEARNAMEDFRAMEBUFFERIVPROC						glClearNamedFramebufferiv						= nullptr;
+		const PFNGLCLEARNAMEDFRAMEBUFFERUIVPROC						glClearNamedFramebufferuiv						= nullptr;
+		const PFNGLCLEARNAMEDFRAMEBUFFERFVPROC						glClearNamedFramebufferfv						= nullptr;
+		const PFNGLCLEARNAMEDFRAMEBUFFERFIPROC						glClearNamedFramebufferfi						= nullptr;
+		const PFNGLBLITNAMEDFRAMEBUFFERPROC							glBlitNamedFramebuffer							= nullptr;
+		const PFNGLCHECKNAMEDFRAMEBUFFERSTATUSPROC					glCheckNamedFramebufferStatus					= nullptr;
+		const PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC				glGetNamedFramebufferParameteriv				= nullptr;
+		const PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC		glGetNamedFramebufferAttachmentParameteriv		= nullptr;
+		const PFNGLCREATERENDERBUFFERSPROC							glCreateRenderbuffers							= nullptr;
+		const PFNGLNAMEDRENDERBUFFERSTORAGEPROC						glNamedRenderbufferStorage						= nullptr;
+		const PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC			glNamedRenderbufferStorageMultisample			= nullptr;
+		const PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC				glGetNamedRenderbufferParameteriv				= nullptr;
+		const PFNGLCREATETEXTURESPROC								glCreateTextures								= nullptr;
+		const PFNGLTEXTUREBUFFERPROC								glTextureBuffer									= nullptr;
+		const PFNGLTEXTUREBUFFERRANGEPROC							glTextureBufferRange							= nullptr;
+		const PFNGLTEXTURESTORAGE1DPROC								glTextureStorage1D								= nullptr;
+		const PFNGLTEXTURESTORAGE2DPROC								glTextureStorage2D								= nullptr;
+		const PFNGLTEXTURESTORAGE3DPROC								glTextureStorage3D								= nullptr;
+		const PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC					glTextureStorage2DMultisample					= nullptr;
+		const PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC					glTextureStorage3DMultisample					= nullptr;
+		const PFNGLTEXTURESUBIMAGE1DPROC							glTextureSubImage1D								= nullptr;
+		const PFNGLTEXTURESUBIMAGE2DPROC							glTextureSubImage2D								= nullptr;
+		const PFNGLTEXTURESUBIMAGE3DPROC							glTextureSubImage3D								= nullptr;
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE1DPROC					glCompressedTextureSubImage1D					= nullptr;
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE2DPROC					glCompressedTextureSubImage2D					= nullptr;
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE3DPROC					glCompressedTextureSubImage3D					= nullptr;
+		const PFNGLCOPYTEXTURESUBIMAGE1DPROC						glCopyTextureSubImage1D							= nullptr;
+		const PFNGLCOPYTEXTURESUBIMAGE2DPROC						glCopyTextureSubImage2D							= nullptr;
+		const PFNGLCOPYTEXTURESUBIMAGE3DPROC						glCopyTextureSubImage3D							= nullptr;
+		const PFNGLTEXTUREPARAMETERFPROC							glTextureParameterf								= nullptr;
+		const PFNGLTEXTUREPARAMETERFVPROC							glTextureParameterfv							= nullptr;
+		const PFNGLTEXTUREPARAMETERIPROC							glTextureParameteri								= nullptr;
+		const PFNGLTEXTUREPARAMETERIIVPROC							glTextureParameterIiv							= nullptr;
+		const PFNGLTEXTUREPARAMETERIUIVPROC							glTextureParameterIuiv							= nullptr;
+		const PFNGLTEXTUREPARAMETERIVPROC							glTextureParameteriv							= nullptr;
+		const PFNGLGENERATETEXTUREMIPMAPPROC						glGenerateTextureMipmap							= nullptr;
+		const PFNGLBINDTEXTUREUNITPROC								glBindTextureUnit								= nullptr;
+		const PFNGLGETTEXTUREIMAGEPROC								glGetTextureImage								= nullptr;
+		const PFNGLGETCOMPRESSEDTEXTUREIMAGEPROC					glGetCompressedTextureImage						= nullptr;
+		const PFNGLGETTEXTURELEVELPARAMETERFVPROC					glGetTextureLevelParameterfv					= nullptr;
+		const PFNGLGETTEXTURELEVELPARAMETERIVPROC					glGetTextureLevelParameteriv					= nullptr;
+		const PFNGLGETTEXTUREPARAMETERFVPROC						glGetTextureParameterfv							= nullptr;
+		const PFNGLGETTEXTUREPARAMETERIIVPROC						glGetTextureParameterIiv						= nullptr;
+		const PFNGLGETTEXTUREPARAMETERIUIVPROC						glGetTextureParameterIuiv						= nullptr;
+		const PFNGLGETTEXTUREPARAMETERIVPROC						glGetTextureParameteriv							= nullptr;
+		const PFNGLCREATEVERTEXARRAYSPROC							glCreateVertexArrays							= nullptr;
+		const PFNGLDISABLEVERTEXARRAYATTRIBPROC						glDisableVertexArrayAttrib						= nullptr;
+		const PFNGLENABLEVERTEXARRAYATTRIBPROC						glEnableVertexArrayAttrib						= nullptr;
+		const PFNGLVERTEXARRAYELEMENTBUFFERPROC						glVertexArrayElementBuffer						= nullptr;
+		const PFNGLVERTEXARRAYVERTEXBUFFERPROC						glVertexArrayVertexBuffer						= nullptr;
+		const PFNGLVERTEXARRAYVERTEXBUFFERSPROC						glVertexArrayVertexBuffers						= nullptr;
+		const PFNGLVERTEXARRAYATTRIBBINDINGPROC						glVertexArrayAttribBinding						= nullptr;
+		const PFNGLVERTEXARRAYATTRIBFORMATPROC						glVertexArrayAttribFormat						= nullptr;
+		const PFNGLVERTEXARRAYATTRIBIFORMATPROC						glVertexArrayAttribIFormat						= nullptr;
+		const PFNGLVERTEXARRAYATTRIBLFORMATPROC						glVertexArrayAttribLFormat						= nullptr;
+		const PFNGLVERTEXARRAYBINDINGDIVISORPROC					glVertexArrayBindingDivisor						= nullptr;
+		const PFNGLGETVERTEXARRAYIVPROC								glGetVertexArrayiv								= nullptr;
+		const PFNGLGETVERTEXARRAYINDEXEDIVPROC						glGetVertexArrayIndexediv						= nullptr;
+		const PFNGLGETVERTEXARRAYINDEXED64IVPROC					glGetVertexArrayIndexed64iv						= nullptr;
+		const PFNGLCREATESAMPLERSPROC								glCreateSamplers								= nullptr;
+		const PFNGLCREATEPROGRAMPIPELINESPROC						glCreateProgramPipelines						= nullptr;
+		const PFNGLCREATEQUERIESPROC								glCreateQueries									= nullptr;
+		const PFNGLGETQUERYBUFFEROBJECTI64VPROC						glGetQueryBufferObjecti64v						= nullptr;
+		const PFNGLGETQUERYBUFFEROBJECTIVPROC						glGetQueryBufferObjectiv						= nullptr;
+		const PFNGLGETQUERYBUFFEROBJECTUI64VPROC					glGetQueryBufferObjectui64v						= nullptr;
+		const PFNGLGETQUERYBUFFEROBJECTUIVPROC						glGetQueryBufferObjectuiv						= nullptr;
+		const PFNGLMEMORYBARRIERBYREGIONPROC						glMemoryBarrierByRegion							= nullptr;
+		const PFNGLGETTEXTURESUBIMAGEPROC							glGetTextureSubImage							= nullptr;
+		const PFNGLGETCOMPRESSEDTEXTURESUBIMAGEPROC					glGetCompressedTextureSubImage					= nullptr;
+		const PFNGLGETGRAPHICSRESETSTATUSPROC						glGetGraphicsResetStatus						= nullptr;
+		const PFNGLGETNCOMPRESSEDTEXIMAGEPROC						glGetnCompressedTexImage						= nullptr;
+		const PFNGLGETNTEXIMAGEPROC									glGetnTexImage									= nullptr;
+		const PFNGLGETNUNIFORMDVPROC								glGetnUniformdv									= nullptr;
+		const PFNGLGETNUNIFORMFVPROC								glGetnUniformfv									= nullptr;
+		const PFNGLGETNUNIFORMIVPROC								glGetnUniformiv									= nullptr;
+		const PFNGLGETNUNIFORMUIVPROC								glGetnUniformuiv								= nullptr;
+		const PFNGLREADNPIXELSPROC									glReadnPixels									= nullptr;
+		const PFNGLGETNMAPDVPROC									glGetnMapdv										= nullptr;
+		const PFNGLGETNMAPFVPROC									glGetnMapfv										= nullptr;
+		const PFNGLGETNMAPIVPROC									glGetnMapiv										= nullptr;
+		const PFNGLGETNPIXELMAPFVPROC								glGetnPixelMapfv								= nullptr;
+		const PFNGLGETNPIXELMAPUIVPROC								glGetnPixelMapuiv								= nullptr;
+		const PFNGLGETNPIXELMAPUSVPROC								glGetnPixelMapusv								= nullptr;
+		const PFNGLGETNPOLYGONSTIPPLEPROC							glGetnPolygonStipple							= nullptr;
+		const PFNGLGETNCOLORTABLEPROC								glGetnColorTable								= nullptr;
+		const PFNGLGETNCONVOLUTIONFILTERPROC						glGetnConvolutionFilter							= nullptr;
+		const PFNGLGETNSEPARABLEFILTERPROC							glGetnSeparableFilter							= nullptr;
+		const PFNGLGETNHISTOGRAMPROC								glGetnHistogram									= nullptr;
+		const PFNGLGETNMINMAXPROC									glGetnMinmax									= nullptr;
+		const PFNGLTEXTUREBARRIERPROC								glTextureBarrier								= nullptr;
+	protected:
+		inline Interface_4_5() = default;
+		inline Interface_4_5(
+			const PFNGLCLIPCONTROLPROC&									glClipControl_,
+			const PFNGLCREATETRANSFORMFEEDBACKSPROC&					glCreateTransformFeedbacks_,
+			const PFNGLTRANSFORMFEEDBACKBUFFERBASEPROC&					glTransformFeedbackBufferBase_,
+			const PFNGLTRANSFORMFEEDBACKBUFFERRANGEPROC&				glTransformFeedbackBufferRange_,
+			const PFNGLGETTRANSFORMFEEDBACKIVPROC&						glGetTransformFeedbackiv_,
+			const PFNGLGETTRANSFORMFEEDBACKI_VPROC&						glGetTransformFeedbacki_v_,
+			const PFNGLGETTRANSFORMFEEDBACKI64_VPROC&					glGetTransformFeedbacki64_v_,
+			const PFNGLCREATEBUFFERSPROC&								glCreateBuffers_,
+			const PFNGLNAMEDBUFFERSTORAGEPROC&							glNamedBufferStorage_,
+			const PFNGLNAMEDBUFFERDATAPROC&								glNamedBufferData_,
+			const PFNGLNAMEDBUFFERSUBDATAPROC&							glNamedBufferSubData_,
+			const PFNGLCOPYNAMEDBUFFERSUBDATAPROC&						glCopyNamedBufferSubData_,
+			const PFNGLCLEARNAMEDBUFFERDATAPROC&						glClearNamedBufferData_,
+			const PFNGLCLEARNAMEDBUFFERSUBDATAPROC&						glClearNamedBufferSubData_,
+			const PFNGLMAPNAMEDBUFFERPROC&								glMapNamedBuffer_,
+			const PFNGLMAPNAMEDBUFFERRANGEPROC&							glMapNamedBufferRange_,
+			const PFNGLUNMAPNAMEDBUFFERPROC&							glUnmapNamedBuffer_,
+			const PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEPROC&					glFlushMappedNamedBufferRange_,
+			const PFNGLGETNAMEDBUFFERPARAMETERIVPROC&					glGetNamedBufferParameteriv_,
+			const PFNGLGETNAMEDBUFFERPARAMETERI64VPROC&					glGetNamedBufferParameteri64v_,
+			const PFNGLGETNAMEDBUFFERPOINTERVPROC&						glGetNamedBufferPointerv_,
+			const PFNGLGETNAMEDBUFFERSUBDATAPROC&						glGetNamedBufferSubData_,
+			const PFNGLCREATEFRAMEBUFFERSPROC&							glCreateFramebuffers_,
+			const PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC&				glNamedFramebufferRenderbuffer_,
+			const PFNGLNAMEDFRAMEBUFFERPARAMETERIPROC&					glNamedFramebufferParameteri_,
+			const PFNGLNAMEDFRAMEBUFFERTEXTUREPROC&						glNamedFramebufferTexture_,
+			const PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC&				glNamedFramebufferTextureLayer_,
+			const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERPROC&					glNamedFramebufferDrawBuffer_,
+			const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC&					glNamedFramebufferDrawBuffers_,
+			const PFNGLNAMEDFRAMEBUFFERREADBUFFERPROC&					glNamedFramebufferReadBuffer_,
+			const PFNGLINVALIDATENAMEDFRAMEBUFFERDATAPROC&				glInvalidateNamedFramebufferData_,
+			const PFNGLINVALIDATENAMEDFRAMEBUFFERSUBDATAPROC&			glInvalidateNamedFramebufferSubData_,
+			const PFNGLCLEARNAMEDFRAMEBUFFERIVPROC&						glClearNamedFramebufferiv_,
+			const PFNGLCLEARNAMEDFRAMEBUFFERUIVPROC&					glClearNamedFramebufferuiv_,
+			const PFNGLCLEARNAMEDFRAMEBUFFERFVPROC&						glClearNamedFramebufferfv_,
+			const PFNGLCLEARNAMEDFRAMEBUFFERFIPROC&						glClearNamedFramebufferfi_,
+			const PFNGLBLITNAMEDFRAMEBUFFERPROC&						glBlitNamedFramebuffer_,
+			const PFNGLCHECKNAMEDFRAMEBUFFERSTATUSPROC&					glCheckNamedFramebufferStatus_,
+			const PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC&				glGetNamedFramebufferParameteriv_,
+			const PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC&	glGetNamedFramebufferAttachmentParameteriv_,
+			const PFNGLCREATERENDERBUFFERSPROC&							glCreateRenderbuffers_,
+			const PFNGLNAMEDRENDERBUFFERSTORAGEPROC&					glNamedRenderbufferStorage_,
+			const PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC&			glNamedRenderbufferStorageMultisample_,
+			const PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC&				glGetNamedRenderbufferParameteriv_,
+			const PFNGLCREATETEXTURESPROC&								glCreateTextures_,
+			const PFNGLTEXTUREBUFFERPROC&								glTextureBuffer_,
+			const PFNGLTEXTUREBUFFERRANGEPROC&							glTextureBufferRange_,
+			const PFNGLTEXTURESTORAGE1DPROC&							glTextureStorage1D_,
+			const PFNGLTEXTURESTORAGE2DPROC&							glTextureStorage2D_,
+			const PFNGLTEXTURESTORAGE3DPROC&							glTextureStorage3D_,
+			const PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC&					glTextureStorage2DMultisample_,
+			const PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC&					glTextureStorage3DMultisample_,
+			const PFNGLTEXTURESUBIMAGE1DPROC&							glTextureSubImage1D_,
+			const PFNGLTEXTURESUBIMAGE2DPROC&							glTextureSubImage2D_,
+			const PFNGLTEXTURESUBIMAGE3DPROC&							glTextureSubImage3D_,
+			const PFNGLCOMPRESSEDTEXTURESUBIMAGE1DPROC&					glCompressedTextureSubImage1D_,
+			const PFNGLCOMPRESSEDTEXTURESUBIMAGE2DPROC&					glCompressedTextureSubImage2D_,
+			const PFNGLCOMPRESSEDTEXTURESUBIMAGE3DPROC&					glCompressedTextureSubImage3D_,
+			const PFNGLCOPYTEXTURESUBIMAGE1DPROC&						glCopyTextureSubImage1D_,
+			const PFNGLCOPYTEXTURESUBIMAGE2DPROC&						glCopyTextureSubImage2D_,
+			const PFNGLCOPYTEXTURESUBIMAGE3DPROC&						glCopyTextureSubImage3D_,
+			const PFNGLTEXTUREPARAMETERFPROC&							glTextureParameterf_,
+			const PFNGLTEXTUREPARAMETERFVPROC&							glTextureParameterfv_,
+			const PFNGLTEXTUREPARAMETERIPROC&							glTextureParameteri_,
+			const PFNGLTEXTUREPARAMETERIIVPROC&							glTextureParameterIiv_,
+			const PFNGLTEXTUREPARAMETERIUIVPROC&						glTextureParameterIuiv_,
+			const PFNGLTEXTUREPARAMETERIVPROC&							glTextureParameteriv_,
+			const PFNGLGENERATETEXTUREMIPMAPPROC&						glGenerateTextureMipmap_,
+			const PFNGLBINDTEXTUREUNITPROC&								glBindTextureUnit_,
+			const PFNGLGETTEXTUREIMAGEPROC&								glGetTextureImage_,
+			const PFNGLGETCOMPRESSEDTEXTUREIMAGEPROC&					glGetCompressedTextureImage_,
+			const PFNGLGETTEXTURELEVELPARAMETERFVPROC&					glGetTextureLevelParameterfv_,
+			const PFNGLGETTEXTURELEVELPARAMETERIVPROC&					glGetTextureLevelParameteriv_,
+			const PFNGLGETTEXTUREPARAMETERFVPROC&						glGetTextureParameterfv_,
+			const PFNGLGETTEXTUREPARAMETERIIVPROC&						glGetTextureParameterIiv_,
+			const PFNGLGETTEXTUREPARAMETERIUIVPROC&						glGetTextureParameterIuiv_,
+			const PFNGLGETTEXTUREPARAMETERIVPROC&						glGetTextureParameteriv_,
+			const PFNGLCREATEVERTEXARRAYSPROC&							glCreateVertexArrays_,
+			const PFNGLDISABLEVERTEXARRAYATTRIBPROC&					glDisableVertexArrayAttrib_,
+			const PFNGLENABLEVERTEXARRAYATTRIBPROC&						glEnableVertexArrayAttrib_,
+			const PFNGLVERTEXARRAYELEMENTBUFFERPROC&					glVertexArrayElementBuffer_,
+			const PFNGLVERTEXARRAYVERTEXBUFFERPROC&						glVertexArrayVertexBuffer_,
+			const PFNGLVERTEXARRAYVERTEXBUFFERSPROC&					glVertexArrayVertexBuffers_,
+			const PFNGLVERTEXARRAYATTRIBBINDINGPROC&					glVertexArrayAttribBinding_,
+			const PFNGLVERTEXARRAYATTRIBFORMATPROC&						glVertexArrayAttribFormat_,
+			const PFNGLVERTEXARRAYATTRIBIFORMATPROC&					glVertexArrayAttribIFormat_,
+			const PFNGLVERTEXARRAYATTRIBLFORMATPROC&					glVertexArrayAttribLFormat_,
+			const PFNGLVERTEXARRAYBINDINGDIVISORPROC&					glVertexArrayBindingDivisor_,
+			const PFNGLGETVERTEXARRAYIVPROC&							glGetVertexArrayiv_,
+			const PFNGLGETVERTEXARRAYINDEXEDIVPROC&						glGetVertexArrayIndexediv_,
+			const PFNGLGETVERTEXARRAYINDEXED64IVPROC&					glGetVertexArrayIndexed64iv_,
+			const PFNGLCREATESAMPLERSPROC&								glCreateSamplers_,
+			const PFNGLCREATEPROGRAMPIPELINESPROC&						glCreateProgramPipelines_,
+			const PFNGLCREATEQUERIESPROC&								glCreateQueries_,
+			const PFNGLGETQUERYBUFFEROBJECTI64VPROC&					glGetQueryBufferObjecti64v_,
+			const PFNGLGETQUERYBUFFEROBJECTIVPROC&						glGetQueryBufferObjectiv_,
+			const PFNGLGETQUERYBUFFEROBJECTUI64VPROC&					glGetQueryBufferObjectui64v_,
+			const PFNGLGETQUERYBUFFEROBJECTUIVPROC&						glGetQueryBufferObjectuiv_,
+			const PFNGLMEMORYBARRIERBYREGIONPROC&						glMemoryBarrierByRegion_,
+			const PFNGLGETTEXTURESUBIMAGEPROC&							glGetTextureSubImage_,
+			const PFNGLGETCOMPRESSEDTEXTURESUBIMAGEPROC&				glGetCompressedTextureSubImage_,
+			const PFNGLGETGRAPHICSRESETSTATUSPROC&						glGetGraphicsResetStatus_,
+			const PFNGLGETNCOMPRESSEDTEXIMAGEPROC&						glGetnCompressedTexImage_,
+			const PFNGLGETNTEXIMAGEPROC&								glGetnTexImage_,
+			const PFNGLGETNUNIFORMDVPROC&								glGetnUniformdv_,
+			const PFNGLGETNUNIFORMFVPROC&								glGetnUniformfv_,
+			const PFNGLGETNUNIFORMIVPROC&								glGetnUniformiv_,
+			const PFNGLGETNUNIFORMUIVPROC&								glGetnUniformuiv_,
+			const PFNGLREADNPIXELSPROC&									glReadnPixels_,
+			const PFNGLGETNMAPDVPROC&									glGetnMapdv_,
+			const PFNGLGETNMAPFVPROC&									glGetnMapfv_,
+			const PFNGLGETNMAPIVPROC&									glGetnMapiv_,
+			const PFNGLGETNPIXELMAPFVPROC&								glGetnPixelMapfv_,
+			const PFNGLGETNPIXELMAPUIVPROC&								glGetnPixelMapuiv_,
+			const PFNGLGETNPIXELMAPUSVPROC&								glGetnPixelMapusv_,
+			const PFNGLGETNPOLYGONSTIPPLEPROC&							glGetnPolygonStipple_,
+			const PFNGLGETNCOLORTABLEPROC&								glGetnColorTable_,
+			const PFNGLGETNCONVOLUTIONFILTERPROC&						glGetnConvolutionFilter_,
+			const PFNGLGETNSEPARABLEFILTERPROC&							glGetnSeparableFilter_,
+			const PFNGLGETNHISTOGRAMPROC&								glGetnHistogram_,
+			const PFNGLGETNMINMAXPROC&									glGetnMinmax_,
+			const PFNGLTEXTUREBARRIERPROC&								glTextureBarrier_
+		);
+	};
 
 #pragma region Interface
 	void Interface::CheckForErrors() const
@@ -2536,6 +3129,584 @@ namespace OpenGL
 		glBeginQueryIndexed					(glBeginQueryIndexed_),
 		glEndQueryIndexed					(glEndQueryIndexed_),
 		glGetQueryIndexediv					(glGetQueryIndexediv_)
+	{
+	}
+#pragma endregion
+#pragma region Interface_4_1
+	Interface_4_1::Interface_4_1(
+		const PFNGLRELEASESHADERCOMPILERPROC&			glReleaseShaderCompiler_,
+		const PFNGLSHADERBINARYPROC&					glShaderBinary_,	
+		const PFNGLGETSHADERPRECISIONFORMATPROC&		glGetShaderPrecisionFormat_,	
+		const PFNGLDEPTHRANGEFPROC&						glDepthRangef_,
+		const PFNGLCLEARDEPTHFPROC&						glClearDepthf_,
+		const PFNGLGETPROGRAMBINARYPROC&				glGetProgramBinary_,	
+		const PFNGLPROGRAMBINARYPROC&					glProgramBinary_,
+		const PFNGLPROGRAMPARAMETERIPROC&				glProgramParameteri_,
+		const PFNGLUSEPROGRAMSTAGESPROC&				glUseProgramStages_,	
+		const PFNGLACTIVESHADERPROGRAMPROC&				glActiveShaderProgram_,
+		const PFNGLCREATESHADERPROGRAMVPROC&			glCreateShaderProgramv_,	
+		const PFNGLBINDPROGRAMPIPELINEPROC&				glBindProgramPipeline_,
+		const PFNGLDELETEPROGRAMPIPELINESPROC&			glDeleteProgramPipelines_,
+		const PFNGLGENPROGRAMPIPELINESPROC&				glGenProgramPipelines_,
+		const PFNGLISPROGRAMPIPELINEPROC&				glIsProgramPipeline_,
+		const PFNGLGETPROGRAMPIPELINEIVPROC&			glGetProgramPipelineiv_,	
+		const PFNGLPROGRAMUNIFORM1IPROC&				glProgramUniform1i_,	
+		const PFNGLPROGRAMUNIFORM1IVPROC&				glProgramUniform1iv_,
+		const PFNGLPROGRAMUNIFORM1FPROC&				glProgramUniform1f_,	
+		const PFNGLPROGRAMUNIFORM1FVPROC&				glProgramUniform1fv_,
+		const PFNGLPROGRAMUNIFORM1DPROC&				glProgramUniform1d_,	
+		const PFNGLPROGRAMUNIFORM1DVPROC&				glProgramUniform1dv_,
+		const PFNGLPROGRAMUNIFORM1UIPROC&				glProgramUniform1ui_,
+		const PFNGLPROGRAMUNIFORM1UIVPROC&				glProgramUniform1uiv_,
+		const PFNGLPROGRAMUNIFORM2IPROC&				glProgramUniform2i_,	
+		const PFNGLPROGRAMUNIFORM2IVPROC&				glProgramUniform2iv_,
+		const PFNGLPROGRAMUNIFORM2FPROC&				glProgramUniform2f_,	
+		const PFNGLPROGRAMUNIFORM2FVPROC&				glProgramUniform2fv_,
+		const PFNGLPROGRAMUNIFORM2DPROC&				glProgramUniform2d_,	
+		const PFNGLPROGRAMUNIFORM2DVPROC&				glProgramUniform2dv_,
+		const PFNGLPROGRAMUNIFORM2UIPROC&				glProgramUniform2ui_,
+		const PFNGLPROGRAMUNIFORM2UIVPROC&				glProgramUniform2uiv_,
+		const PFNGLPROGRAMUNIFORM3IPROC&				glProgramUniform3i_,	
+		const PFNGLPROGRAMUNIFORM3IVPROC&				glProgramUniform3iv_,
+		const PFNGLPROGRAMUNIFORM3FPROC&				glProgramUniform3f_,	
+		const PFNGLPROGRAMUNIFORM3FVPROC&				glProgramUniform3fv_,
+		const PFNGLPROGRAMUNIFORM3DPROC&				glProgramUniform3d_,	
+		const PFNGLPROGRAMUNIFORM3DVPROC&				glProgramUniform3dv_,
+		const PFNGLPROGRAMUNIFORM3UIPROC&				glProgramUniform3ui_,
+		const PFNGLPROGRAMUNIFORM3UIVPROC&				glProgramUniform3uiv_,
+		const PFNGLPROGRAMUNIFORM4IPROC&				glProgramUniform4i_,	
+		const PFNGLPROGRAMUNIFORM4IVPROC&				glProgramUniform4iv_,
+		const PFNGLPROGRAMUNIFORM4FPROC&				glProgramUniform4f_,	
+		const PFNGLPROGRAMUNIFORM4FVPROC&				glProgramUniform4fv_,
+		const PFNGLPROGRAMUNIFORM4DPROC&				glProgramUniform4d_,	
+		const PFNGLPROGRAMUNIFORM4DVPROC&				glProgramUniform4dv_,
+		const PFNGLPROGRAMUNIFORM4UIPROC&				glProgramUniform4ui_,
+		const PFNGLPROGRAMUNIFORM4UIVPROC&				glProgramUniform4uiv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2FVPROC&			glProgramUniformMatrix2fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3FVPROC&			glProgramUniformMatrix3fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4FVPROC&			glProgramUniformMatrix4fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2DVPROC&			glProgramUniformMatrix2dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3DVPROC&			glProgramUniformMatrix3dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4DVPROC&			glProgramUniformMatrix4dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC&		glProgramUniformMatrix2x3fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC&		glProgramUniformMatrix3x2fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC&		glProgramUniformMatrix2x4fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC&		glProgramUniformMatrix4x2fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC&		glProgramUniformMatrix3x4fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC&		glProgramUniformMatrix4x3fv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC&		glProgramUniformMatrix2x3dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC&		glProgramUniformMatrix3x2dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC&		glProgramUniformMatrix2x4dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC&		glProgramUniformMatrix4x2dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC&		glProgramUniformMatrix3x4dv_,
+		const PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC&		glProgramUniformMatrix4x3dv_,
+		const PFNGLVALIDATEPROGRAMPIPELINEPROC&			glValidateProgramPipeline_,
+		const PFNGLGETPROGRAMPIPELINEINFOLOGPROC&		glGetProgramPipelineInfoLog_,
+		const PFNGLVERTEXATTRIBL1DPROC&					glVertexAttribL1d_,
+		const PFNGLVERTEXATTRIBL2DPROC&					glVertexAttribL2d_,
+		const PFNGLVERTEXATTRIBL3DPROC&					glVertexAttribL3d_,
+		const PFNGLVERTEXATTRIBL4DPROC&					glVertexAttribL4d_,
+		const PFNGLVERTEXATTRIBL1DVPROC&				glVertexAttribL1dv_,	
+		const PFNGLVERTEXATTRIBL2DVPROC&				glVertexAttribL2dv_,	
+		const PFNGLVERTEXATTRIBL3DVPROC&				glVertexAttribL3dv_,	
+		const PFNGLVERTEXATTRIBL4DVPROC&				glVertexAttribL4dv_,	
+		const PFNGLVERTEXATTRIBLPOINTERPROC&			glVertexAttribLPointer_,	
+		const PFNGLGETVERTEXATTRIBLDVPROC&				glGetVertexAttribLdv_,
+		const PFNGLVIEWPORTARRAYVPROC&					glViewportArrayv_,
+		const PFNGLVIEWPORTINDEXEDFPROC&				glViewportIndexedf_,	
+		const PFNGLVIEWPORTINDEXEDFVPROC&				glViewportIndexedfv_,
+		const PFNGLSCISSORARRAYVPROC&					glScissorArrayv_,
+		const PFNGLSCISSORINDEXEDPROC&					glScissorIndexed_,
+		const PFNGLSCISSORINDEXEDVPROC&					glScissorIndexedv_,
+		const PFNGLDEPTHRANGEARRAYVPROC&				glDepthRangeArrayv_,
+		const PFNGLDEPTHRANGEINDEXEDPROC&				glDepthRangeIndexed_,
+		const PFNGLGETFLOATI_VPROC&						glGetFloati_v_,
+		const PFNGLGETDOUBLEI_VPROC&					glGetDoublei_v_
+	):
+		glReleaseShaderCompiler			(glReleaseShaderCompiler_),
+		glShaderBinary					(glShaderBinary_),
+		glGetShaderPrecisionFormat		(glGetShaderPrecisionFormat_),
+		glDepthRangef					(glDepthRangef_),
+		glClearDepthf					(glClearDepthf_),
+		glGetProgramBinary				(glGetProgramBinary_),
+		glProgramBinary					(glProgramBinary_),
+		glProgramParameteri				(glProgramParameteri_),
+		glUseProgramStages				(glUseProgramStages_),
+		glActiveShaderProgram			(glActiveShaderProgram_),
+		glCreateShaderProgramv			(glCreateShaderProgramv_),
+		glBindProgramPipeline			(glBindProgramPipeline_),
+		glDeleteProgramPipelines		(glDeleteProgramPipelines_),
+		glGenProgramPipelines			(glGenProgramPipelines_),
+		glIsProgramPipeline				(glIsProgramPipeline_),
+		glGetProgramPipelineiv			(glGetProgramPipelineiv_),
+		glProgramUniform1i				(glProgramUniform1i_),
+		glProgramUniform1iv				(glProgramUniform1iv_),
+		glProgramUniform1f				(glProgramUniform1f_),
+		glProgramUniform1fv				(glProgramUniform1fv_),
+		glProgramUniform1d				(glProgramUniform1d_),
+		glProgramUniform1dv				(glProgramUniform1dv_),
+		glProgramUniform1ui				(glProgramUniform1ui_),
+		glProgramUniform1uiv			(glProgramUniform1uiv_),
+		glProgramUniform2i				(glProgramUniform2i_),
+		glProgramUniform2iv				(glProgramUniform2iv_),
+		glProgramUniform2f				(glProgramUniform2f_),
+		glProgramUniform2fv				(glProgramUniform2fv_),
+		glProgramUniform2d				(glProgramUniform2d_),
+		glProgramUniform2dv				(glProgramUniform2dv_),
+		glProgramUniform2ui				(glProgramUniform2ui_),
+		glProgramUniform2uiv			(glProgramUniform2uiv_),
+		glProgramUniform3i				(glProgramUniform3i_),
+		glProgramUniform3iv				(glProgramUniform3iv_),
+		glProgramUniform3f				(glProgramUniform3f_),
+		glProgramUniform3fv				(glProgramUniform3fv_),
+		glProgramUniform3d				(glProgramUniform3d_),
+		glProgramUniform3dv				(glProgramUniform3dv_),
+		glProgramUniform3ui				(glProgramUniform3ui_),
+		glProgramUniform3uiv			(glProgramUniform3uiv_),
+		glProgramUniform4i				(glProgramUniform4i_),
+		glProgramUniform4iv				(glProgramUniform4iv_),
+		glProgramUniform4f				(glProgramUniform4f_),
+		glProgramUniform4fv				(glProgramUniform4fv_),
+		glProgramUniform4d				(glProgramUniform4d_),
+		glProgramUniform4dv				(glProgramUniform4dv_),
+		glProgramUniform4ui				(glProgramUniform4ui_),
+		glProgramUniform4uiv			(glProgramUniform4uiv_),
+		glProgramUniformMatrix2fv		(glProgramUniformMatrix2fv_),
+		glProgramUniformMatrix3fv		(glProgramUniformMatrix3fv_),
+		glProgramUniformMatrix4fv		(glProgramUniformMatrix4fv_),
+		glProgramUniformMatrix2dv		(glProgramUniformMatrix2dv_),
+		glProgramUniformMatrix3dv		(glProgramUniformMatrix3dv_),
+		glProgramUniformMatrix4dv		(glProgramUniformMatrix4dv_),
+		glProgramUniformMatrix2x3fv		(glProgramUniformMatrix2x3fv_),
+		glProgramUniformMatrix3x2fv		(glProgramUniformMatrix3x2fv_),
+		glProgramUniformMatrix2x4fv		(glProgramUniformMatrix2x4fv_),
+		glProgramUniformMatrix4x2fv		(glProgramUniformMatrix4x2fv_),
+		glProgramUniformMatrix3x4fv		(glProgramUniformMatrix3x4fv_),
+		glProgramUniformMatrix4x3fv		(glProgramUniformMatrix4x3fv_),
+		glProgramUniformMatrix2x3dv		(glProgramUniformMatrix2x3dv_),
+		glProgramUniformMatrix3x2dv		(glProgramUniformMatrix3x2dv_),
+		glProgramUniformMatrix2x4dv		(glProgramUniformMatrix2x4dv_),
+		glProgramUniformMatrix4x2dv		(glProgramUniformMatrix4x2dv_),
+		glProgramUniformMatrix3x4dv		(glProgramUniformMatrix3x4dv_),
+		glProgramUniformMatrix4x3dv		(glProgramUniformMatrix4x3dv_),
+		glValidateProgramPipeline		(glValidateProgramPipeline_),
+		glGetProgramPipelineInfoLog		(glGetProgramPipelineInfoLog_),
+		glVertexAttribL1d				(glVertexAttribL1d_),
+		glVertexAttribL2d				(glVertexAttribL2d_),
+		glVertexAttribL3d				(glVertexAttribL3d_),
+		glVertexAttribL4d				(glVertexAttribL4d_),
+		glVertexAttribL1dv				(glVertexAttribL1dv_),
+		glVertexAttribL2dv				(glVertexAttribL2dv_),
+		glVertexAttribL3dv				(glVertexAttribL3dv_),
+		glVertexAttribL4dv				(glVertexAttribL4dv_),
+		glVertexAttribLPointer			(glVertexAttribLPointer_),
+		glGetVertexAttribLdv			(glGetVertexAttribLdv_),
+		glViewportArrayv				(glViewportArrayv_),
+		glViewportIndexedf				(glViewportIndexedf_),
+		glViewportIndexedfv				(glViewportIndexedfv_),
+		glScissorArrayv					(glScissorArrayv_),
+		glScissorIndexed				(glScissorIndexed_),
+		glScissorIndexedv				(glScissorIndexedv_),
+		glDepthRangeArrayv				(glDepthRangeArrayv_),
+		glDepthRangeIndexed				(glDepthRangeIndexed_),
+		glGetFloati_v					(glGetFloati_v_),
+		glGetDoublei_v					(glGetDoublei_v_)
+	{
+	}
+#pragma endregion
+#pragma region Interface_4_2
+	Interface_4_2::Interface_4_2(
+		const PFNGLDRAWARRAYSINSTANCEDBASEINSTANCEPROC&				glDrawArraysInstancedBaseInstance_,
+		const PFNGLDRAWELEMENTSINSTANCEDBASEINSTANCEPROC&			glDrawElementsInstancedBaseInstance_,
+		const PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXBASEINSTANCEPROC&	glDrawElementsInstancedBaseVertexBaseInstance_,
+		const PFNGLGETINTERNALFORMATIVPROC&							glGetInternalformativ_,
+		const PFNGLGETACTIVEATOMICCOUNTERBUFFERIVPROC&				glGetActiveAtomicCounterBufferiv_,
+		const PFNGLBINDIMAGETEXTUREPROC&							glBindImageTexture_,
+		const PFNGLMEMORYBARRIERPROC&								glMemoryBarrier_,
+		const PFNGLTEXSTORAGE1DPROC&								glTexStorage1D_,
+		const PFNGLTEXSTORAGE2DPROC&								glTexStorage2D_,
+		const PFNGLTEXSTORAGE3DPROC&								glTexStorage3D_,
+		const PFNGLDRAWTRANSFORMFEEDBACKINSTANCEDPROC&				glDrawTransformFeedbackInstanced_,
+		const PFNGLDRAWTRANSFORMFEEDBACKSTREAMINSTANCEDPROC&		glDrawTransformFeedbackStreamInstanced_
+	):
+		glDrawArraysInstancedBaseInstance				(glDrawArraysInstancedBaseInstance_),
+		glDrawElementsInstancedBaseInstance				(glDrawElementsInstancedBaseInstance_),
+		glDrawElementsInstancedBaseVertexBaseInstance	(glDrawElementsInstancedBaseVertexBaseInstance_),
+		glGetInternalformativ							(glGetInternalformativ_),
+		glGetActiveAtomicCounterBufferiv				(glGetActiveAtomicCounterBufferiv_),
+		glBindImageTexture								(glBindImageTexture_),
+		glMemoryBarrier									(glMemoryBarrier_),
+		glTexStorage1D									(glTexStorage1D_),
+		glTexStorage2D									(glTexStorage2D_),
+		glTexStorage3D									(glTexStorage3D_),
+		glDrawTransformFeedbackInstanced				(glDrawTransformFeedbackInstanced_),
+		glDrawTransformFeedbackStreamInstanced			(glDrawTransformFeedbackStreamInstanced_)
+	{
+	}
+#pragma endregion
+#pragma region Interface_4_3
+	Interface_4_3::Interface_4_3(
+		const PFNGLCLEARBUFFERDATAPROC&						glClearBufferData_,
+		const PFNGLCLEARBUFFERSUBDATAPROC&					glClearBufferSubData_,
+		const PFNGLDISPATCHCOMPUTEPROC&						glDispatchCompute_,
+		const PFNGLDISPATCHCOMPUTEINDIRECTPROC&				glDispatchComputeIndirect_,
+		const PFNGLCOPYIMAGESUBDATAPROC&					glCopyImageSubData_,
+		const PFNGLFRAMEBUFFERPARAMETERIPROC&				glFramebufferParameteri_,
+		const PFNGLGETFRAMEBUFFERPARAMETERIVPROC&			glGetFramebufferParameteriv_,
+		const PFNGLGETINTERNALFORMATI64VPROC&				glGetInternalformati64v_,
+		const PFNGLINVALIDATETEXSUBIMAGEPROC&				glInvalidateTexSubImage_,
+		const PFNGLINVALIDATETEXIMAGEPROC&					glInvalidateTexImage_,
+		const PFNGLINVALIDATEBUFFERSUBDATAPROC&				glInvalidateBufferSubData_,
+		const PFNGLINVALIDATEBUFFERDATAPROC&				glInvalidateBufferData_,
+		const PFNGLINVALIDATEFRAMEBUFFERPROC&				glInvalidateFramebuffer_,
+		const PFNGLINVALIDATESUBFRAMEBUFFERPROC&			glInvalidateSubFramebuffer_,
+		const PFNGLMULTIDRAWARRAYSINDIRECTPROC&				glMultiDrawArraysIndirect_,
+		const PFNGLMULTIDRAWELEMENTSINDIRECTPROC&			glMultiDrawElementsIndirect_,
+		const PFNGLGETPROGRAMINTERFACEIVPROC&				glGetProgramInterfaceiv_,
+		const PFNGLGETPROGRAMRESOURCEINDEXPROC&				glGetProgramResourceIndex_,
+		const PFNGLGETPROGRAMRESOURCENAMEPROC&				glGetProgramResourceName_,
+		const PFNGLGETPROGRAMRESOURCEIVPROC&				glGetProgramResourceiv_,
+		const PFNGLGETPROGRAMRESOURCELOCATIONPROC&			glGetProgramResourceLocation_,
+		const PFNGLGETPROGRAMRESOURCELOCATIONINDEXPROC&		glGetProgramResourceLocationIndex_,
+		const PFNGLSHADERSTORAGEBLOCKBINDINGPROC&			glShaderStorageBlockBinding_,
+		const PFNGLTEXBUFFERRANGEPROC&						glTexBufferRange_,
+		const PFNGLTEXSTORAGE2DMULTISAMPLEPROC&				glTexStorage2DMultisample_,
+		const PFNGLTEXSTORAGE3DMULTISAMPLEPROC&				glTexStorage3DMultisample_,
+		const PFNGLTEXTUREVIEWPROC&							glTextureView_,
+		const PFNGLBINDVERTEXBUFFERPROC&					glBindVertexBuffer_,
+		const PFNGLVERTEXATTRIBFORMATPROC&					glVertexAttribFormat_,
+		const PFNGLVERTEXATTRIBIFORMATPROC&					glVertexAttribIFormat_,
+		const PFNGLVERTEXATTRIBLFORMATPROC&					glVertexAttribLFormat_,
+		const PFNGLVERTEXATTRIBBINDINGPROC&					glVertexAttribBinding_,
+		const PFNGLVERTEXBINDINGDIVISORPROC&				glVertexBindingDivisor_,
+		const PFNGLDEBUGMESSAGECONTROLPROC&					glDebugMessageControl_,
+		const PFNGLDEBUGMESSAGEINSERTPROC&					glDebugMessageInsert_,
+		const PFNGLDEBUGMESSAGECALLBACKPROC&				glDebugMessageCallback_,
+		const PFNGLGETDEBUGMESSAGELOGPROC&					glGetDebugMessageLog_,
+		const PFNGLPUSHDEBUGGROUPPROC&						glPushDebugGroup_,
+		const PFNGLPOPDEBUGGROUPPROC&						glPopDebugGroup_,
+		const PFNGLOBJECTLABELPROC&							glObjectLabel_,
+		const PFNGLGETOBJECTLABELPROC&						glGetObjectLabel_,
+		const PFNGLOBJECTPTRLABELPROC&						glObjectPtrLabel_,
+		const PFNGLGETOBJECTPTRLABELPROC&					glGetObjectPtrLabel_
+	):
+		glClearBufferData					(glClearBufferData_),
+		glClearBufferSubData				(glClearBufferSubData_),
+		glDispatchCompute					(glDispatchCompute_),
+		glDispatchComputeIndirect			(glDispatchComputeIndirect_),
+		glCopyImageSubData					(glCopyImageSubData_),
+		glFramebufferParameteri				(glFramebufferParameteri_),
+		glGetFramebufferParameteriv			(glGetFramebufferParameteriv_),
+		glGetInternalformati64v				(glGetInternalformati64v_),
+		glInvalidateTexSubImage				(glInvalidateTexSubImage_),
+		glInvalidateTexImage				(glInvalidateTexImage_),
+		glInvalidateBufferSubData			(glInvalidateBufferSubData_),
+		glInvalidateBufferData				(glInvalidateBufferData_),
+		glInvalidateFramebuffer				(glInvalidateFramebuffer_),
+		glInvalidateSubFramebuffer			(glInvalidateSubFramebuffer_),
+		glMultiDrawArraysIndirect			(glMultiDrawArraysIndirect_),
+		glMultiDrawElementsIndirect			(glMultiDrawElementsIndirect_),
+		glGetProgramInterfaceiv				(glGetProgramInterfaceiv_),
+		glGetProgramResourceIndex			(glGetProgramResourceIndex_),
+		glGetProgramResourceName			(glGetProgramResourceName_),
+		glGetProgramResourceiv				(glGetProgramResourceiv_),
+		glGetProgramResourceLocation		(glGetProgramResourceLocation_),
+		glGetProgramResourceLocationIndex	(glGetProgramResourceLocationIndex_),
+		glShaderStorageBlockBinding			(glShaderStorageBlockBinding_),
+		glTexBufferRange					(glTexBufferRange_),
+		glTexStorage2DMultisample			(glTexStorage2DMultisample_),
+		glTexStorage3DMultisample			(glTexStorage3DMultisample_),
+		glTextureView						(glTextureView_),
+		glBindVertexBuffer					(glBindVertexBuffer_),
+		glVertexAttribFormat				(glVertexAttribFormat_),
+		glVertexAttribIFormat				(glVertexAttribIFormat_),
+		glVertexAttribLFormat				(glVertexAttribLFormat_),
+		glVertexAttribBinding				(glVertexAttribBinding_),
+		glVertexBindingDivisor				(glVertexBindingDivisor_),
+		glDebugMessageControl				(glDebugMessageControl_),
+		glDebugMessageInsert				(glDebugMessageInsert_),
+		glDebugMessageCallback				(glDebugMessageCallback_),
+		glGetDebugMessageLog				(glGetDebugMessageLog_),
+		glPushDebugGroup					(glPushDebugGroup_),
+		glPopDebugGroup						(glPopDebugGroup_),
+		glObjectLabel						(glObjectLabel_),
+		glGetObjectLabel					(glGetObjectLabel_),
+		glObjectPtrLabel					(glObjectPtrLabel_),
+		glGetObjectPtrLabel					(glGetObjectPtrLabel_)
+	{
+	}
+#pragma endregion
+#pragma region Interface_4_4
+	Interface_4_4::Interface_4_4(
+		const PFNGLBUFFERSTORAGEPROC&		glBufferStorage_,
+		const PFNGLCLEARTEXIMAGEPROC&		glClearTexImage_,
+		const PFNGLCLEARTEXSUBIMAGEPROC&	glClearTexSubImage_,
+		const PFNGLBINDBUFFERSBASEPROC&		glBindBuffersBase_,
+		const PFNGLBINDBUFFERSRANGEPROC&	glBindBuffersRange_,
+		const PFNGLBINDTEXTURESPROC&		glBindTextures_,
+		const PFNGLBINDSAMPLERSPROC&		glBindSamplers_,
+		const PFNGLBINDIMAGETEXTURESPROC&	glBindImageTextures_,
+		const PFNGLBINDVERTEXBUFFERSPROC&	glBindVertexBuffers_
+	):
+		glBufferStorage		(glBufferStorage_),
+		glClearTexImage		(glClearTexImage_),
+		glClearTexSubImage	(glClearTexSubImage_),
+		glBindBuffersBase	(glBindBuffersBase_),
+		glBindBuffersRange	(glBindBuffersRange_),
+		glBindTextures		(glBindTextures_),
+		glBindSamplers		(glBindSamplers_),
+		glBindImageTextures	(glBindImageTextures_),
+		glBindVertexBuffers	(glBindVertexBuffers_)
+	{
+	}
+#pragma endregion
+#pragma region Interface_4_5
+	Interface_4_5::Interface_4_5(
+		const PFNGLCLIPCONTROLPROC&									glClipControl_,
+		const PFNGLCREATETRANSFORMFEEDBACKSPROC&					glCreateTransformFeedbacks_,
+		const PFNGLTRANSFORMFEEDBACKBUFFERBASEPROC&					glTransformFeedbackBufferBase_,
+		const PFNGLTRANSFORMFEEDBACKBUFFERRANGEPROC&				glTransformFeedbackBufferRange_,
+		const PFNGLGETTRANSFORMFEEDBACKIVPROC&						glGetTransformFeedbackiv_,
+		const PFNGLGETTRANSFORMFEEDBACKI_VPROC&						glGetTransformFeedbacki_v_,
+		const PFNGLGETTRANSFORMFEEDBACKI64_VPROC&					glGetTransformFeedbacki64_v_,
+		const PFNGLCREATEBUFFERSPROC&								glCreateBuffers_,
+		const PFNGLNAMEDBUFFERSTORAGEPROC&							glNamedBufferStorage_,
+		const PFNGLNAMEDBUFFERDATAPROC&								glNamedBufferData_,
+		const PFNGLNAMEDBUFFERSUBDATAPROC&							glNamedBufferSubData_,
+		const PFNGLCOPYNAMEDBUFFERSUBDATAPROC&						glCopyNamedBufferSubData_,
+		const PFNGLCLEARNAMEDBUFFERDATAPROC&						glClearNamedBufferData_,
+		const PFNGLCLEARNAMEDBUFFERSUBDATAPROC&						glClearNamedBufferSubData_,
+		const PFNGLMAPNAMEDBUFFERPROC&								glMapNamedBuffer_,
+		const PFNGLMAPNAMEDBUFFERRANGEPROC&							glMapNamedBufferRange_,
+		const PFNGLUNMAPNAMEDBUFFERPROC&							glUnmapNamedBuffer_,
+		const PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEPROC&					glFlushMappedNamedBufferRange_,
+		const PFNGLGETNAMEDBUFFERPARAMETERIVPROC&					glGetNamedBufferParameteriv_,
+		const PFNGLGETNAMEDBUFFERPARAMETERI64VPROC&					glGetNamedBufferParameteri64v_,
+		const PFNGLGETNAMEDBUFFERPOINTERVPROC&						glGetNamedBufferPointerv_,
+		const PFNGLGETNAMEDBUFFERSUBDATAPROC&						glGetNamedBufferSubData_,
+		const PFNGLCREATEFRAMEBUFFERSPROC&							glCreateFramebuffers_,
+		const PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC&				glNamedFramebufferRenderbuffer_,
+		const PFNGLNAMEDFRAMEBUFFERPARAMETERIPROC&					glNamedFramebufferParameteri_,
+		const PFNGLNAMEDFRAMEBUFFERTEXTUREPROC&						glNamedFramebufferTexture_,
+		const PFNGLNAMEDFRAMEBUFFERTEXTURELAYERPROC&				glNamedFramebufferTextureLayer_,
+		const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERPROC&					glNamedFramebufferDrawBuffer_,
+		const PFNGLNAMEDFRAMEBUFFERDRAWBUFFERSPROC&					glNamedFramebufferDrawBuffers_,
+		const PFNGLNAMEDFRAMEBUFFERREADBUFFERPROC&					glNamedFramebufferReadBuffer_,
+		const PFNGLINVALIDATENAMEDFRAMEBUFFERDATAPROC&				glInvalidateNamedFramebufferData_,
+		const PFNGLINVALIDATENAMEDFRAMEBUFFERSUBDATAPROC&			glInvalidateNamedFramebufferSubData_,
+		const PFNGLCLEARNAMEDFRAMEBUFFERIVPROC&						glClearNamedFramebufferiv_,
+		const PFNGLCLEARNAMEDFRAMEBUFFERUIVPROC&					glClearNamedFramebufferuiv_,
+		const PFNGLCLEARNAMEDFRAMEBUFFERFVPROC&						glClearNamedFramebufferfv_,
+		const PFNGLCLEARNAMEDFRAMEBUFFERFIPROC&						glClearNamedFramebufferfi_,
+		const PFNGLBLITNAMEDFRAMEBUFFERPROC&						glBlitNamedFramebuffer_,
+		const PFNGLCHECKNAMEDFRAMEBUFFERSTATUSPROC&					glCheckNamedFramebufferStatus_,
+		const PFNGLGETNAMEDFRAMEBUFFERPARAMETERIVPROC&				glGetNamedFramebufferParameteriv_,
+		const PFNGLGETNAMEDFRAMEBUFFERATTACHMENTPARAMETERIVPROC&	glGetNamedFramebufferAttachmentParameteriv_,
+		const PFNGLCREATERENDERBUFFERSPROC&							glCreateRenderbuffers_,
+		const PFNGLNAMEDRENDERBUFFERSTORAGEPROC&					glNamedRenderbufferStorage_,
+		const PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC&			glNamedRenderbufferStorageMultisample_,
+		const PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC&				glGetNamedRenderbufferParameteriv_,
+		const PFNGLCREATETEXTURESPROC&								glCreateTextures_,
+		const PFNGLTEXTUREBUFFERPROC&								glTextureBuffer_,
+		const PFNGLTEXTUREBUFFERRANGEPROC&							glTextureBufferRange_,
+		const PFNGLTEXTURESTORAGE1DPROC&							glTextureStorage1D_,
+		const PFNGLTEXTURESTORAGE2DPROC&							glTextureStorage2D_,
+		const PFNGLTEXTURESTORAGE3DPROC&							glTextureStorage3D_,
+		const PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC&					glTextureStorage2DMultisample_,
+		const PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC&					glTextureStorage3DMultisample_,
+		const PFNGLTEXTURESUBIMAGE1DPROC&							glTextureSubImage1D_,
+		const PFNGLTEXTURESUBIMAGE2DPROC&							glTextureSubImage2D_,
+		const PFNGLTEXTURESUBIMAGE3DPROC&							glTextureSubImage3D_,
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE1DPROC&					glCompressedTextureSubImage1D_,
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE2DPROC&					glCompressedTextureSubImage2D_,
+		const PFNGLCOMPRESSEDTEXTURESUBIMAGE3DPROC&					glCompressedTextureSubImage3D_,
+		const PFNGLCOPYTEXTURESUBIMAGE1DPROC&						glCopyTextureSubImage1D_,
+		const PFNGLCOPYTEXTURESUBIMAGE2DPROC&						glCopyTextureSubImage2D_,
+		const PFNGLCOPYTEXTURESUBIMAGE3DPROC&						glCopyTextureSubImage3D_,
+		const PFNGLTEXTUREPARAMETERFPROC&							glTextureParameterf_,
+		const PFNGLTEXTUREPARAMETERFVPROC&							glTextureParameterfv_,
+		const PFNGLTEXTUREPARAMETERIPROC&							glTextureParameteri_,
+		const PFNGLTEXTUREPARAMETERIIVPROC&							glTextureParameterIiv_,
+		const PFNGLTEXTUREPARAMETERIUIVPROC&						glTextureParameterIuiv_,
+		const PFNGLTEXTUREPARAMETERIVPROC&							glTextureParameteriv_,
+		const PFNGLGENERATETEXTUREMIPMAPPROC&						glGenerateTextureMipmap_,
+		const PFNGLBINDTEXTUREUNITPROC&								glBindTextureUnit_,
+		const PFNGLGETTEXTUREIMAGEPROC&								glGetTextureImage_,
+		const PFNGLGETCOMPRESSEDTEXTUREIMAGEPROC&					glGetCompressedTextureImage_,
+		const PFNGLGETTEXTURELEVELPARAMETERFVPROC&					glGetTextureLevelParameterfv_,
+		const PFNGLGETTEXTURELEVELPARAMETERIVPROC&					glGetTextureLevelParameteriv_,
+		const PFNGLGETTEXTUREPARAMETERFVPROC&						glGetTextureParameterfv_,
+		const PFNGLGETTEXTUREPARAMETERIIVPROC&						glGetTextureParameterIiv_,
+		const PFNGLGETTEXTUREPARAMETERIUIVPROC&						glGetTextureParameterIuiv_,
+		const PFNGLGETTEXTUREPARAMETERIVPROC&						glGetTextureParameteriv_,
+		const PFNGLCREATEVERTEXARRAYSPROC&							glCreateVertexArrays_,
+		const PFNGLDISABLEVERTEXARRAYATTRIBPROC&					glDisableVertexArrayAttrib_,
+		const PFNGLENABLEVERTEXARRAYATTRIBPROC&						glEnableVertexArrayAttrib_,
+		const PFNGLVERTEXARRAYELEMENTBUFFERPROC&					glVertexArrayElementBuffer_,
+		const PFNGLVERTEXARRAYVERTEXBUFFERPROC&						glVertexArrayVertexBuffer_,
+		const PFNGLVERTEXARRAYVERTEXBUFFERSPROC&					glVertexArrayVertexBuffers_,
+		const PFNGLVERTEXARRAYATTRIBBINDINGPROC&					glVertexArrayAttribBinding_,
+		const PFNGLVERTEXARRAYATTRIBFORMATPROC&						glVertexArrayAttribFormat_,
+		const PFNGLVERTEXARRAYATTRIBIFORMATPROC&					glVertexArrayAttribIFormat_,
+		const PFNGLVERTEXARRAYATTRIBLFORMATPROC&					glVertexArrayAttribLFormat_,
+		const PFNGLVERTEXARRAYBINDINGDIVISORPROC&					glVertexArrayBindingDivisor_,
+		const PFNGLGETVERTEXARRAYIVPROC&							glGetVertexArrayiv_,
+		const PFNGLGETVERTEXARRAYINDEXEDIVPROC&						glGetVertexArrayIndexediv_,
+		const PFNGLGETVERTEXARRAYINDEXED64IVPROC&					glGetVertexArrayIndexed64iv_,
+		const PFNGLCREATESAMPLERSPROC&								glCreateSamplers_,
+		const PFNGLCREATEPROGRAMPIPELINESPROC&						glCreateProgramPipelines_,
+		const PFNGLCREATEQUERIESPROC&								glCreateQueries_,
+		const PFNGLGETQUERYBUFFEROBJECTI64VPROC&					glGetQueryBufferObjecti64v_,
+		const PFNGLGETQUERYBUFFEROBJECTIVPROC&						glGetQueryBufferObjectiv_,
+		const PFNGLGETQUERYBUFFEROBJECTUI64VPROC&					glGetQueryBufferObjectui64v_,
+		const PFNGLGETQUERYBUFFEROBJECTUIVPROC&						glGetQueryBufferObjectuiv_,
+		const PFNGLMEMORYBARRIERBYREGIONPROC&						glMemoryBarrierByRegion_,
+		const PFNGLGETTEXTURESUBIMAGEPROC&							glGetTextureSubImage_,
+		const PFNGLGETCOMPRESSEDTEXTURESUBIMAGEPROC&				glGetCompressedTextureSubImage_,
+		const PFNGLGETGRAPHICSRESETSTATUSPROC&						glGetGraphicsResetStatus_,
+		const PFNGLGETNCOMPRESSEDTEXIMAGEPROC&						glGetnCompressedTexImage_,
+		const PFNGLGETNTEXIMAGEPROC&								glGetnTexImage_,
+		const PFNGLGETNUNIFORMDVPROC&								glGetnUniformdv_,
+		const PFNGLGETNUNIFORMFVPROC&								glGetnUniformfv_,
+		const PFNGLGETNUNIFORMIVPROC&								glGetnUniformiv_,
+		const PFNGLGETNUNIFORMUIVPROC&								glGetnUniformuiv_,
+		const PFNGLREADNPIXELSPROC&									glReadnPixels_,
+		const PFNGLGETNMAPDVPROC&									glGetnMapdv_,
+		const PFNGLGETNMAPFVPROC&									glGetnMapfv_,
+		const PFNGLGETNMAPIVPROC&									glGetnMapiv_,
+		const PFNGLGETNPIXELMAPFVPROC&								glGetnPixelMapfv_,
+		const PFNGLGETNPIXELMAPUIVPROC&								glGetnPixelMapuiv_,
+		const PFNGLGETNPIXELMAPUSVPROC&								glGetnPixelMapusv_,
+		const PFNGLGETNPOLYGONSTIPPLEPROC&							glGetnPolygonStipple_,
+		const PFNGLGETNCOLORTABLEPROC&								glGetnColorTable_,
+		const PFNGLGETNCONVOLUTIONFILTERPROC&						glGetnConvolutionFilter_,
+		const PFNGLGETNSEPARABLEFILTERPROC&							glGetnSeparableFilter_,
+		const PFNGLGETNHISTOGRAMPROC&								glGetnHistogram_,
+		const PFNGLGETNMINMAXPROC&									glGetnMinmax_,
+		const PFNGLTEXTUREBARRIERPROC&								glTextureBarrier_
+	):
+		glClipControl									(glClipControl_),
+		glCreateTransformFeedbacks						(glCreateTransformFeedbacks_),
+		glTransformFeedbackBufferBase					(glTransformFeedbackBufferBase_),
+		glTransformFeedbackBufferRange					(glTransformFeedbackBufferRange_),
+		glGetTransformFeedbackiv						(glGetTransformFeedbackiv_),
+		glGetTransformFeedbacki_v						(glGetTransformFeedbacki_v_),
+		glGetTransformFeedbacki64_v						(glGetTransformFeedbacki64_v_),
+		glCreateBuffers									(glCreateBuffers_),
+		glNamedBufferStorage							(glNamedBufferStorage_),
+		glNamedBufferData								(glNamedBufferData_),
+		glNamedBufferSubData							(glNamedBufferSubData_),
+		glCopyNamedBufferSubData						(glCopyNamedBufferSubData_),
+		glClearNamedBufferData							(glClearNamedBufferData_),
+		glClearNamedBufferSubData						(glClearNamedBufferSubData_),
+		glMapNamedBuffer								(glMapNamedBuffer_),
+		glMapNamedBufferRange							(glMapNamedBufferRange_),
+		glUnmapNamedBuffer								(glUnmapNamedBuffer_),
+		glFlushMappedNamedBufferRange					(glFlushMappedNamedBufferRange_),
+		glGetNamedBufferParameteriv						(glGetNamedBufferParameteriv_),
+		glGetNamedBufferParameteri64v					(glGetNamedBufferParameteri64v_),
+		glGetNamedBufferPointerv						(glGetNamedBufferPointerv_),
+		glGetNamedBufferSubData							(glGetNamedBufferSubData_),
+		glCreateFramebuffers							(glCreateFramebuffers_),
+		glNamedFramebufferRenderbuffer					(glNamedFramebufferRenderbuffer_),
+		glNamedFramebufferParameteri					(glNamedFramebufferParameteri_),
+		glNamedFramebufferTexture						(glNamedFramebufferTexture_),
+		glNamedFramebufferTextureLayer					(glNamedFramebufferTextureLayer_),
+		glNamedFramebufferDrawBuffer					(glNamedFramebufferDrawBuffer_),
+		glNamedFramebufferDrawBuffers					(glNamedFramebufferDrawBuffers_),
+		glNamedFramebufferReadBuffer					(glNamedFramebufferReadBuffer_),
+		glInvalidateNamedFramebufferData				(glInvalidateNamedFramebufferData_),
+		glInvalidateNamedFramebufferSubData				(glInvalidateNamedFramebufferSubData_),
+		glClearNamedFramebufferiv						(glClearNamedFramebufferiv_),
+		glClearNamedFramebufferuiv						(glClearNamedFramebufferuiv_),
+		glClearNamedFramebufferfv						(glClearNamedFramebufferfv_),
+		glClearNamedFramebufferfi						(glClearNamedFramebufferfi_),
+		glBlitNamedFramebuffer							(glBlitNamedFramebuffer_),
+		glCheckNamedFramebufferStatus					(glCheckNamedFramebufferStatus_),
+		glGetNamedFramebufferParameteriv				(glGetNamedFramebufferParameteriv_),
+		glGetNamedFramebufferAttachmentParameteriv		(glGetNamedFramebufferAttachmentParameteriv_),
+		glCreateRenderbuffers							(glCreateRenderbuffers_),
+		glNamedRenderbufferStorage						(glNamedRenderbufferStorage_),
+		glNamedRenderbufferStorageMultisample			(glNamedRenderbufferStorageMultisample_),
+		glGetNamedRenderbufferParameteriv				(glGetNamedRenderbufferParameteriv_),
+		glCreateTextures								(glCreateTextures_),
+		glTextureBuffer									(glTextureBuffer_),
+		glTextureBufferRange							(glTextureBufferRange_),
+		glTextureStorage1D								(glTextureStorage1D_),
+		glTextureStorage2D								(glTextureStorage2D_),
+		glTextureStorage3D								(glTextureStorage3D_),
+		glTextureStorage2DMultisample					(glTextureStorage2DMultisample_),
+		glTextureStorage3DMultisample					(glTextureStorage3DMultisample_),
+		glTextureSubImage1D								(glTextureSubImage1D_),
+		glTextureSubImage2D								(glTextureSubImage2D_),
+		glTextureSubImage3D								(glTextureSubImage3D_),
+		glCompressedTextureSubImage1D					(glCompressedTextureSubImage1D_),
+		glCompressedTextureSubImage2D					(glCompressedTextureSubImage2D_),
+		glCompressedTextureSubImage3D					(glCompressedTextureSubImage3D_),
+		glCopyTextureSubImage1D							(glCopyTextureSubImage1D_),
+		glCopyTextureSubImage2D							(glCopyTextureSubImage2D_),
+		glCopyTextureSubImage3D							(glCopyTextureSubImage3D_),
+		glTextureParameterf								(glTextureParameterf_),
+		glTextureParameterfv							(glTextureParameterfv_),
+		glTextureParameteri								(glTextureParameteri_),
+		glTextureParameterIiv							(glTextureParameterIiv_),
+		glTextureParameterIuiv							(glTextureParameterIuiv_),
+		glTextureParameteriv							(glTextureParameteriv_),
+		glGenerateTextureMipmap							(glGenerateTextureMipmap_),
+		glBindTextureUnit								(glBindTextureUnit_),
+		glGetTextureImage								(glGetTextureImage_),
+		glGetCompressedTextureImage						(glGetCompressedTextureImage_),
+		glGetTextureLevelParameterfv					(glGetTextureLevelParameterfv_),
+		glGetTextureLevelParameteriv					(glGetTextureLevelParameteriv_),
+		glGetTextureParameterfv							(glGetTextureParameterfv_),
+		glGetTextureParameterIiv						(glGetTextureParameterIiv_),
+		glGetTextureParameterIuiv						(glGetTextureParameterIuiv_),
+		glGetTextureParameteriv							(glGetTextureParameteriv_),
+		glCreateVertexArrays							(glCreateVertexArrays_),
+		glDisableVertexArrayAttrib						(glDisableVertexArrayAttrib_),
+		glEnableVertexArrayAttrib						(glEnableVertexArrayAttrib_),
+		glVertexArrayElementBuffer						(glVertexArrayElementBuffer_),
+		glVertexArrayVertexBuffer						(glVertexArrayVertexBuffer_),
+		glVertexArrayVertexBuffers						(glVertexArrayVertexBuffers_),
+		glVertexArrayAttribBinding						(glVertexArrayAttribBinding_),
+		glVertexArrayAttribFormat						(glVertexArrayAttribFormat_),
+		glVertexArrayAttribIFormat						(glVertexArrayAttribIFormat_),
+		glVertexArrayAttribLFormat						(glVertexArrayAttribLFormat_),
+		glVertexArrayBindingDivisor						(glVertexArrayBindingDivisor_),
+		glGetVertexArrayiv								(glGetVertexArrayiv_),
+		glGetVertexArrayIndexediv						(glGetVertexArrayIndexediv_),
+		glGetVertexArrayIndexed64iv						(glGetVertexArrayIndexed64iv_),
+		glCreateSamplers								(glCreateSamplers_),
+		glCreateProgramPipelines						(glCreateProgramPipelines_),
+		glCreateQueries									(glCreateQueries_),
+		glGetQueryBufferObjecti64v						(glGetQueryBufferObjecti64v_),
+		glGetQueryBufferObjectiv						(glGetQueryBufferObjectiv_),
+		glGetQueryBufferObjectui64v						(glGetQueryBufferObjectui64v_),
+		glGetQueryBufferObjectuiv						(glGetQueryBufferObjectuiv_),
+		glMemoryBarrierByRegion							(glMemoryBarrierByRegion_),
+		glGetTextureSubImage							(glGetTextureSubImage_),
+		glGetCompressedTextureSubImage					(glGetCompressedTextureSubImage_),
+		glGetGraphicsResetStatus						(glGetGraphicsResetStatus_),
+		glGetnCompressedTexImage						(glGetnCompressedTexImage_),
+		glGetnTexImage									(glGetnTexImage_),
+		glGetnUniformdv									(glGetnUniformdv_),
+		glGetnUniformfv									(glGetnUniformfv_),
+		glGetnUniformiv									(glGetnUniformiv_),
+		glGetnUniformuiv								(glGetnUniformuiv_),
+		glReadnPixels									(glReadnPixels_),
+		glGetnMapdv										(glGetnMapdv_),
+		glGetnMapfv										(glGetnMapfv_),
+		glGetnMapiv										(glGetnMapiv_),
+		glGetnPixelMapfv								(glGetnPixelMapfv_),
+		glGetnPixelMapuiv								(glGetnPixelMapuiv_),
+		glGetnPixelMapusv								(glGetnPixelMapusv_),
+		glGetnPolygonStipple							(glGetnPolygonStipple_),
+		glGetnColorTable								(glGetnColorTable_),
+		glGetnConvolutionFilter							(glGetnConvolutionFilter_),
+		glGetnSeparableFilter							(glGetnSeparableFilter_),
+		glGetnHistogram									(glGetnHistogram_),
+		glGetnMinmax									(glGetnMinmax_),
+		glTextureBarrier								(glTextureBarrier_)
 	{
 	}
 #pragma endregion
