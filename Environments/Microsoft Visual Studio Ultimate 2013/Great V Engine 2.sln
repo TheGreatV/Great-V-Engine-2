@@ -134,6 +134,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_Images", "Projects\
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_OpenGLRenderContext", "Projects\Others\Examples\Example_OpenGLRenderContext\Example_OpenGLRenderContext.vcxproj", "{BD977889-13B5-42F2-8974-B013239CEEB9}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EFDD998F-0124-464E-91B2-D0D656E1F802} = {EFDD998F-0124-464E-91B2-D0D656E1F802}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
