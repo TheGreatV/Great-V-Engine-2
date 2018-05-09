@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\..\Libraries\[Great V Engine 2] Common - User.props" />
     <Import Project="..\..\External\[Great V Engine 2] OpenGL- External.props" />
+    <Import Project="..\..\Libraries\[Great V Engine 2] OpenGL - User.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />

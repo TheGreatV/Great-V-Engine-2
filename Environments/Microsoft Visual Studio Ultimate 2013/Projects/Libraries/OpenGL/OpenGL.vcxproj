@@ -68,14 +68,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Exception.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Functions.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_0.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_2.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_3.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_4.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_5.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_0.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_1.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_0.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_1.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_2.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_3.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_0.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_1.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_2.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_3.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_4.cpp" />
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_5.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Header.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\OpenGL.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Exception.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Functions.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_0.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_2.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_3.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_4.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_5.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_0.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_1.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_0.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_1.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_2.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_3.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_0.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_1.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_2.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_3.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_4.hpp" />
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_5.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Header.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\OpenGL.hpp" />
   </ItemGroup>

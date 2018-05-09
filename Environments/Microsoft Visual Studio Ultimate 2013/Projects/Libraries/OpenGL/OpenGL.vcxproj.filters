@@ -21,10 +21,55 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\OpenGL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Functions.cpp">
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_0.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Exception.cpp">
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_1.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,10 +80,55 @@
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\OpenGL.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Functions.hpp">
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_0.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Exception.hpp">
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_3.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_4.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_1_5.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_0.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_2_1.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_0.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_1.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_3_3.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_0.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_1.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_3.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_4.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\Source code\Libraries\OpenGL\Core_4_5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
