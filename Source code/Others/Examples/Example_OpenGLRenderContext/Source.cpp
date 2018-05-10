@@ -86,7 +86,7 @@ HDC GetDeviceContext(HWND windowHandle)
 }
 
 
-void main()
+void main1()
 {
 	namespace GL = OpenGL::OSs::Windows;
 
@@ -1325,6 +1325,153 @@ void main()
 			renderContext_4_5_Handle->Flush();
 
 			SwapBuffers(deviceContext_4_5_Handle);
+		}
+
+		Sleep(1000 / 60);
+	}
+
+	GL::MakeCurrent(nullptr, nullptr);
+}
+void main()
+{
+	namespace GL = OpenGL::OSs::Windows;
+
+	auto instanceHandle = GetModuleHandleA(NULL);
+
+	std::string windowClassName = "window class";
+	{
+		WNDCLASSA windowClass;
+		{
+			memset(&windowClass, 0, sizeof(windowClass));
+
+			windowClass.lpszClassName = windowClassName.c_str();
+			windowClass.hInstance = instanceHandle;
+			windowClass.lpfnWndProc = DefWindowProcA;
+			windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+
+			if (!RegisterClassA(&windowClass))
+			{
+				throw Exception();
+			}
+		}
+	}
+
+	auto window1Handle				= GetWindow(instanceHandle, windowClassName, "window 1", 50, 50);
+	auto deviceContext1Handle		= GetDeviceContext(window1Handle);
+	auto renderContext1Handle		= MakeStrong<GL::Context_2_0>(deviceContext1Handle);
+
+	auto window2Handle				= GetWindow(instanceHandle, windowClassName, "window 2", 500, 50);
+	auto deviceContext2Handle		= GetDeviceContext(window2Handle);
+	// auto renderContext2Handle		= MakeStrong<GL::Context_2_0>(deviceContext2Handle);
+
+	GL::MakeCurrent(deviceContext1Handle, renderContext1Handle->GetHandle());
+	
+	auto bufferHandle = renderContext1Handle->GenBuffer();
+	{
+		renderContext1Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
+		renderContext1Handle->BufferData(OpenGL::Buffer::Type::Array, Vector<Vec2>({ Vec2(-0.5f, -0.5f), Vec2(+0.5f, -0.5f), Vec2(+0.0f, +0.5f) }), OpenGL::Buffer::Usage::Static);
+	}
+
+	auto vertexShaderHandle = renderContext1Handle->CreateShader(OpenGL::Shader::Type::Vertex);
+	{
+		renderContext1Handle->ShaderSource(vertexShaderHandle, "#version 110\n#extension all:disable\nin vec2 vPos; void main(){ gl_Position = vec4(vPos,0,1); }");
+		renderContext1Handle->CompileShader(vertexShaderHandle);
+
+		if (auto compileStatus = renderContext1Handle->GetShaderCompileStatus(vertexShaderHandle)); else
+		{
+			auto shaderInfoLog = renderContext1Handle->GetShaderInfoLog(vertexShaderHandle);
+
+			throw Exception("Exception during vertex shader compilation: " + shaderInfoLog);
+		}
+	}
+	auto fragmentShaderHandle = renderContext1Handle->CreateShader(OpenGL::Shader::Type::Fragment);
+	{
+		renderContext1Handle->ShaderSource(fragmentShaderHandle, "#version 110\n#extension all:disable\nvoid main(){ gl_FragColor = vec4(1); }");
+		renderContext1Handle->CompileShader(fragmentShaderHandle);
+
+		if (auto compileStatus = renderContext1Handle->GetShaderCompileStatus(fragmentShaderHandle)); else
+		{
+			auto shaderInfoLog = renderContext1Handle->GetShaderInfoLog(fragmentShaderHandle);
+
+			throw Exception("Exception during fragment shader compilation: " + shaderInfoLog);
+		}
+	}
+	auto programHandle = renderContext1Handle->CreateProgram();
+	{
+		renderContext1Handle->AttachShader(programHandle, vertexShaderHandle);
+		renderContext1Handle->AttachShader(programHandle, fragmentShaderHandle);
+		renderContext1Handle->LinkProgram(programHandle);
+
+		if (auto linkStatus = renderContext1Handle->GetProgramLinkStatus(programHandle)); else
+		{
+			auto programInfoLog = renderContext1Handle->GetProgramInfoLog(programHandle);
+
+			throw Exception("Exception during program linking" + programInfoLog);
+		}
+	}
+
+	const auto attributeLocation = renderContext1Handle->GetAttributeLocation(programHandle, "vPos");
+
+	renderContext1Handle->DeleteShader(vertexShaderHandle);
+	renderContext1Handle->DeleteShader(fragmentShaderHandle);
+
+	while (!GetAsyncKeyState(VK_ESCAPE))
+	{
+		MSG msg;
+		{
+			while (PeekMessageA(&msg, window1Handle, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessageA(&msg);
+			}
+			while (PeekMessageA(&msg, window2Handle, 0, 0, PM_REMOVE))
+			{
+				TranslateMessage(&msg);
+				DispatchMessageA(&msg);
+			}
+		}
+
+		GL::MakeCurrent(deviceContext1Handle, renderContext1Handle->GetHandle());
+		{
+			renderContext1Handle->ConfigureViewport(0, 0, windowSize.x, windowSize.y);
+			renderContext1Handle->ClearColor(1, 0, 0, 0);
+			renderContext1Handle->Clear(GL_COLOR_BUFFER_BIT);
+			{
+				renderContext1Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
+				renderContext1Handle->UseProgram(programHandle);
+				
+				if (attributeLocation)
+				{
+					renderContext1Handle->VertexAttributePointer(attributeLocation, 2, OpenGL::Program::Attribute::Type::Float, false, 0, 0);
+					renderContext1Handle->EnableVertexAttributeArray(attributeLocation);
+				}
+
+				renderContext1Handle->DrawArrays(OpenGL::PrimitiveType::Triangles, 0, 3);
+			}
+			renderContext1Handle->Flush();
+
+			SwapBuffers(deviceContext1Handle);
+		}
+		GL::MakeCurrent(deviceContext2Handle, renderContext1Handle->GetHandle());
+		{
+			renderContext1Handle->ConfigureViewport(0, 0, windowSize.x, windowSize.y);
+			renderContext1Handle->ClearColor(0, 1, 0, 0);
+			renderContext1Handle->Clear(GL_COLOR_BUFFER_BIT);
+			{
+				renderContext1Handle->BindBuffer(OpenGL::Buffer::Type::Array, bufferHandle);
+				renderContext1Handle->UseProgram(programHandle);
+
+				if (attributeLocation)
+				{
+					renderContext1Handle->VertexAttributePointer(attributeLocation, 2, OpenGL::Program::Attribute::Type::Float, false, 0, 0);
+					renderContext1Handle->EnableVertexAttributeArray(attributeLocation);
+				}
+
+				renderContext1Handle->DrawArrays(OpenGL::PrimitiveType::Triangles, 0, 3);
+			}
+			renderContext1Handle->Flush();
+
+			SwapBuffers(deviceContext2Handle);
 		}
 
 		Sleep(1000 / 60);

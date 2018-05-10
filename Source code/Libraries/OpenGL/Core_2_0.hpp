@@ -494,10 +494,14 @@ namespace GreatVEngine2
 			inline void								UseProgram(const Null&) const
 			{
 				glUseProgram(0);
+
+				CheckForErrors();
 			}
 			inline void								UseProgram(const Program::Handle& handle_) const
 			{
 				glUseProgram(static_cast<Program::Handle::Value>(handle_));
+
+				CheckForErrors();
 			}
 			inline Program::Attribute::Location		GetAttributeLocation(const Program::Handle& handle_, const String& name_) const
 			{
