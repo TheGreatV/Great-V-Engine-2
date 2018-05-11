@@ -76,7 +76,6 @@ namespace GreatVEngine2
 				public:
 					inline virtual void SignalPresented(const StrongPointer<View>& view_) override;
 				};
-
 				class Engine:
 					public Graphics::Engine
 				{
@@ -92,7 +91,6 @@ namespace GreatVEngine2
 				public:
 					inline virtual StrongPointer<Graphics::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
 				};
-
 				class Method:
 					public This<Method>
 				{
@@ -106,6 +104,7 @@ namespace GreatVEngine2
 				public:
 					inline virtual StrongPointer<OpenGL::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) = 0;
 				};
+
 #pragma region Output
 				Output::Output(const StrongPointer<Output>& this_):
 					Graphics::Output(this_)
