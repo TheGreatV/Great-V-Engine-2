@@ -4,6 +4,7 @@
 #pragma warning (disable : 4503) // names is too long
 
 #include "Header.hpp"
+#include "Methods/Forward.hpp"
 
 #pragma endregion
 

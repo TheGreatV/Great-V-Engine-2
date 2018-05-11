@@ -3,6 +3,7 @@
 #include <../Graphics/Graphics.hpp>
 #include <../OpenGL Graphics/OpenGL Graphics.hpp>
 #include <../Windows Graphics/Windows Graphics.hpp>
+#include <../OpenIL/OpenIL.hpp>
 namespace GVE = GreatVEngine2;
 using namespace GVE;
 
@@ -47,7 +48,6 @@ public:
 
 void main()
 {
-	OpenGL::Init();
 	OpenIL::Init();
 	OpenIL::Enable(OpenIL::State::OriginSet);
 	OpenIL::OriginFunc(OpenIL::Origin::UpperLeft);
@@ -156,13 +156,13 @@ void main()
 
 	auto material = Make<Graphics::Material>();
 	{
-		material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-			"Media/Images/Albedo.png",
-			"Media/Images/Normals.png",
-			"Media/Images/Roughness.png",
-			"Media/Images/Metalness.png",
-			"Media/Images/Occlusion.png"
-		));
+		// material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+		// 	"Media/Images/Albedo.png",
+		// 	"Media/Images/Normals.png",
+		// 	"Media/Images/Roughness.png",
+		// 	"Media/Images/Metalness.png",
+		// 	"Media/Images/Occlusion.png"
+		// ));
 	}
 
 	auto scene = Make<Graphics::Scene>();
@@ -317,7 +317,7 @@ void main()
 		}
 
 		auto openGLRenderResult = openGLEngine->Render(scene, camera);
-
+		
 		openGLWindow1View->Present(openGLRenderResult);
 
 		Sleep(1000 / 60);
