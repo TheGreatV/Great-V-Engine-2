@@ -39,9 +39,13 @@ namespace GreatVEngine2
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
 						class MaterialCache;
 						using MaterialCaches = Map<Memory<Material>, StrongPointer<MaterialCache>>;
+						class ModelCache;
+						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
 						SceneCaches sceneCaches;
+						MaterialCaches materialCaches;
+						ModelCaches modelCaches;
 					public:
 						inline Forward() = delete;
 						inline Forward(const StrongPointer<Forward>& this_);
@@ -51,6 +55,8 @@ namespace GreatVEngine2
 						inline Forward& operator = (const Forward&) = delete;
 					protected:
 						inline Memory<SceneCache> FindOrCreate(const StrongPointer<Scene>& scene_);
+						inline Memory<MaterialCache> FindOrCreate(const StrongPointer<Material>& material_);
+						inline Memory<ModelCache> FindOrCreate(const StrongPointer<Model>& model_);
 					public:
 						inline virtual StrongPointer<OpenGL::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
 					};
@@ -174,38 +180,52 @@ namespace GreatVEngine2
 						}
 					};
 #pragma endregion
-#pragma region Forward::MaterialCache
-					class Forward::MaterialCache
-					{
-					protected:
-						const Memory<Material> material;
-					public:
-						inline MaterialCache(const Memory<Material>& material_):
-							material(material_)
-						{
-						}
-					};
-#pragma endregion
 #pragma region Forward::SceneCache
 					class Forward::SceneCache:
 						public This<SceneCache>
 					{
 						friend Output;
 					protected:
-						const Memory<Forward> method;
-						const Memory<Scene> scene;
-						MaterialCaches materialCaches;
+						const Memory<Forward> methodMemory;
+						const Memory<Scene> sceneMemory;
+						Scene::Version sceneVersion;
 					public:
-						inline SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& method_, const Memory<Scene>& scene_):
-							This(this_),
-							method(method_),
-							scene(scene_)
-						{
-						}
+						inline SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& methodMemory_, const Memory<Scene>& sceneMemory_);
+					protected:
+						inline void ForceUpdateCaches();
+						inline void UpdateCaches();
 					protected:
 						inline void PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_);
 					public:
 						inline StrongPointer<Output> Render(const StrongPointer<Camera>& camera_);
+					};
+#pragma endregion
+#pragma region Forward::MaterialCache
+					class Forward::MaterialCache
+					{
+					protected:
+						const Memory<Forward> methodMemory;
+						const Memory<const Material> materialMemory;
+					public:
+						inline MaterialCache(const Memory<Forward>& methodMemory_, const Memory<const Material>& materialMemory_):
+							methodMemory(methodMemory_),
+							materialMemory(materialMemory_)
+						{
+						}
+					};
+#pragma endregion
+#pragma region Forward::ModelCache
+					class Forward::ModelCache
+					{
+					protected:
+						const Memory<Forward> methodMemory;
+						const Memory<const Model> modelMemory;
+					public:
+						inline ModelCache(const Memory<Forward>& methodMemory_, const Memory<const Model> modelMemory_):
+							methodMemory(methodMemory_),
+							modelMemory(modelMemory_)
+						{
+						}
 					};
 #pragma endregion
 
@@ -236,6 +256,48 @@ namespace GreatVEngine2
 
 						return sceneCacheMemory;
 					}
+					Memory<Forward::MaterialCache> Forward::FindOrCreate(const StrongPointer<Material>& material_)
+					{
+						const auto materialMemory		= material_.GetValue();
+						const auto it					= materialCaches.find(materialMemory);
+
+						if (it != materialCaches.end())
+						{
+							const auto materialCache		= (*it).second;
+							const auto materialCacheMemory	= materialCache.GetValue();
+
+							return materialCacheMemory;
+						}
+
+						const auto materialCache		= MakeStrong<MaterialCache>(this, materialMemory);
+
+						materialCaches.insert({ materialMemory, materialCache }); // TODO: add check?
+						
+						const auto materialCacheMemory	= materialCache.GetValue();
+
+						return materialCacheMemory;
+					}
+					Memory<Forward::ModelCache> Forward::FindOrCreate(const StrongPointer<Model>& model_)
+					{
+						const auto modelMemory		= model_.GetValue();
+						const auto it				= modelCaches.find(modelMemory);
+
+						if (it != modelCaches.end())
+						{
+							const auto modelCache		= (*it).second;
+							const auto modelCacheMemory	= modelCache.GetValue();
+
+							return modelCacheMemory;
+						}
+
+						const auto modelCache		= MakeStrong<ModelCache>(this, modelMemory);
+
+						modelCaches.insert({ modelMemory, modelCache }); // TODO: add check?
+						
+						const auto modelCacheMemory	= modelCache.GetValue();
+
+						return modelCacheMemory;
+					}
 
 					StrongPointer<OpenGL::Output> Forward::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
 					{
@@ -258,8 +320,35 @@ namespace GreatVEngine2
 					}
 #pragma endregion
 #pragma region Forward::SceneCache
+					Forward::SceneCache::SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& methodMemory_, const Memory<Scene>& sceneMemory_):
+						This(this_),
+						methodMemory(methodMemory_),
+						sceneMemory(sceneMemory_),
+						sceneVersion(sceneMemory->GetVersion())
+					{
+						ForceUpdateCaches();
+					}
+
+					void Forward::SceneCache::ForceUpdateCaches()
+					{
+						// materialCaches.clear();
+					}
+					void Forward::SceneCache::UpdateCaches()
+					{
+						auto currentSceneVersion = sceneMemory->GetVersion();
+
+						if (sceneVersion != currentSceneVersion)
+						{
+							ForceUpdateCaches();
+
+							sceneVersion = currentSceneVersion;
+						}
+					}
+
 					void Forward::SceneCache::PresentOn(const Memory<APIs::Windows::View>& view_, const StrongPointer<Camera>& camera_)
 					{
+						UpdateCaches();
+
 						// TODO
 					}
 
