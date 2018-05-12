@@ -137,13 +137,15 @@ namespace GreatVEngine2
 					using Handle = HGLRC;
 					using DeviceContextHandle = HDC;
 					using Procedure = PROC;
+					using RestorePoint = Pair<DeviceContextHandle, Handle>;
 				};
 
 
-				inline Context::Handle		CreateContext(const Context::DeviceContextHandle& deviceContextHandle_); // TODO: move this functions to Windows namespace
-				inline void					DeleteContext(const Context::Handle& handle_);
-				inline Context::Handle		GetCurrentHandle();
-				inline void					MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_);
+				inline Context::Handle					CreateContext(const Context::DeviceContextHandle& deviceContextHandle_); // TODO: move this functions to Windows namespace
+				inline void								DeleteContext(const Context::Handle& handle_);
+				inline Context::Handle					GetCurrentHandle();
+				inline Context::DeviceContextHandle		GetCurrentDeviceContextHandle();
+				inline void								MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_);
 
 
 				Context::Handle CreateContext(const Context::DeviceContextHandle& deviceContextHandle_)
@@ -169,6 +171,12 @@ namespace GreatVEngine2
 				Context::Handle GetCurrentHandle()
 				{
 					auto handle = wglGetCurrentContext();
+
+					return handle;
+				}
+				Context::DeviceContextHandle GetCurrentDeviceContextHandle()
+				{
+					auto handle = wglGetCurrentDC();
 
 					return handle;
 				}

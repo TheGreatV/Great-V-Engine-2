@@ -25,6 +25,12 @@ namespace GreatVEngine2
 				ElementArray = GL_ELEMENT_ARRAY_BUFFER,
 				Uniform = GL_UNIFORM_BUFFER,
 			};
+			enum class Binding
+			{
+				Array = GL_ARRAY_BUFFER_BINDING,
+				ElementArray = GL_ELEMENT_ARRAY_BUFFER_BINDING,
+				Uniform = GL_UNIFORM_BUFFER_BINDING,
+			};
 			enum class Usage: GLenum
 			{
 				Static = GL_STATIC_DRAW,
@@ -48,6 +54,15 @@ namespace GreatVEngine2
 				inline ~Handle() = default;
 			public:
 				inline Handle& operator = (const Handle&) = default;
+			public:
+				inline bool operator == (const Handle& source_) const
+				{
+					return value == source_.value;
+				}
+				inline bool operator != (const Handle& source_) const
+				{
+					return value != source_.value;
+				}
 			public:
 				inline explicit operator Value() const
 				{
@@ -111,12 +126,13 @@ namespace GreatVEngine2
 				const PFNGLGETBUFFERPOINTERVPROC		glGetBufferPointerv_
 				);
 		public:
-			inline void									BindBuffer(const Buffer::Type& type_, const Null&) const;
-			inline void									BindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const;
-			inline Buffer::Handle						GenBuffer() const;
-			inline void									DeleteBuffer(const Buffer::Handle& handle_) const;
-			inline void									BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;
-			template<class Type_> inline void			BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const;
+			inline Buffer::Handle								GetBufferBinding(const Buffer::Binding& type_) const;
+			inline void											BindBuffer(const Buffer::Type& type_, const Null&) const;
+			inline void											BindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const;
+			inline Buffer::Handle								GenBuffer() const;
+			inline void											DeleteBuffer(const Buffer::Handle& handle_) const;
+			inline void											BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;
+			template<class Type_> inline void					BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const;
 		};
 #pragma region Core_1_5
 		Core_1_5::Core_1_5(
@@ -162,6 +178,17 @@ namespace GreatVEngine2
 		{
 		}
 
+		Buffer::Handle Core_1_5::GetBufferBinding(const Buffer::Binding& binding_) const
+		{
+			GLint value;
+
+			glGetIntegerv(static_cast<GLenum>(binding_), &value);
+
+			CheckForErrors();
+
+			return Buffer::Handle(value);
+
+		}
 		void Core_1_5::BindBuffer(const Buffer::Type& type_, const Null&) const
 		{
 			glBindBuffer(static_cast<GLenum>(type_), 0);

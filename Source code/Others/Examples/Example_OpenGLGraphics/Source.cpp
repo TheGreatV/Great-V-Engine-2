@@ -241,6 +241,8 @@ void main()
 			}
 		}
 
+		std::cout << "objects count: " << objects.size() << std::endl;
+
 		if (rotate)
 		{
 			object->LocalRotate(Vec3(0.7f, 1.0f, 0.3f));

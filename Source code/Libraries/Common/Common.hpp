@@ -14,6 +14,7 @@
 #include "Image.hpp"
 #include "Helpers.hpp"
 #include "Threading.hpp"
+#include "Subscription.hpp"
 
 #pragma endregion
 

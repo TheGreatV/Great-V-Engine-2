@@ -233,16 +233,28 @@ namespace GreatVEngine2
 			public This<Material>
 		{
 		public:
+			using EventDestruction = Subscription<void()>;
+		public:
 			class Module;
+		protected:
+			mutable EventDestruction onDestruction;
 		public:
 			Vector<StrongPointer<Module>> modules;
 		public:
 			inline Material() = delete;
 			inline Material(const StrongPointer<Material>& this_);
 			inline Material(const Material&) = delete;
-			inline ~Material() = default;
+			inline ~Material()
+			{
+				onDestruction();
+			}
 		public:
 			inline Material& operator = (const Material&) = delete;
+		public:
+			inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
+			{
+				return Move(onDestruction += subscriber_);
+			}
 		};
 #pragma region
 		class Material::Module:
@@ -258,6 +270,10 @@ namespace GreatVEngine2
 		class Model:
 			public This<Model>
 		{
+		public:
+			using EventDestruction = Subscription<void()>;
+		protected:
+			mutable EventDestruction onDestruction;
 		protected:
 			const StrongPointer<Geometry> geometry;
 		public:
@@ -269,6 +285,11 @@ namespace GreatVEngine2
 			inline Model& operator = (const Model&) = delete;
 		public:
 			inline StrongPointer<Geometry> GetGeometry() const;
+		public:
+			inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
+			{
+				return Move(onDestruction += subscriber_);
+			}
 		};
 		
 		class Camera:
