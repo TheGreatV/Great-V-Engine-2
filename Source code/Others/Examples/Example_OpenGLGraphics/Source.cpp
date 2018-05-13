@@ -150,26 +150,48 @@ void main()
 
 	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>(Make<Graphics::APIs::OpenGL::Methods::Forward>());
 
-	auto geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
-
-	auto model = Make<Graphics::Model>(geometry);
-
-	auto material = Make<Graphics::Material>();
+	auto models = Vector<StrongPointer<Graphics::Model>>();
 	{
-		material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-			"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-			"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader",
-			"Media/Images/Albedo.png",
-			"Media/Images/Normals.png",
-			"Media/Images/Roughness.png",
-			"Media/Images/Metalness.png",
-			"Media/Images/Occlusion.png"
-		));
+		models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+		models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
+		models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
+		models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));
 	}
+
+	auto materials = Vector<StrongPointer<Graphics::Material>>();
+	{
+		auto material1 = Make<Graphics::Material>();
+		{
+			material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
+			));
+
+			materials.push_back(material1);
+		}
+		auto material2 = Make<Graphics::Material>();
+		{
+			material2->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle2.glsl.fragment-shader"
+			));
+
+			materials.push_back(material2);
+		}
+		auto material3 = Make<Graphics::Material>();
+		{
+			material3->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle3.glsl.fragment-shader"
+			));
+
+			materials.push_back(material3);
+		}
+	};
 
 	auto scene = Make<Graphics::Scene>();
 
-	auto object = Make<Graphics::Object>(material, model, scene);
+	auto object = Make<Graphics::Object>(materials[0], models[0], scene);
 	auto objects = Vector<StrongPointer<Graphics::Object>>();
 
 	auto directionalLight = Make<Graphics::Lights::Directional>(scene);
@@ -218,13 +240,13 @@ void main()
 			objects.size() < 1000 ? 10:
 			20;
 		const Float32 minimalDistance = 10.0f;
-		const Float32 maximalDistance = 20.0f;
+		const Float32 maximalDistance = 30.0f;
 		
 		if (GetAsyncKeyState(VK_PRIOR))
 		{
 			for (auto &i : Range(count))
 			{
-				auto object = Make<Graphics::Object>(material, model, scene);
+				auto object = Make<Graphics::Object>(materials[rand() % materials.size()], models[rand() % models.size()], scene);
 				
 				object->SetLocalPosition(RotateY3(Rnd(360.0)) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
 				object->SetLocalAngle(Rnd3(360.0f));

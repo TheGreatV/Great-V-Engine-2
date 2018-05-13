@@ -73,6 +73,12 @@ namespace GreatVEngine2
 				
 				return UniformBlock::Index(value);
 			}
+			inline void UniformBlockBinding(const Program::Handle& programHandle_, const UniformBlock::Index& index_, const UniformBlock::Binding& binding_) const
+			{
+				glUniformBlockBinding(static_cast<Program::Handle::Value>(programHandle_), index_, binding_);
+				
+				CheckForErrors();
+			}
 		};
 #pragma region Core_3_1
 		Core_3_1::Core_3_1(

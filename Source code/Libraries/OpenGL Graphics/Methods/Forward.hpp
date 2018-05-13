@@ -331,7 +331,7 @@ namespace GreatVEngine2
 							}
 							const auto &fragmentShaderHandle	= context->CreateShader(GL::Shader::Type::Fragment);
 							{
-								const auto &source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader");
+								const auto &source = loadShader(module->fragmentShaderFilename);
 
 								context->ShaderSource(fragmentShaderHandle, { source });
 								context->CompileShader(fragmentShaderHandle);
@@ -896,19 +896,22 @@ namespace GreatVEngine2
 							const auto	&materialCacheMemory	= materialIt.first;
 							auto		&materialNode			= materialIt.second;
 							auto		&modelsTable			= materialNode.modelsTable;
-							const auto	&programHandle = materialCacheMemory->gl_programHandle;
+							const auto	&programHandle			= materialCacheMemory->gl_programHandle;
 
 							renderContext->UseProgram(programHandle);
 
 							if (auto index = renderContext->GetUniformBlockIndex(programHandle, "CameraBuffer"))
 							{
-								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, index, contextHolder->gl_cameraUniformsBuffer);
+								renderContext->UniformBlockBinding(programHandle, index, GL::UniformBlock::Binding(0));
+								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, GL::UniformBlock::Binding(0), contextHolder->gl_cameraUniformsBuffer);
 							}
 							if (auto index = renderContext->GetUniformBlockIndex(programHandle, "ObjectsBuffer"))
 							{
-								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, index, materialCacheMemory->gl_objectsUniformBufferHandle);
+								renderContext->UniformBlockBinding(programHandle, index, GL::UniformBlock::Binding(1));
+								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, GL::UniformBlock::Binding(1), materialCacheMemory->gl_objectsUniformBufferHandle);
 							}
 
+							renderContext->BindBuffer(GL::Buffer::Type::Uniform, materialCacheMemory->gl_objectsUniformBufferHandle);
 
 							for (auto &modelIt : modelsTable)
 							{
@@ -936,8 +939,8 @@ namespace GreatVEngine2
 									objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
 								}
 
-								const Size maxObjectsCountPerDrawCall = materialCacheMemory->maxObjectsCount;
-								const Size drawCallsCount = (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+								const Size maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
+								const Size drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
 
 								for (const auto &drawCallIndex : Range(drawCallsCount))
 								{
@@ -945,8 +948,7 @@ namespace GreatVEngine2
 									const Size lastIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
 									const Size instancesCount	= lastIndex - firstIndex;
 
-									renderContext->BindBuffer(GL::Buffer::Type::Uniform, materialCacheMemory->gl_objectsUniformBufferHandle);
-									renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(ObjectUniformBuffer)* instancesCount, objectsData.data() + firstIndex);
+									renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(ObjectUniformBuffer) * instancesCount, objectsData.data() + firstIndex);
 
 									if (geometryMemory->GetTopology() == Geometry::Topology::Triangles)
 									{

@@ -236,13 +236,14 @@ namespace GreatVEngine2
 			using EventDestruction = Subscription<void()>;
 		public:
 			class Module;
+			using Modules = Vector<StrongPointer<Module>>;
 		protected:
 			mutable EventDestruction onDestruction;
 		public:
-			Vector<StrongPointer<Module>> modules;
+			Modules modules;
 		public:
 			inline Material() = delete;
-			inline Material(const StrongPointer<Material>& this_);
+			inline Material(const StrongPointer<Material>& this_, const Modules& modules_ = Modules());
 			inline Material(const Material&) = delete;
 			inline ~Material()
 			{
@@ -568,8 +569,9 @@ GreatVEngine2::StrongPointer<GreatVEngine2::Graphics::Model> GreatVEngine2::Grap
 
 #pragma region Material
 
-GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_):
-	This(this_)
+GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_, const Modules& modules_):
+	This(this_),
+	modules(modules_)
 {
 }
 

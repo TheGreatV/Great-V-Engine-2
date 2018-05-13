@@ -49,11 +49,11 @@ namespace GreatVEngine2
 					inline Module(const StrongPointer<Module>& this_,
 						const String& vertexShaderFilename_,
 						const String& fragmentShaderFilename_,
-						const String& albedoFilename_,
-						const String& normalsFilename_,
-						const String& roughnessFilename_,
-						const String& metalnessFilename_,
-						const String& occlusionFilename_
+						const String& albedoFilename_ = "",
+						const String& normalsFilename_ = "",
+						const String& roughnessFilename_ = "",
+						const String& metalnessFilename_ = "",
+						const String& occlusionFilename_ = ""
 					): Material::Module(this_),
 						vertexShaderFilename(vertexShaderFilename_),
 						fragmentShaderFilename(fragmentShaderFilename_),

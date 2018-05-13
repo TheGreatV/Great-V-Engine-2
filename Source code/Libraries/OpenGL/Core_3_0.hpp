@@ -314,9 +314,9 @@ namespace GreatVEngine2
 
 				return handle;
 			}
-			inline void														BindBufferBase(const Buffer::Type& type_, const UniformBlock::Index& index_, const Buffer::Handle& bufferHandle_) const
+			inline void														BindBufferBase(const Buffer::Type& type_, const UniformBlock::Binding& binding_, const Buffer::Handle& bufferHandle_) const
 			{
-				glBindBufferBase(static_cast<GLenum>(type_), index_, static_cast<Buffer::Handle::Value>(bufferHandle_));
+				glBindBufferBase(static_cast<GLenum>(type_), binding_, static_cast<Buffer::Handle::Value>(bufferHandle_));
 
 				CheckForErrors();
 			}
