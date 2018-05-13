@@ -206,6 +206,9 @@ void main()
 	bool rotate = false;
 	bool rotateLock = false;
 
+	double averageFrameTime = 0.0;
+	Vector<double> averageFrameTimeBuffer;
+
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
 		auto beginTime = std::chrono::high_resolution_clock::now();
@@ -269,7 +272,7 @@ void main()
 			}
 		}
 
-		std::cout << "objects count: " << objects.size() << std::endl;
+		// std::cout << "objects count: " << objects.size() << std::endl;
 
 		if (rotate)
 		{
@@ -355,16 +358,36 @@ void main()
 		auto frameTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(endTime - beginTime).count());
 		auto frameTimeMs = frameTime / 1000.0;
 
-		std::cout << "frame time: " << frameTimeMs << "ms" << std::endl;
+		averageFrameTimeBuffer.push_back(frameTimeMs);
+
+		if (averageFrameTimeBuffer.size() > 10)
+		{
+			averageFrameTime = 0.0;
+
+			for (auto t : averageFrameTimeBuffer)
+			{
+				averageFrameTime += t;
+			}
+
+			averageFrameTime /= static_cast<double>(averageFrameTimeBuffer.size());
+
+			averageFrameTimeBuffer.clear();
+		}
+
+		std::cout << "frame time: " << averageFrameTime << "ms, objects: " << objects.size() + 1 << std::endl;
+		// std::cout << "frame time: " << frameTimeMs << "ms" << std::endl;
 
 		auto timePerFrameMs = 1000.0 / 60.0;
 
 		if (frameTimeMs < timePerFrameMs)
 		{
 			auto timeToWaitMs = timePerFrameMs - frameTimeMs;
-			auto discreteTimeToWaitMs = glm::floor(timeToWaitMs / 10.0) * 10.0;
+			
+			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<Size>(timeToWaitMs)));
+			
+			//auto discreteTimeToWaitMs = glm::floor(timeToWaitMs / 10.0) * 10.0;
 
-			Sleep(static_cast<DWORD>(timeToWaitMs)); // 1000 / 60);
+			// Sleep(static_cast<DWORD>(timeToWaitMs)); // 1000 / 60);
 		}
 	}
 }

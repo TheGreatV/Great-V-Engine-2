@@ -654,7 +654,7 @@ namespace GreatVEngine2
 						ObjectsTable objectsTable;
 						Vector<ObjectUniformBuffer> objectsUniformBufferData;
 						const GL::VertexArray::Handle gl_vertexArrayHandle;
-						Vector<Threading::Event> events;
+						Vector<Vector<Threading::Event>> events;
 					public:
 						inline ModelNode(const Memory<MaterialNode>& materialNodeMemory_, const Memory<ModelCache>& modelCacheMemory_):
 							materialNodeMemory(materialNodeMemory_),
@@ -974,6 +974,7 @@ namespace GreatVEngine2
 
 						for (auto &materialIt : materialsTable)
 						{
+							const auto	&materialCacheMemory	= materialIt.first;
 							auto		&materialNode			= materialIt.second;
 							auto		&modelsTable			= materialNode.modelsTable;
 
@@ -984,12 +985,51 @@ namespace GreatVEngine2
 								auto		&objectsData			= modelNode.objectsUniformBufferData;
 								auto		&events					= modelNode.events;
 
-								events.resize(taskManagers.size());
+								const Size	maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
+								const Size	drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+
+								events.resize(drawCallsCount);
+
+								for (const auto &drawCallIndex : Range(drawCallsCount))
+								{
+									auto &drawCallEvents				= events[drawCallIndex];
+
+									drawCallEvents.resize(taskManagers.size());
+
+									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
+									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
+									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
+									const Size objectsPerTask			= drawCallInstancesCount / taskManagers.size();
+
+									for (auto &taskIndex : Range(taskManagers.size()))
+									{
+										auto		&taskManager		= taskManagers[taskIndex];
+										const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
+										const Size	lastIndex			= taskIndex < static_cast<int>(taskManagers.size() - 1)
+											? firstIndex + objectsPerTask
+											: lastDrawCallIndex;
+
+										drawCallEvents[taskIndex] = taskManager.Submit(std::bind([](Object** objectsTable_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_){
+											for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
+											{
+												const auto &objectMemory	= objectsTable_[objectIndex];
+												const auto &modelMatrix		= objectMemory->GetMMat();
+												auto &objectData			= objectsData_[objectIndex];
+
+												objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+											}
+										}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
+									}
+								}
+								
+								/*events.resize(taskManagers.size());
 
 								const Size	objectsPerTask			= objectsTable.size() / taskManagers.size();
 
 								for (auto &taskIndex : Range(taskManagers.size()))
 								{
+									auto		&taskManager				= taskManagers[taskIndex];
+
 									auto		&taskManager	= taskManagers[taskIndex];
 									const Size	firstIndex		= taskIndex * objectsPerTask;
 									const Size	lastIndex		= taskIndex < static_cast<int>(taskManagers.size() - 1)
@@ -1006,7 +1046,7 @@ namespace GreatVEngine2
 											objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
 										}
 									}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
-								}
+								}*/
 							}
 						}
 
@@ -1059,16 +1099,18 @@ namespace GreatVEngine2
 									objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
 								}*/
 
-								for (auto &event : events)
-								{
-									event.Wait();
-								}
-
 								const Size maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
 								const Size drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
 
 								for (const auto &drawCallIndex : Range(drawCallsCount))
 								{
+									auto &drawCallEvents = events[drawCallIndex];
+
+									for (auto &event : drawCallEvents)
+									{
+										event.Wait();
+									}
+
 									const Size firstIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
 									const Size lastIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
 									const Size instancesCount	= lastIndex - firstIndex;
