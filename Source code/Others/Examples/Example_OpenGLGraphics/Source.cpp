@@ -208,6 +208,8 @@ void main()
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
+		auto beginTime = std::chrono::high_resolution_clock::now();
+
 		MSG msg;
 		{
 			auto performWindow = [&](HWND windowHandle)
@@ -238,7 +240,9 @@ void main()
 		const Size count =
 			objects.size() < 100 ? 1:
 			objects.size() < 1000 ? 10:
-			20;
+			objects.size() < 2000 ? 50:
+			objects.size() < 5000 ? 100:
+			1000;
 		const Float32 minimalDistance = 10.0f;
 		const Float32 maximalDistance = 30.0f;
 		
@@ -346,6 +350,21 @@ void main()
 		
 		openGLWindow1View->Present(openGLRenderResult);
 
-		Sleep(1000 / 60);
+		auto endTime = std::chrono::high_resolution_clock::now();
+
+		auto frameTime = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(endTime - beginTime).count());
+		auto frameTimeMs = frameTime / 1000.0;
+
+		std::cout << "frame time: " << frameTimeMs << "ms" << std::endl;
+
+		auto timePerFrameMs = 1000.0 / 60.0;
+
+		if (frameTimeMs < timePerFrameMs)
+		{
+			auto timeToWaitMs = timePerFrameMs - frameTimeMs;
+			auto discreteTimeToWaitMs = glm::floor(timeToWaitMs / 10.0) * 10.0;
+
+			Sleep(static_cast<DWORD>(timeToWaitMs)); // 1000 / 60);
+		}
 	}
 }

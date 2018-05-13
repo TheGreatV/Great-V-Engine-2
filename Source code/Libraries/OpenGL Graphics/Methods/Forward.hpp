@@ -27,6 +27,82 @@ namespace GreatVEngine2
 			{
 				namespace Methods
 				{
+					class TaskManager
+					{
+					public:
+						using Task = std::function<void()>;
+						using Tasks = Queue<Pair<Task, Threading::Event>>;
+					protected:
+						using Lock = std::lock_guard<std::mutex>;
+					private:
+						inline Tasks ObtainTasks()
+						{
+							Lock lock(mutex);
+
+							return Move(tasks);
+						}
+						inline void Dispatcher()
+						{
+							while (!isDone)
+							{
+								wakeUp.Wait([&](){
+									wakeUp.Reset();
+								});
+
+								auto tasksToProcess = ObtainTasks();
+
+								while (!tasksToProcess.empty())
+								{
+									auto taskPair = tasksToProcess.front();
+									auto task = taskPair.first;
+									auto event = taskPair.second;
+
+									tasksToProcess.pop();
+
+									task();
+
+									event.Set();
+								}
+							}
+						}
+					protected:
+						bool isDone;
+						Threading::Event wakeUp;
+						std::thread thread;
+						std::mutex mutex;
+						Tasks tasks;
+					public:
+						inline TaskManager():
+							isDone(false),
+							wakeUp(false),
+							thread(std::thread(std::bind(&TaskManager::Dispatcher, this)))
+						{
+						}
+						inline TaskManager(const TaskManager&) = delete;
+						inline ~TaskManager()
+						{
+							isDone = true;
+
+							wakeUp.Set();
+
+							thread.join();
+						}
+					public:
+						inline TaskManager& operator = (const TaskManager&) = delete;
+					public:
+						inline Threading::Event Submit(const Task& task_)
+						{
+							Lock lock(mutex);
+
+							Threading::Event doneEvent;
+
+							tasks.push({ task_, doneEvent });
+
+							wakeUp.Set();
+
+							return doneEvent;
+						}
+					};
 					class Forward:
 						public Method
 					{
@@ -56,6 +132,8 @@ namespace GreatVEngine2
 						MaterialCaches materialCaches;
 						ModelCaches modelCaches;
 						SceneCaches sceneCaches;
+					public:
+						Vector<TaskManager> taskManagers = Vector<TaskManager>(std::thread::hardware_concurrency());
 					public:
 						inline Forward() = delete;
 						inline Forward(const StrongPointer<Forward>& this_);
@@ -576,6 +654,7 @@ namespace GreatVEngine2
 						ObjectsTable objectsTable;
 						Vector<ObjectUniformBuffer> objectsUniformBufferData;
 						const GL::VertexArray::Handle gl_vertexArrayHandle;
+						Vector<Threading::Event> events;
 					public:
 						inline ModelNode(const Memory<MaterialNode>& materialNodeMemory_, const Memory<ModelCache>& modelCacheMemory_):
 							materialNodeMemory(materialNodeMemory_),
@@ -891,6 +970,46 @@ namespace GreatVEngine2
 							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
 						}
 
+						auto &taskManagers = methodMemory->taskManagers;
+
+						for (auto &materialIt : materialsTable)
+						{
+							auto		&materialNode			= materialIt.second;
+							auto		&modelsTable			= materialNode.modelsTable;
+
+							for (auto &modelIt : modelsTable)
+							{
+								auto		&modelNode				= modelIt.second;
+								auto		&objectsTable			= modelNode.objectsTable;
+								auto		&objectsData			= modelNode.objectsUniformBufferData;
+								auto		&events					= modelNode.events;
+
+								events.resize(taskManagers.size());
+
+								const Size	objectsPerTask			= objectsTable.size() / taskManagers.size();
+
+								for (auto &taskIndex : Range(taskManagers.size()))
+								{
+									auto		&taskManager	= taskManagers[taskIndex];
+									const Size	firstIndex		= taskIndex * objectsPerTask;
+									const Size	lastIndex		= taskIndex < static_cast<int>(taskManagers.size() - 1)
+										? (taskIndex + 1) * objectsPerTask
+										: objectsTable.size();
+
+									events[taskIndex] = taskManager.Submit(std::bind([](Object** objectsTable_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_){
+										for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
+										{
+											const auto &objectMemory	= objectsTable_[objectIndex];
+											const auto &modelMatrix		= objectMemory->GetMMat();
+											auto &objectData			= objectsData_[objectIndex];
+
+											objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+										}
+									}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
+								}
+							}
+						}
+
 						for (auto &materialIt : materialsTable)
 						{
 							const auto	&materialCacheMemory	= materialIt.first;
@@ -925,18 +1044,24 @@ namespace GreatVEngine2
 
 								auto		&objectsTable			= modelNode.objectsTable;
 								auto		&objectsData			= modelNode.objectsUniformBufferData;
+								auto		&events					= modelNode.events;
 
 								renderContext->BindVertexArray(vertexArrayHandle);
 								renderContext->BindBuffer(GL::Buffer::Type::Array, verticesBufferHandle);
 								renderContext->BindBuffer(GL::Buffer::Type::ElementArray, indicesBufferHandle);
 
-								for (auto &objectIndex : Range(objectsTable.size()))
+								/*for (auto &objectIndex : Range(objectsTable.size()))
 								{
 									const auto &objectMemory	= objectsTable[objectIndex];
 									const auto &modelMatrix		= objectMemory->GetMMat();
 									auto &objectData			= objectsData[objectIndex];
 
 									objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+								}*/
+
+								for (auto &event : events)
+								{
+									event.Wait();
 								}
 
 								const Size maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
