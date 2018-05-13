@@ -89,6 +89,15 @@ namespace GreatVEngine2
 			public:
 				inline Handle& operator = (const Handle&) = default;
 			public:
+				inline bool operator == (const Handle& source_) const
+				{
+					return value == source_.value;
+				}
+				inline bool operator != (const Handle& source_) const
+				{
+					return value != source_.value;
+				}
+			public:
 				inline explicit operator Value() const
 				{
 					return value;
@@ -490,6 +499,14 @@ namespace GreatVEngine2
 				glShaderSource(static_cast<Shader::Handle::Value>(handle_), 1, &data, &length);
 
 				CheckForErrors();
+			}
+			inline Program::Handle					GetCurrentProgram() const
+			{
+				GLint value;
+
+				glGetIntegerv(GL_CURRENT_PROGRAM, &value);
+
+				return Program::Handle(value);
 			}
 			inline void								UseProgram(const Null&) const
 			{

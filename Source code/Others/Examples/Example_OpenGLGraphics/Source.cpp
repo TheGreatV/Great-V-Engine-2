@@ -156,13 +156,15 @@ void main()
 
 	auto material = Make<Graphics::Material>();
 	{
-		// material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-		// 	"Media/Images/Albedo.png",
-		// 	"Media/Images/Normals.png",
-		// 	"Media/Images/Roughness.png",
-		// 	"Media/Images/Metalness.png",
-		// 	"Media/Images/Occlusion.png"
-		// ));
+		material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+			"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+			"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader",
+			"Media/Images/Albedo.png",
+			"Media/Images/Normals.png",
+			"Media/Images/Roughness.png",
+			"Media/Images/Metalness.png",
+			"Media/Images/Occlusion.png"
+		));
 	}
 
 	auto scene = Make<Graphics::Scene>();

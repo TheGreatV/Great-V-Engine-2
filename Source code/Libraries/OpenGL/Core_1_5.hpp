@@ -133,6 +133,7 @@ namespace GreatVEngine2
 			inline void											DeleteBuffer(const Buffer::Handle& handle_) const;
 			inline void											BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;
 			template<class Type_> inline void					BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const;
+			inline void											BufferSubData(const Buffer::Type& type_, const Size& offset_, const Size& size_, const Memory<const void>& data_) const;
 		};
 #pragma region Core_1_5
 		Core_1_5::Core_1_5(
@@ -226,6 +227,12 @@ namespace GreatVEngine2
 		template<class Type_> void Core_1_5::BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const
 		{
 			glBufferData(static_cast<GLenum>(type_), sizeof(Type_)* data_.size(), data_.data(), static_cast<GLenum>(usage_));
+
+			CheckForErrors();
+		}
+		void Core_1_5::BufferSubData(const Buffer::Type& type_, const Size& offset_, const Size& size_, const Memory<const void>& data_) const
+		{
+			glBufferSubData(static_cast<GLenum>(type_), offset_, size_, data_);
 
 			CheckForErrors();
 		}

@@ -47,7 +47,32 @@ namespace GreatVEngine2
 				const PFNGLGETACTIVEUNIFORMBLOCKIVPROC&		glGetActiveUniformBlockiv_,
 				const PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC&	glGetActiveUniformBlockName_,
 				const PFNGLUNIFORMBLOCKBINDINGPROC&			glUniformBlockBinding_
-				);
+			);
+		public:
+			inline Size GetMaxUniformBlockSize() const
+			{
+				GLint value;
+
+				glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
+
+				CheckForErrors();
+
+				return value;
+			}
+			inline void DrawElementsInstanced(const PrimitiveType& type_, const Size& indicesCount_, const Size& instancesCount_) const
+			{
+				glDrawElementsInstanced(static_cast<GLenum>(type_), indicesCount_, GL_UNSIGNED_INT, 0, instancesCount_);
+
+				CheckForErrors();
+			}
+			inline UniformBlock::Index GetUniformBlockIndex(const Program::Handle& programHandle_, const String& blockName_) const
+			{
+				const auto &value = glGetUniformBlockIndex(static_cast<Program::Handle::Value>(programHandle_), blockName_.c_str());
+
+				CheckForErrors();
+				
+				return UniformBlock::Index(value);
+			}
 		};
 #pragma region Core_3_1
 		Core_3_1::Core_3_1(

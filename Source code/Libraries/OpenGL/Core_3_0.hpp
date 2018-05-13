@@ -50,6 +50,64 @@ namespace GreatVEngine2
 				}
 			};
 		};
+		class UniformBlock
+		{
+		public:
+			class Index
+			{
+			public:
+				using Value = GLuint;
+			protected:
+				Value value;
+			public:
+				inline Index() = default;
+				inline explicit Index(const Value& value_):
+					value(value_)
+				{
+				}
+				inline Index(const Index&) = default;
+				inline ~Index() = default;
+			public:
+				inline Index& operator = (const Index&) = default;
+			public:
+				inline operator Value() const
+				{
+					return value;
+				}
+				inline operator bool() const
+				{
+					return value != GL_INVALID_INDEX;
+				}
+			};
+			class Binding
+			{
+			public:
+				using Value = GLuint;
+			protected:
+				Value value;
+			public:
+				inline Binding() = default;
+				inline explicit Binding(const Value& value_):
+					value(value_)
+				{
+				}
+				inline Binding(const Binding&) = default;
+				inline ~Binding() = default;
+			public:
+				inline Binding& operator = (const Binding&) = default;
+			public:
+				inline operator Value() const
+				{
+					return value;
+				}
+				inline operator bool() const
+				{
+					return value != GL_INVALID_INDEX;
+				}
+			};
+		};
+
+
 
 		class Core_3_0:
 			public virtual Core
@@ -255,6 +313,12 @@ namespace GreatVEngine2
 				CheckForErrors();
 
 				return handle;
+			}
+			inline void														BindBufferBase(const Buffer::Type& type_, const UniformBlock::Index& index_, const Buffer::Handle& bufferHandle_) const
+			{
+				glBindBufferBase(static_cast<GLenum>(type_), index_, static_cast<Buffer::Handle::Value>(bufferHandle_));
+
+				CheckForErrors();
 			}
 		};
 #pragma region Core_3_0

@@ -32,7 +32,7 @@ void main2() {
     vec3    tangent     = normalize(fTBN[0]);
     vec3    binormal    = normalize(fTBN[1]);
     
-    oColor  = vec4(0.0f, 0.0f, 1.0f, 1.0f);
+    oColor  = vec4(1.0f); return;
     
     {
         float   textureResolution  = 2048.0f; // in pixels
@@ -171,6 +171,8 @@ void main() {
     vec3    tangent = normalize(fTBN[0]);
     vec3    binormal = normalize(fTBN[1]);
     
+    oColor  = vec4(1.0f); return;
+	
 	float	stepsCount = 32.0f;
 	float	stepFactor = 1.0f / stepsCount;
 	float	emboss = 0.04f;

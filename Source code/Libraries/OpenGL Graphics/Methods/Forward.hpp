@@ -34,6 +34,16 @@ namespace GreatVEngine2
 						class Output; friend Output;
 					protected:
 						class ContextHolder;
+					public:
+						struct CameraUniformBuffer
+						{
+							Vec4 position;
+							Mat4 viewProjectionMatrix;
+						};
+						struct ObjectUniformBuffer
+						{
+							glm::mat3x4 modelMatrix;
+						};
 					protected:
 						class SceneCache;
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
@@ -173,12 +183,52 @@ namespace GreatVEngine2
 						const HDC						win_deviceContextHandle;
 						const StrongPointer<GLContext>	gl_context;
 					public:
+						inline GL::Buffer::Handle		ObtainCameraUniformsBuffer() const
+						{
+							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+
+							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+
+							const auto &bufferHandle = gl_context->GenBuffer();
+
+							gl_context->BindBuffer(GL::Buffer::Type::Uniform, bufferHandle);
+							gl_context->BufferData(GL::Buffer::Type::Uniform, sizeof(CameraUniformBuffer), nullptr, GL::Buffer::Usage::Dynamic);
+
+							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+
+							return bufferHandle;
+						}
+					public:
+						CameraUniformBuffer				cameraUniformsBufferData;
+						const GL::Buffer::Handle		gl_cameraUniformsBuffer;
+					public:
 						inline ContextHolder():
 							win_windowClassName(ObtainWindowClassName()),
 							win_windowHandle(ObtainWindowHandle(win_windowClassName)),
 							win_deviceContextHandle(ObtainDeviceContextHandle(win_windowHandle)),
-							gl_context(MakeStrong<GLContext>(win_deviceContextHandle))
+							gl_context(MakeStrong<GLContext>(win_deviceContextHandle)),
+							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer())
 						{
+						}
+						inline ~ContextHolder()
+						{
+							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+
+							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+
+							const auto &currentUniformBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Uniform);
+							{
+								if (gl_cameraUniformsBuffer == currentUniformBufferHandle)
+								{
+									gl_context->BindBuffer(GL::Buffer::Type::Uniform, nullptr);
+								}
+							}
+
+							gl_context->DeleteBuffer(gl_cameraUniformsBuffer);
+
+							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 						}
 					};
 #pragma endregion
@@ -187,10 +237,13 @@ namespace GreatVEngine2
 						public This<SceneCache>
 					{
 						friend Output;
+					protected:
+						class MaterialNode;
+						class ModelNode;
 					public:
 						using ObjectsTable = Vector<Memory<Object>>;
-						using ModelsTable = Map<Memory<ModelCache>, ObjectsTable>;
-						using MaterialsTable = Map<Memory<MaterialCache>, ModelsTable>;
+						using ModelsTable = Map<Memory<ModelCache>, ModelNode>;
+						using MaterialsTable = Map<Memory<MaterialCache>, MaterialNode>;
 					protected:
 						const Memory<Forward> methodMemory;
 						const Memory<Scene> sceneMemory;
@@ -199,8 +252,8 @@ namespace GreatVEngine2
 					public:
 						inline SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& methodMemory_, const Memory<Scene>& sceneMemory_);
 					protected:
-						inline ModelsTable& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
-						inline ObjectsTable& FindOrCreate(ModelsTable& modelsTable_, const Memory<ModelCache>& modelCacheMemory_);
+						inline MaterialNode& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
+						inline ModelNode& FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_);
 					protected:
 						inline void ForceUpdateCaches();
 						inline void UpdateCaches();
@@ -214,10 +267,128 @@ namespace GreatVEngine2
 					class Forward::MaterialCache
 					{
 					protected:
-						inline GL::Program::Handle ObtainProgramHandle()
+						inline Size ObtainMaxObjectsCount() const
+						{
+							const auto &context				= methodMemory->contextHolder->gl_context;
+							const auto &bufferHandle		= context->GenBuffer();
+							const Size maxUniformBlockSize	= context->GetMaxUniformBlockSize();
+							const Size maxObjectsCount		= maxUniformBlockSize / sizeof(ObjectUniformBuffer);
+
+							return glm::min<Size>(1024, maxObjectsCount);
+						}
+						inline GL::Buffer::Handle ObtainObjectsUniformBuffer() const
 						{
 							const auto &context			= methodMemory->contextHolder->gl_context;
+							const auto &bufferHandle	= context->GenBuffer();
+
+							context->BindBuffer(GL::Buffer::Type::Uniform, bufferHandle);
+							context->BufferData(GL::Buffer::Type::Uniform, maxObjectsCount * sizeof(ObjectUniformBuffer), nullptr, GL::Buffer::Usage::Dynamic);
+
+							return bufferHandle;
+						}
+					protected:
+						inline StrongPointer<Module> ObtainModule()
+						{
+							for (auto &module : materialMemory->modules)
+							{
+								if (const auto &casted = DynamicCast<Module>(module))
+								{
+									return casted;
+								}
+							}
+
+							throw Exception();
+						}
+						inline GL::Program::Handle ObtainProgramHandle()
+						{
+							const auto loadShader = [](const String& filename) // TODO: replace with something
+							{
+								std::ifstream file(filename);
+								std::string code((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+								return Move(code);
+							};
+
+							const auto &context			= methodMemory->contextHolder->gl_context;
 							const auto &programHandle	= context->CreateProgram();
+							const auto &module			= ObtainModule();
+
+							const auto &vertexShaderHandle		= context->CreateShader(GL::Shader::Type::Vertex);
+							{
+								const auto &source = loadShader(module->vertexShaderFilename);
+
+								context->ShaderSource(vertexShaderHandle, source);
+								context->CompileShader(vertexShaderHandle);
+
+								const auto &compileStatus = context->GetShaderCompileStatus(vertexShaderHandle);
+
+								if (!compileStatus)
+								{
+									const auto &log = context->GetShaderInfoLog(vertexShaderHandle);
+
+									throw Exception("Error while compiling shader: " + log);
+								}
+							}
+							const auto &fragmentShaderHandle	= context->CreateShader(GL::Shader::Type::Fragment);
+							{
+								const auto &source = loadShader("Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader");
+
+								context->ShaderSource(fragmentShaderHandle, { source });
+								context->CompileShader(fragmentShaderHandle);
+
+								const auto &compileStatus = context->GetShaderCompileStatus(fragmentShaderHandle);
+
+								if (!compileStatus)
+								{
+									const auto &log = context->GetShaderInfoLog(fragmentShaderHandle);
+
+									throw Exception("Error while compiling shader: " + log);
+								}
+							}
+
+							context->AttachShader(programHandle, vertexShaderHandle);
+							context->AttachShader(programHandle, fragmentShaderHandle);
+
+							context->LinkProgram(programHandle);
+
+							const auto &linkStatus = context->GetProgramLinkStatus(programHandle);
+
+							if (!linkStatus)
+							{
+								const auto &log = context->GetProgramInfoLog(programHandle);
+
+								throw Exception("Error while linking program: " + log);
+							}
+
+							context->DeleteShader(vertexShaderHandle);
+							context->DeleteShader(fragmentShaderHandle);
+
+							context->UseProgram(programHandle);
+
+							/*if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureAlbedo"))
+							{
+								GL::SetUniform(uniformLocation, 0);
+							}
+							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureNormals"))
+							{
+								GL::SetUniform(uniformLocation, 1);
+							}
+							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureRoughness"))
+							{
+								GL::SetUniform(uniformLocation, 2);
+							}
+							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureMetalness"))
+							{
+								GL::SetUniform(uniformLocation, 3);
+							}
+							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureOcclusion"))
+							{
+								GL::SetUniform(uniformLocation, 4);
+							}
+							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureEnvironment"))
+							{
+								GL::SetUniform(uniformLocation, 8);
+							}*/
 
 							return programHandle;
 						}
@@ -225,22 +396,41 @@ namespace GreatVEngine2
 						const Memory<Forward>							methodMemory;
 						const Memory<Material>							materialMemory;
 						const Material::EventDestruction::Unsubscriber	unsubscriber;
+					public:
 						const GL::Program::Handle						gl_programHandle;
+						const Size										maxObjectsCount;
+						const GL::Buffer::Handle						gl_objectsUniformBufferHandle;
 					public:
 						inline MaterialCache(const Memory<Forward>& methodMemory_, const Memory<Material>& materialMemory_):
 							methodMemory(methodMemory_),
 							materialMemory(materialMemory_),
 							unsubscriber(materialMemory->OnDestruction(std::bind(static_cast<void(Forward::*)(const Memory<Material>&)>(&Forward::Remove), methodMemory, materialMemory))),
-							gl_programHandle(ObtainProgramHandle())
+							gl_programHandle(ObtainProgramHandle()),
+							maxObjectsCount(ObtainMaxObjectsCount()),
+							gl_objectsUniformBufferHandle(ObtainObjectsUniformBuffer())
 						{
 						}
 						inline ~MaterialCache()
 						{
 							const auto &context = methodMemory->contextHolder->gl_context;
+							const auto &currentProgramHandle = context->GetCurrentProgram();
 
-							// TODO: unuse program
+							if (currentProgramHandle == gl_programHandle)
+							{
+								context->UseProgram(0);
+							}
 
 							context->DeleteProgram(gl_programHandle);
+
+							const auto &currentUniformBufferHandle = context->GetBufferBinding(GL::Buffer::Binding::Uniform);
+							{
+								if (gl_objectsUniformBufferHandle == currentUniformBufferHandle)
+								{
+									context->BindBuffer(GL::Buffer::Type::Uniform, nullptr);
+								}
+							}
+
+							context->DeleteBuffer(gl_objectsUniformBufferHandle);
 						}
 					};
 #pragma endregion
@@ -276,7 +466,7 @@ namespace GreatVEngine2
 
 							return bufferHandle;
 						}
-					protected:
+					public:
 						const Memory<Forward>						methodMemory;
 						const Memory<Model>							modelMemory;
 						const Model::EventDestruction::Unsubscriber	unsubscriber;
@@ -314,6 +504,94 @@ namespace GreatVEngine2
 							}
 
 							context->DeleteBuffer(gl_indicesBufferHandle);
+						}
+					};
+#pragma endregion
+#pragma region Forward::SceneCache::MaterialNode
+					class Forward::SceneCache::MaterialNode
+					{
+					public:
+						const Memory<SceneCache> sceneCacheMemory;
+						const Memory<MaterialCache> materialCacheMemory;
+						ModelsTable modelsTable;
+					public:
+						inline MaterialNode(const Memory<SceneCache>& sceneCacheMemory_, const Memory<MaterialCache>& materialCacheMemory_):
+							sceneCacheMemory(sceneCacheMemory_),
+							materialCacheMemory(materialCacheMemory_)
+						{
+						}
+						inline MaterialNode(const MaterialNode&) = delete;
+						inline ~MaterialNode()
+						{
+						}
+					};
+#pragma endregion
+#pragma region Forward::SceneCache::ModelNode
+					class Forward::SceneCache::ModelNode
+					{
+					public:
+						inline GL::VertexArray::Handle ObtainVertexArraysHandle() const
+						{
+							const auto &context = materialNodeMemory->sceneCacheMemory->methodMemory->contextHolder->gl_context;
+							const auto &vertexArrayHandle = context->GenVertexArray();
+							const auto vertexSize = modelCacheMemory->modelMemory->GetGeometry()->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
+
+							context->BindVertexArray(vertexArrayHandle);
+
+							context->BindBuffer(GL::Buffer::Type::Array, modelCacheMemory->gl_verticesBufferHandle);
+							
+							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vPos"))
+							{
+								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 0);
+								context->EnableVertexAttributeArray(attributeLocation);
+							}
+							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vTan"))
+							{
+								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 3);
+								context->EnableVertexAttributeArray(attributeLocation);
+							}
+							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vBin"))
+							{
+								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 6);
+								context->EnableVertexAttributeArray(attributeLocation);
+							}
+							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vNor"))
+							{
+								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 9);
+								context->EnableVertexAttributeArray(attributeLocation);
+							}
+							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vTex"))
+							{
+								context->VertexAttributePointer(attributeLocation, 2, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 12);
+								context->EnableVertexAttributeArray(attributeLocation);
+							}
+
+							context->BindVertexArray(nullptr);
+
+							return vertexArrayHandle;
+						}
+					public:
+						const Memory<MaterialNode> materialNodeMemory;
+						const Memory<ModelCache> modelCacheMemory;
+						ObjectsTable objectsTable;
+						Vector<ObjectUniformBuffer> objectsUniformBufferData;
+						const GL::VertexArray::Handle gl_vertexArrayHandle;
+					public:
+						inline ModelNode(const Memory<MaterialNode>& materialNodeMemory_, const Memory<ModelCache>& modelCacheMemory_):
+							materialNodeMemory(materialNodeMemory_),
+							modelCacheMemory(modelCacheMemory_),
+							gl_vertexArrayHandle(ObtainVertexArraysHandle())
+						{
+						}
+						inline ModelNode(const ModelNode&) = delete;
+						inline ~ModelNode()
+						{
+							const auto &context = materialNodeMemory->sceneCacheMemory->methodMemory->contextHolder->gl_context;
+
+							// TODO: check
+
+							context->BindVertexArray(nullptr);
+							context->DeleteVertexArray(gl_vertexArrayHandle);
 						}
 					};
 #pragma endregion
@@ -465,49 +743,57 @@ namespace GreatVEngine2
 						ForceUpdateCaches();
 					}
 
-					Forward::SceneCache::ModelsTable& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
+					Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
 					{
 						const auto it		= materialsTable.find(materialCacheMemory_);
 
 						if (it != materialsTable.end())
 						{
-							auto &modelsTable = (*it).second;
+							auto &materialNode = (*it).second;
 
-							return modelsTable;
+							return materialNode;
 						}
 
-						const auto &nIt		= materialsTable.insert({ materialCacheMemory_, ModelsTable() }); // TODO: add check?
-						auto &modelsTable	= (*nIt.first).second;
+						const auto &nIt		= materialsTable.emplace(
+							std::piecewise_construct,
+							std::forward_as_tuple(materialCacheMemory_),
+							std::forward_as_tuple(this, materialCacheMemory_)
+						); // TODO: add check?
+						auto &materialNode	= (*nIt.first).second;
 
-						return modelsTable;
+						return materialNode;
 					}
-					Forward::SceneCache::ObjectsTable& Forward::SceneCache::FindOrCreate(ModelsTable& modelsTable_, const Memory<ModelCache>& modelCacheMemory_)
+					Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_)
 					{
-						const auto it		= modelsTable_.find(modelCacheMemory_);
+						auto		&modelsTable	= materialNode_.modelsTable;
+						const auto	&it				= modelsTable.find(modelCacheMemory_);
 
-						if (it != modelsTable_.end())
+						if (it != modelsTable.end())
 						{
-							auto &objectsTable = (*it).second;
+							auto &modelNode = (*it).second;
 
-							return objectsTable;
+							return modelNode;
 						}
 
-						const auto &nIt		= modelsTable_.insert({ modelCacheMemory_, ObjectsTable() }); // TODO: add check?
-						auto &modelsTable	= (*nIt.first).second;
+						const auto &nIt		= modelsTable.emplace(
+							std::piecewise_construct,
+							std::forward_as_tuple(modelCacheMemory_),
+							std::forward_as_tuple(&materialNode_, modelCacheMemory_)
+						); // TODO: add check?
+						auto &modelNode		= (*nIt.first).second;
 
-						return modelsTable;
+						return modelNode;
 					}
 
 					void Forward::SceneCache::ForceUpdateCaches()
 					{
 						const auto &contextHolder	= methodMemory->contextHolder;
 						const auto &deviceContext	= contextHolder->win_deviceContextHandle;
-						const auto &renderContext	= contextHolder->gl_context;
-
+						const auto &renderContext	= contextHolder->gl_context->GetHandle();
 						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
 						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
 
-						GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
+						GL::OSs::Windows::MakeCurrent(deviceContext, renderContext);
 
 						auto &objects = sceneMemory->objects;
 
@@ -526,10 +812,26 @@ namespace GreatVEngine2
 							const auto &modelCacheMemory		= methodMemory->FindOrAdd(modelMemory);
 
 							// obtain tables
-							auto &modelsTable					= FindOrCreate(materialCacheMemory);
-							auto &objectsTable					= FindOrCreate(modelsTable, modelCacheMemory);
+							auto &materialNode					= FindOrCreate(materialCacheMemory);
+							auto &modelsTable					= materialNode.modelsTable;
+							auto &modelNode						= FindOrCreate(materialNode, modelCacheMemory);
+							auto &objectsTable					= modelNode.objectsTable;
 
 							objectsTable.push_back(objectMemory);
+						}
+
+						for (auto &materialIt : materialsTable)
+						{
+							auto &materialNode	= materialIt.second;
+							auto &modelsTable	= materialNode.modelsTable;
+
+							for (auto &modelIt : modelsTable)
+							{
+								auto &modelNode		= modelIt.second;
+								auto objectsTable	= modelNode.objectsTable;
+
+								modelNode.objectsUniformBufferData.resize(objectsTable.size());
+							}
 						}
 
 						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
@@ -550,7 +852,117 @@ namespace GreatVEngine2
 					{
 						UpdateCaches();
 
-						// TODO
+						const auto &contextHolder	= methodMemory->contextHolder;
+						const auto &deviceContext	= view_->GetDeviceContextHandle();
+						const auto &renderContext	= contextHolder->gl_context;
+						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+
+						GL::OSs::Windows::MakeCurrent(deviceContext, renderContext->GetHandle());
+						
+						auto viewport = view_->GetViewportRange();
+						auto aspect = viewport.GetAspect();
+
+						glViewport(viewport.GetPosition().x, viewport.GetPosition().y, viewport.GetSize().x, viewport.GetSize().y);
+						glClearColor(1.0f, 0.5f, 0.0f, 1.0f);
+						glClearDepth(1.0f);
+						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+						glEnable(GL_CULL_FACE);
+						glCullFace(GL_BACK);
+						glFrontFace(GL_CCW);
+
+						glEnable(GL_DEPTH_TEST);
+						glDepthFunc(GL_LESS);
+
+						glDisable(GL_BLEND);
+
+						// TODO: camera buffer
+						contextHolder->cameraUniformsBufferData;
+						{
+							auto viewProjectionMatrix =
+								Perspective(60.0f, aspect, 0.1f, 10000.0f) *
+								camera_->GetVMat();
+
+							contextHolder->cameraUniformsBufferData.position				= Vec4(camera_->GetPosition(), 0.0f);
+							contextHolder->cameraUniformsBufferData.viewProjectionMatrix	= viewProjectionMatrix;
+
+							renderContext->BindBuffer(GL::Buffer::Type::Uniform, contextHolder->gl_cameraUniformsBuffer);
+							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
+						}
+
+						for (auto &materialIt : materialsTable)
+						{
+							const auto	&materialCacheMemory	= materialIt.first;
+							auto		&materialNode			= materialIt.second;
+							auto		&modelsTable			= materialNode.modelsTable;
+							const auto	&programHandle = materialCacheMemory->gl_programHandle;
+
+							renderContext->UseProgram(programHandle);
+
+							if (auto index = renderContext->GetUniformBlockIndex(programHandle, "CameraBuffer"))
+							{
+								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, index, contextHolder->gl_cameraUniformsBuffer);
+							}
+							if (auto index = renderContext->GetUniformBlockIndex(programHandle, "ObjectsBuffer"))
+							{
+								renderContext->BindBufferBase(GL::Buffer::Type::Uniform, index, materialCacheMemory->gl_objectsUniformBufferHandle);
+							}
+
+
+							for (auto &modelIt : modelsTable)
+							{
+								const auto	&modelCache				= modelIt.first;
+								const auto	&geometryMemory			= modelCache->modelMemory->GetGeometry().GetValue();
+								const auto	&verticesBufferHandle	= modelCache->gl_verticesBufferHandle;
+								const auto	&indicesBufferHandle	= modelCache->gl_indicesBufferHandle;
+
+								auto		&modelNode				= modelIt.second;
+								const auto	&vertexArrayHandle		= modelNode.gl_vertexArrayHandle;
+
+								auto		&objectsTable			= modelNode.objectsTable;
+								auto		&objectsData			= modelNode.objectsUniformBufferData;
+
+								renderContext->BindVertexArray(vertexArrayHandle);
+								renderContext->BindBuffer(GL::Buffer::Type::Array, verticesBufferHandle);
+								renderContext->BindBuffer(GL::Buffer::Type::ElementArray, indicesBufferHandle);
+
+								for (auto &objectIndex : Range(objectsTable.size()))
+								{
+									const auto &objectMemory	= objectsTable[objectIndex];
+									const auto &modelMatrix		= objectMemory->GetMMat();
+									auto &objectData			= objectsData[objectIndex];
+
+									objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+								}
+
+								const Size maxObjectsCountPerDrawCall = materialCacheMemory->maxObjectsCount;
+								const Size drawCallsCount = (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+
+								for (const auto &drawCallIndex : Range(drawCallsCount))
+								{
+									const Size firstIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
+									const Size lastIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
+									const Size instancesCount	= lastIndex - firstIndex;
+
+									renderContext->BindBuffer(GL::Buffer::Type::Uniform, materialCacheMemory->gl_objectsUniformBufferHandle);
+									renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(ObjectUniformBuffer)* instancesCount, objectsData.data() + firstIndex);
+
+									if (geometryMemory->GetTopology() == Geometry::Topology::Triangles)
+									{
+										renderContext->DrawElementsInstanced(GL::PrimitiveType::Triangles, geometryMemory->GetIndicesCount(), instancesCount);
+									}
+									else
+									{
+										throw Exception();
+									}
+								}
+							}
+						}
+
+						SwapBuffers(deviceContext);
+						
+						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 					}
 
 					StrongPointer<Forward::Output> Forward::SceneCache::Render(const StrongPointer<Camera>& camera_)

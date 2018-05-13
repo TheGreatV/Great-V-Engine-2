@@ -34,10 +34,12 @@ namespace GreatVEngine2
 				}
 
 
-				/*class Module:
+				class Module:
 					public Material::Module
 				{
 				public:
+					const String vertexShaderFilename;
+					const String fragmentShaderFilename;
 					const String albedoFilename;
 					const String normalsFilename;
 					const String roughnessFilename;
@@ -45,12 +47,16 @@ namespace GreatVEngine2
 					const String occlusionFilename;
 				public:
 					inline Module(const StrongPointer<Module>& this_,
+						const String& vertexShaderFilename_,
+						const String& fragmentShaderFilename_,
 						const String& albedoFilename_,
 						const String& normalsFilename_,
 						const String& roughnessFilename_,
 						const String& metalnessFilename_,
 						const String& occlusionFilename_
 					): Material::Module(this_),
+						vertexShaderFilename(vertexShaderFilename_),
+						fragmentShaderFilename(fragmentShaderFilename_),
 						albedoFilename(albedoFilename_),
 						normalsFilename(normalsFilename_),
 						roughnessFilename(roughnessFilename_),
@@ -59,7 +65,7 @@ namespace GreatVEngine2
 					{
 					}
 					virtual ~Module() override = default;
-				};*/
+				};
 
 				class Output:
 					public Graphics::Output
