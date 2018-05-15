@@ -970,83 +970,86 @@ namespace GreatVEngine2
 							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
 						}
 
-						auto &taskManagers = methodMemory->taskManagers;
+						const bool useMultithreading = GetAsyncKeyState('H') != 0;
 
-						for (auto &materialIt : materialsTable)
+						if (useMultithreading)
 						{
-							const auto	&materialCacheMemory	= materialIt.first;
-							auto		&materialNode			= materialIt.second;
-							auto		&modelsTable			= materialNode.modelsTable;
+							auto &taskManagers = methodMemory->taskManagers;
 
-							for (auto &modelIt : modelsTable)
+							for (auto &materialIt : materialsTable)
 							{
-								auto		&modelNode				= modelIt.second;
-								auto		&objectsTable			= modelNode.objectsTable;
-								auto		&objectsData			= modelNode.objectsUniformBufferData;
-								auto		&events					= modelNode.events;
+								const auto	&materialCacheMemory	= materialIt.first;
+								auto		&materialNode			= materialIt.second;
+								auto		&modelsTable			= materialNode.modelsTable;
 
-								const Size	maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
-								const Size	drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
-
-								events.resize(drawCallsCount);
-
-								for (const auto &drawCallIndex : Range(drawCallsCount))
+								for (auto &modelIt : modelsTable)
 								{
-									auto &drawCallEvents				= events[drawCallIndex];
+									auto		&modelNode				= modelIt.second;
+									auto		&objectsTable			= modelNode.objectsTable;
+									auto		&objectsData			= modelNode.objectsUniformBufferData;
+									auto		&events					= modelNode.events;
 
-									drawCallEvents.resize(taskManagers.size());
+									const Size	maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
+									const Size	drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
 
-									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
-									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
-									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
-									const Size objectsPerTask			= drawCallInstancesCount / taskManagers.size();
+									events.resize(drawCallsCount);
 
-									for (auto &taskIndex : Range(taskManagers.size()))
+									for (const auto &drawCallIndex : Range(drawCallsCount))
 									{
-										auto		&taskManager		= taskManagers[taskIndex];
-										const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
-										const Size	lastIndex			= taskIndex < static_cast<int>(taskManagers.size() - 1)
-											? firstIndex + objectsPerTask
-											: lastDrawCallIndex;
+										auto &drawCallEvents				= events[drawCallIndex];
 
-										drawCallEvents[taskIndex] = taskManager.Submit(std::bind([](Object** objectsTable_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_){
-											for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
-											{
-												const auto &objectMemory	= objectsTable_[objectIndex];
-												const auto &modelMatrix		= objectMemory->GetMMat();
-												auto &objectData			= objectsData_[objectIndex];
+										drawCallEvents.resize(taskManagers.size());
 
-												objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
-											}
-										}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
+										const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
+										const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
+										const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
+										const Size objectsPerTask			= drawCallInstancesCount / taskManagers.size();
+
+										for (auto &taskIndex : Range(taskManagers.size()))
+										{
+											auto		&taskManager		= taskManagers[taskIndex];
+											const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
+											const Size	lastIndex			= taskIndex < static_cast<int>(taskManagers.size() - 1)
+												? firstIndex + objectsPerTask
+												: lastDrawCallIndex;
+
+											drawCallEvents[taskIndex] = taskManager.Submit(std::bind([](Object** objectsTable_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_){
+												for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
+												{
+													const auto &objectMemory	= objectsTable_[objectIndex];
+													const auto &modelMatrix		= objectMemory->GetMMat();
+													auto &objectData			= objectsData_[objectIndex];
+
+													objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+												}
+											}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
+										}
 									}
 								}
-								
-								/*events.resize(taskManagers.size());
+							}
+						}
+						else
+						{
+							for (auto &materialIt : materialsTable)
+							{
+								auto		&materialNode			= materialIt.second;
+								auto		&modelsTable			= materialNode.modelsTable;
 
-								const Size	objectsPerTask			= objectsTable.size() / taskManagers.size();
-
-								for (auto &taskIndex : Range(taskManagers.size()))
+								for (auto &modelIt : modelsTable)
 								{
-									auto		&taskManager				= taskManagers[taskIndex];
+									auto		&modelNode				= modelIt.second;
+									auto		&objectsTable			= modelNode.objectsTable;
+									auto		&objectsData			= modelNode.objectsUniformBufferData;
 
-									auto		&taskManager	= taskManagers[taskIndex];
-									const Size	firstIndex		= taskIndex * objectsPerTask;
-									const Size	lastIndex		= taskIndex < static_cast<int>(taskManagers.size() - 1)
-										? (taskIndex + 1) * objectsPerTask
-										: objectsTable.size();
+									for (Size objectIndex = 0; objectIndex < objectsTable.size(); ++objectIndex)
+									{
+										const auto &objectMemory	= objectsTable[objectIndex];
+										const auto &modelMatrix		= objectMemory->GetMMat();
+										auto &objectData			= objectsData[objectIndex];
 
-									events[taskIndex] = taskManager.Submit(std::bind([](Object** objectsTable_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_){
-										for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
-										{
-											const auto &objectMemory	= objectsTable_[objectIndex];
-											const auto &modelMatrix		= objectMemory->GetMMat();
-											auto &objectData			= objectsData_[objectIndex];
-
-											objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
-										}
-									}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
-								}*/
+										objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+									}
+								}
 							}
 						}
 
@@ -1104,11 +1107,14 @@ namespace GreatVEngine2
 
 								for (const auto &drawCallIndex : Range(drawCallsCount))
 								{
-									auto &drawCallEvents = events[drawCallIndex];
-
-									for (auto &event : drawCallEvents)
+									if (useMultithreading)
 									{
-										event.Wait();
+										auto &drawCallEvents = events[drawCallIndex];
+
+										for (auto &event : drawCallEvents)
+										{
+											event.Wait();
+										}
 									}
 
 									const Size firstIndex		= drawCallIndex * maxObjectsCountPerDrawCall;

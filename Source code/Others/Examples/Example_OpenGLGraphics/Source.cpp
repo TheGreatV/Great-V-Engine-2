@@ -152,40 +152,46 @@ void main()
 
 	auto models = Vector<StrongPointer<Graphics::Model>>();
 	{
-		models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
-		models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
-		models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
-		models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));
+		for (auto &i : Range(10))
+		{
+			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+			/*models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
+			models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
+			models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));*/
+		}
 	}
 
 	auto materials = Vector<StrongPointer<Graphics::Material>>();
 	{
-		auto material1 = Make<Graphics::Material>();
+		for (auto &i : Range(10))
 		{
-			material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
-			));
+			auto material1 = Make<Graphics::Material>();
+			{
+				material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
+				));
 
-			materials.push_back(material1);
-		}
-		auto material2 = Make<Graphics::Material>();
-		{
-			material2->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle2.glsl.fragment-shader"
-			));
+				materials.push_back(material1);
+			}
+			/*auto material2 = Make<Graphics::Material>();
+			{
+				material2->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle2.glsl.fragment-shader"
+				));
 
-			materials.push_back(material2);
-		}
-		auto material3 = Make<Graphics::Material>();
-		{
-			material3->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-				"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle3.glsl.fragment-shader"
-			));
+				materials.push_back(material2);
+			}
+			auto material3 = Make<Graphics::Material>();
+			{
+				material3->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle3.glsl.fragment-shader"
+				));
 
-			materials.push_back(material3);
+				materials.push_back(material3);
+			}*/
 		}
 	};
 
@@ -208,6 +214,10 @@ void main()
 
 	double averageFrameTime = 0.0;
 	Vector<double> averageFrameTimeBuffer;
+
+	bool changeMaterialsCountLock = false;
+	bool changeModelsCountLock = false;
+	bool rebuildSceneLock = false;
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
@@ -349,6 +359,95 @@ void main()
 			camera->Rotate(Vec3(0.0f, 0.0f, -rotatingSpeed));
 		}
 
+		if (GetAsyncKeyState(VK_OEM_PLUS))
+		{
+			if (!changeMaterialsCountLock)
+			{
+				auto material = Make<Graphics::Material>();
+				{
+					material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
+						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
+						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
+					));
+				}
+
+				materials.push_back(material);
+
+				changeMaterialsCountLock = true;
+			}
+		}
+		else if (GetAsyncKeyState(VK_OEM_MINUS))
+		{
+			if (!changeMaterialsCountLock)
+			{
+				if (materials.size() > 1)
+				{
+					materials.pop_back();
+				}
+
+				changeMaterialsCountLock = true;
+			}
+		}
+		else
+		{
+			changeMaterialsCountLock = false;
+		}
+
+		if (GetAsyncKeyState('0'))
+		{
+			if (!changeModelsCountLock)
+			{
+				models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+
+				changeModelsCountLock = true;
+			}
+		}
+		else if (GetAsyncKeyState('9'))
+		{
+			if (!changeModelsCountLock)
+			{
+				if (models.size() > 1)
+				{
+					models.pop_back();
+				}
+
+				changeModelsCountLock = true;
+			}
+		}
+		else
+		{
+			changeModelsCountLock = false;
+		}
+
+		if (GetAsyncKeyState('T'))
+		{
+			if (!rebuildSceneLock)
+			{
+				auto objectsCount = objects.size();
+
+				objects.clear();
+
+				objects.resize(objectsCount);
+				
+				for (auto &object : objects)
+				{
+					object = Make<Graphics::Object>(materials[rand() % materials.size()], models[rand() % models.size()], scene);
+				
+					object->SetLocalPosition(RotateY3(Rnd(360.0)) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
+					object->SetLocalAngle(Rnd3(360.0f));
+				}
+
+				rebuildSceneLock = true;
+			}
+		}
+		else
+		{
+			rebuildSceneLock = false;
+		}
+
+		// bool changeMaterialsCountLock = false;
+		// bool changeModelsCountLock = false;
+
 		auto openGLRenderResult = openGLEngine->Render(scene, camera);
 		
 		openGLWindow1View->Present(openGLRenderResult);
@@ -374,7 +473,12 @@ void main()
 			averageFrameTimeBuffer.clear();
 		}
 
-		std::cout << "frame time: " << averageFrameTime << "ms, objects: " << objects.size() + 1 << std::endl;
+		std::cout <<
+			"materials: " << materials.size() << ", " <<
+			"models: " << models.size() << ", " <<
+			"frame time: " << averageFrameTime << "ms, " <<
+			"objects: " << objects.size() + 1 <<
+			std::endl;
 		// std::cout << "frame time: " << frameTimeMs << "ms" << std::endl;
 
 		auto timePerFrameMs = 1000.0 / 60.0;
