@@ -970,11 +970,24 @@ namespace GreatVEngine2
 							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
 						}
 
-						const bool useMultithreading = GetAsyncKeyState('H') != 0;
+						const bool useMultithreading = GetAsyncKeyState('H') == 0;
 
 						if (useMultithreading)
 						{
 							auto &taskManagers = methodMemory->taskManagers;
+
+							Size lastUsedTaskManagerIndex = 0;
+
+							auto getTaskManagerIndex = [&]()
+							{
+								auto i = lastUsedTaskManagerIndex;
+
+								++lastUsedTaskManagerIndex;
+
+								lastUsedTaskManagerIndex = lastUsedTaskManagerIndex % taskManagers.size();
+
+								return i;
+							};
 
 							for (auto &materialIt : materialsTable)
 							{
@@ -996,20 +1009,24 @@ namespace GreatVEngine2
 
 									for (const auto &drawCallIndex : Range(drawCallsCount))
 									{
-										auto &drawCallEvents				= events[drawCallIndex];
-
-										drawCallEvents.resize(taskManagers.size());
-
 										const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
 										const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
 										const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
-										const Size objectsPerTask			= drawCallInstancesCount / taskManagers.size();
 
-										for (auto &taskIndex : Range(taskManagers.size()))
+										auto &drawCallEvents						= events[drawCallIndex];
+										const Size minAverageObjectsCountPerTask	= 128;
+										const Size tasksCount						= glm::min(taskManagers.size(), (drawCallInstancesCount + minAverageObjectsCountPerTask - 1) / minAverageObjectsCountPerTask);
+
+										drawCallEvents.resize(tasksCount);
+
+										const Size objectsPerTask			= drawCallInstancesCount / tasksCount;
+
+										for (auto &taskIndex : Range(tasksCount))
 										{
-											auto		&taskManager		= taskManagers[taskIndex];
+											auto taskManagerIndex			= getTaskManagerIndex();
+											auto		&taskManager		= taskManagers[taskManagerIndex];
 											const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
-											const Size	lastIndex			= taskIndex < static_cast<int>(taskManagers.size() - 1)
+											const Size	lastIndex			= taskIndex < static_cast<int>(tasksCount - 1)
 												? firstIndex + objectsPerTask
 												: lastDrawCallIndex;
 

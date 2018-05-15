@@ -221,8 +221,6 @@ void main()
 
 	while (!GetAsyncKeyState(VK_ESCAPE))
 	{
-		auto beginTime = std::chrono::high_resolution_clock::now();
-
 		MSG msg;
 		{
 			auto performWindow = [&](HWND windowHandle)
@@ -447,6 +445,8 @@ void main()
 
 		// bool changeMaterialsCountLock = false;
 		// bool changeModelsCountLock = false;
+
+		auto beginTime = std::chrono::high_resolution_clock::now();
 
 		auto openGLRenderResult = openGLEngine->Render(scene, camera);
 		
