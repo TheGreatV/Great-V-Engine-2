@@ -24,6 +24,12 @@ namespace GreatVEngine2
 			inline void				ClearColor(const GLclampf& red_, const GLclampf& green_, const GLclampf& blue_, const GLclampf& alpha_) const;
 			inline void				Clear(const GLbitfield& mask_) const;
 			inline void				DrawArrays(const PrimitiveType& primitiveType_, const Size& first_, const Size& count_);
+			inline void				DrawElements(const PrimitiveType& primitiveType_, const Size& indicesCount_, const IndexType& indexType_, const Size& offset_) const
+			{
+				glDrawElements(static_cast<GLenum>(primitiveType_), indicesCount_, static_cast<GLenum>(indexType_), reinterpret_cast<const GLvoid*>(offset_));
+				
+				CheckForErrors();
+			}
 			inline void				Flush() const;
 			inline void				Finish() const;
 		};

@@ -37,6 +37,12 @@ namespace GreatVEngine2
 				Dynamic = GL_DYNAMIC_DRAW,
 				Stream = GL_STREAM_DRAW,
 			};
+			enum class Access
+			{
+				Read		= GL_READ_ONLY,
+				Write		= GL_WRITE_ONLY,
+				ReadWrite	= GL_READ_WRITE,
+			};
 		public:
 			class Handle
 			{
@@ -134,6 +140,20 @@ namespace GreatVEngine2
 			inline void											BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;
 			template<class Type_> inline void					BufferData(const Buffer::Type& type_, const Vector<Type_>& data_, const Buffer::Usage& usage_) const;
 			inline void											BufferSubData(const Buffer::Type& type_, const Size& offset_, const Size& size_, const Memory<const void>& data_) const;
+			inline Memory<void>									MapBuffer(const Buffer::Type& type_, const Buffer::Access& access_) const
+			{
+				auto value = glMapBuffer(static_cast<Buffer::Handle::Value>(type_), static_cast<GLenum>(access_));
+
+				CheckForErrors();
+
+				return value;
+			}
+			inline void											UnmapBuffer(const Buffer::Type& type_) const
+			{
+				glUnmapBuffer(static_cast<Buffer::Handle::Value>(type_));
+
+				CheckForErrors();
+			}
 		};
 #pragma region Core_1_5
 		Core_1_5::Core_1_5(

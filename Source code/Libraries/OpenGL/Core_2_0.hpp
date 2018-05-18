@@ -145,6 +145,48 @@ namespace GreatVEngine2
 						return value != -1;
 					}
 				};
+			protected:
+				const String name;
+				const Size size;
+				const Type type;
+				const Size stride;
+				const Size offset;
+			public:
+				inline Attribute(
+					const String& name_,
+					const Size& size_,
+					const Type& type_,
+					const Size& stride_,
+					const Size& offset_
+				):
+					name(name_),
+					size(size_),
+					type(type_),
+					stride(stride_),
+					offset(offset_)
+				{
+				}
+			public:
+				inline String GetName() const
+				{
+					return name;
+				}
+				inline Size GetSize() const
+				{
+					return size;
+				}
+				inline Type GetType() const
+				{
+					return type;
+				}
+				inline Size GetStride() const
+				{
+					return stride;
+				}
+				inline Size GetOffset() const
+				{
+					return offset;
+				}
 			};
 		};
 

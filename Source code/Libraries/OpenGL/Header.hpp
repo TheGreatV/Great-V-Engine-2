@@ -33,6 +33,10 @@ namespace GreatVEngine2
 		{
 			Triangles = GL_TRIANGLES,
 		};
+		enum class IndexType: GLenum
+		{
+			UInt32 = GL_UNSIGNED_INT,
+		};
 
 
 		class Error
