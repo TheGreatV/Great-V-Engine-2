@@ -125,6 +125,7 @@ namespace GreatVEngine2
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
 						class MaterialCache;
 						using MaterialCaches = Map<Memory<Material>, StrongPointer<MaterialCache>>;
+						class AttributesCache;
 						class ModelCache;
 						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;
 					protected:
@@ -255,6 +256,38 @@ namespace GreatVEngine2
 
 							return deviceContextHandle;
 						}
+						inline GL::Buffer::Handle ObtainVerticesBuffer()
+						{
+							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						
+							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+						
+							auto buffer = gl_context->GenBuffer();
+						
+							gl_context->BindBuffer(GL::Buffer::Type::Array, buffer);
+							gl_context->BufferData(GL::Buffer::Type::Array, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
+						
+							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						
+							return buffer;
+						}
+						inline GL::Buffer::Handle ObtainIndicesBuffer()
+						{
+							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						
+							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+						
+							auto buffer = gl_context->GenBuffer();
+						
+							gl_context->BindBuffer(GL::Buffer::Type::ElementArray, buffer);
+							gl_context->BufferData(GL::Buffer::Type::ElementArray, indicesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
+						
+							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						
+							return buffer;
+						}
 					public:
 						const String					win_windowClassName;
 						const HWND						win_windowHandle;
@@ -281,12 +314,21 @@ namespace GreatVEngine2
 						CameraUniformBuffer				cameraUniformsBufferData;
 						const GL::Buffer::Handle		gl_cameraUniformsBuffer;
 					public:
+						Size verticesBufferSize				= 0;
+						Size verticesBufferCapacity			= 128 * 1024;
+						const GL::Buffer::Handle			gl_verticesBuffer;
+						Size indicesBufferSize				= 0;
+						Size indicesBufferCapacity			= 16 * 1024;
+						const GL::Buffer::Handle			gl_indicesBuffer;
+					public:
 						inline ContextHolder():
 							win_windowClassName(ObtainWindowClassName()),
 							win_windowHandle(ObtainWindowHandle(win_windowClassName)),
 							win_deviceContextHandle(ObtainDeviceContextHandle(win_windowHandle)),
 							gl_context(MakeStrong<GLContext>(win_deviceContextHandle)),
-							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer())
+							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer()),
+							gl_verticesBuffer(ObtainVerticesBuffer()),
+							gl_indicesBuffer(ObtainIndicesBuffer())
 						{
 						}
 						inline ~ContextHolder()
@@ -305,6 +347,26 @@ namespace GreatVEngine2
 							}
 
 							gl_context->DeleteBuffer(gl_cameraUniformsBuffer);
+
+							const auto &currentVerticesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Array);
+							{
+								if (gl_verticesBuffer == currentVerticesBufferHandle)
+								{
+									gl_context->BindBuffer(GL::Buffer::Type::Array, nullptr);
+								}
+							}
+							
+							gl_context->DeleteBuffer(gl_verticesBuffer);
+							
+							const auto &currentIndicesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::ElementArray);
+							{
+								if (gl_indicesBuffer == currentIndicesBufferHandle)
+								{
+									gl_context->BindBuffer(GL::Buffer::Type::ElementArray, nullptr);
+								}
+							}
+							
+							gl_context->DeleteBuffer(gl_indicesBuffer);
 
 							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 						}
@@ -470,7 +532,7 @@ namespace GreatVEngine2
 
 							return programHandle;
 						}
-					protected:
+					public:
 						const Memory<Forward>							methodMemory;
 						const Memory<Material>							materialMemory;
 						const Material::EventDestruction::Unsubscriber	unsubscriber;
@@ -512,6 +574,51 @@ namespace GreatVEngine2
 						}
 					};
 #pragma endregion
+#pragma region Forward::AttributesCache
+					class Forward::AttributesCache
+					{
+					protected:
+						inline GL::VertexArray::Handle ObtainVerticesArrayHandle() const
+						{
+							const auto &methodMemory	= materialCacheMemory->methodMemory;
+							const auto &context			= methodMemory->contextHolder->gl_context;
+							const auto &bufferHandle	= context->GenVertexArray();
+
+							return bufferHandle;
+						}
+					protected:
+						const Memory<MaterialCache>			materialCacheMemory;
+						const GL::VertexArray::Handle		gl_verticesArrayHandle;
+					public:
+						inline AttributesCache(const Memory<MaterialCache>& materialCacheMemory_, const Vector<GL::Program::Attribute>& attributes_):
+							materialCacheMemory(materialCacheMemory_),
+							gl_verticesArrayHandle(ObtainVerticesArrayHandle())
+						{
+							const auto &methodMemory	= materialCacheMemory->methodMemory;
+							const auto &context			= methodMemory->contextHolder->gl_context;
+
+							context->BindBuffer(GL::Buffer::Type::Array, methodMemory->contextHolder->gl_verticesBuffer);
+
+							for (auto &attribute : attributes_)
+							{
+								if (auto &location = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, attribute.GetName()))
+								{
+									context->VertexAttributePointer(location, attribute.GetSize(), attribute.GetType(), false, attribute.GetStride(), attribute.GetOffset());
+									context->EnableVertexAttributeArray(location);
+								}
+							}
+						}
+						inline ~AttributesCache()
+						{
+							const auto &methodMemory	= materialCacheMemory->methodMemory;
+							const auto &context			= methodMemory->contextHolder->gl_context;
+
+							context->BindVertexArray(nullptr);
+							context->DeleteVertexArray(gl_verticesArrayHandle);
+						}
+					};
+#pragma endregion
+
 #pragma region Forward::ModelCache
 					class Forward::ModelCache
 					{
@@ -1017,6 +1124,8 @@ namespace GreatVEngine2
 										const Size minAverageObjectsCountPerTask	= 128;
 										const Size tasksCount						= glm::min(taskManagers.size(), (drawCallInstancesCount + minAverageObjectsCountPerTask - 1) / minAverageObjectsCountPerTask);
 
+										// std::cout << "tasksCount: " << tasksCount << std::endl;
+
 										drawCallEvents.resize(tasksCount);
 
 										const Size objectsPerTask			= drawCallInstancesCount / tasksCount;
@@ -1034,10 +1143,62 @@ namespace GreatVEngine2
 												for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
 												{
 													const auto &objectMemory	= objectsTable_[objectIndex];
-													const auto &modelMatrix		= objectMemory->GetMMat();
+													// const auto &modelMatrix		= objectMemory->GetMMat();
 													auto &objectData			= objectsData_[objectIndex];
 
-													objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+													// objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+													const auto &position	= objectMemory->GetPosition();
+													const auto &angle		= objectMemory->GetAngle();
+													const auto &scale		= objectMemory->GetScale();
+
+													const auto &px			= position.x;
+													const auto &py			= position.y;
+													const auto &pz			= position.z;
+
+													const auto &sx			= scale.x;
+													const auto &sy			= scale.y;
+													const auto &sz			= scale.z;
+
+													const auto &ax			= Radians(angle.x);
+													const auto &ay			= Radians(angle.y);
+													const auto &az			= Radians(angle.z);
+													const auto &sax			= Sin(ax);
+													const auto &cax			= Cos(ax);
+													const auto &say			= Sin(ay);
+													const auto &cay			= Cos(ay);
+													const auto &saz			= Sin(az);
+													const auto &caz			= Cos(az);
+
+													objectData.modelMatrix[0][0] = cay * caz + say * sax * -saz * sx;
+													objectData.modelMatrix[0][1] = cay * saz + say * sax * caz * sy;
+													objectData.modelMatrix[0][2] = say * cax * sz;
+													objectData.modelMatrix[0][3] = px;
+
+													objectData.modelMatrix[1][0] = cax * -saz * sx;
+													objectData.modelMatrix[1][1] = cax * caz * sy;
+													objectData.modelMatrix[1][2] = -sax * sz;
+													objectData.modelMatrix[1][3] = py;
+
+													objectData.modelMatrix[2][0] = -say * caz + cay * sax * -saz * sx;
+													objectData.modelMatrix[2][1] = -say * saz + cay * sax * caz * sy;
+													objectData.modelMatrix[2][2] = cay * cax * sz;
+													objectData.modelMatrix[2][3] = pz;
+
+
+													// objectData.modelMatrix[0][0] = 1.0f;
+													// objectData.modelMatrix[0][1] = 0.0f;
+													// objectData.modelMatrix[0][2] = 0.0f;
+													// objectData.modelMatrix[0][3] = 0.0f;
+													// 
+													// objectData.modelMatrix[1][0] = 0.0f;
+													// objectData.modelMatrix[1][1] = 1.0f;
+													// objectData.modelMatrix[1][2] = 0.0f;
+													// objectData.modelMatrix[1][3] = 0.0f;
+													// 
+													// objectData.modelMatrix[2][0] = 0.0f;
+													// objectData.modelMatrix[2][1] = 0.0f;
+													// objectData.modelMatrix[2][2] = 1.0f;
+													// objectData.modelMatrix[2][3] = 0.0f;
 												}
 											}, objectsTable.data(), objectsData.data(), firstIndex, lastIndex));
 										}

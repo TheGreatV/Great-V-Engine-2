@@ -109,12 +109,14 @@ namespace GreatVEngine2
 #pragma region Core
 		void Core::CheckForErrors() const
 		{
+#if __GREAT_V_ENGINE_2__DEBUG__
 			auto code = GetErrorCode();
 
 			if (code != Error::Code::NoError)
 			{
 				throw Exception();
 			}
+#endif
 		}
 
 		Error::Code Core::GetErrorCode() const
