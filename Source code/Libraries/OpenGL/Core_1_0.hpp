@@ -94,8 +94,6 @@ namespace GreatVEngine2
 				inline static Handle		ObtainHandle(const DeviceContextHandle& deviceContextHandle_, const Handle& parent_, const Attributes& attributes_); // TODO: move to context?
 				inline static Handle		MakeCurrentAndReturn(const DeviceContextHandle& deviceContextHandle_, const Handle& handle_);
 			protected:
-				const Handle				handle;
-			protected:
 				inline						Context_1_0(const Handle& handle_);
 			public:
 				inline						Context_1_0(const DeviceContextHandle& deviceContextHandle_);
@@ -103,8 +101,6 @@ namespace GreatVEngine2
 			protected:
 				inline void					CheckForCurrentContext() const;
 				inline void					CheckForCurrentContext(const Handle& handle_) const; // TODO: remove this workaround
-			public:
-				inline Handle				GetHandle() const;
 			public:
 				inline Procedure			GetProcedureAddress(const String& name_) const; // TODO: move to OpenGL::Context?
 				inline Procedure			GetProcedureAddress(const String& name_, const Handle& handle_) const; // TODO: remove this workaround
@@ -262,7 +258,7 @@ namespace GreatVEngine2
 			}
 
 			Context_1_0::Context_1_0(const Handle& handle_):
-				handle(handle_)
+				Context(handle_)
 			{
 			}
 			Context_1_0::Context_1_0(const DeviceContextHandle& deviceContextHandle_):
@@ -272,9 +268,9 @@ namespace GreatVEngine2
 			}
 			Context_1_0::~Context_1_0()
 			{
-				const auto &currentHandle = GetCurrentHandle();
+				auto currentHandle = GetCurrentContextHandle();
 
-				if (handle == currentHandle)
+				if (currentHandle == handle)
 				{
 					throw Exception();
 				}
@@ -283,7 +279,7 @@ namespace GreatVEngine2
 			void Context_1_0::CheckForCurrentContext() const
 			{
 #if __GREAT_V_ENGINE_2__DEBUG__
-				auto currentHandle = GetCurrentHandle();
+				auto currentHandle = GetCurrentContextHandle();
 
 				if (currentHandle != handle)
 				{
@@ -294,7 +290,7 @@ namespace GreatVEngine2
 			void Context_1_0::CheckForCurrentContext(const Handle& handle_) const
 			{
 #if __GREAT_V_ENGINE_2__DEBUG__
-				auto currentHandle = GetCurrentHandle();
+				auto currentHandle = GetCurrentContextHandle();
 
 				if (currentHandle != handle_)
 				{
@@ -303,11 +299,6 @@ namespace GreatVEngine2
 #endif
 			}
 
-			Context_1_0::Handle Context_1_0::GetHandle() const
-			{
-				return handle;
-			}
-			
 			Context_1_0::Procedure Context_1_0::GetProcedureAddress(const String& name_) const
 			{
 				CheckForCurrentContext();

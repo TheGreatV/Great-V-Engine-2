@@ -23,6 +23,7 @@ namespace GreatVEngine2
 			namespace OpenGL
 			{
 				namespace GL = GreatVEngine2::OpenGL;
+				namespace WGL = GreatVEngine2::OpenGL::OSs::Windows;
 
 				class Output;
 				class Engine;

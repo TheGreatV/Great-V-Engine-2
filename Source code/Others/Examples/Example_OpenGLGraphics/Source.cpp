@@ -154,10 +154,10 @@ void main()
 	{
 		for (auto &i : Range(10))
 		{
-			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+			// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
-			// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));
+			models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));
 		}
 	}
 
@@ -253,7 +253,8 @@ void main()
 			objects.size() < 1000 ? 10:
 			objects.size() < 2000 ? 50:
 			objects.size() < 5000 ? 100:
-			1000;
+			objects.size() < 10000 ? 1000:
+			10000;
 		const Float32 minimalDistance = 10.0f;
 		const Float32 maximalDistance = 30.0f;
 		

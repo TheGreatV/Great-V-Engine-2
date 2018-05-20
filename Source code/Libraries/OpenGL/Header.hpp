@@ -144,17 +144,22 @@ namespace GreatVEngine2
 					using DeviceContextHandle = HDC;
 					using Procedure = PROC;
 					using RestorePoint = Pair<DeviceContextHandle, Handle>;
+				protected:
+					const Handle				handle;
+				protected:
+					inline						Context(const Handle& handle_):
+						handle(handle_)
+					{
+					}
+				public:
+					inline Handle				GetHandle() const
+					{
+						return handle;
+					}
 				};
 
 
-				inline Context::Handle					CreateContext(const Context::DeviceContextHandle& deviceContextHandle_); // TODO: move this functions to Windows namespace
-				inline void								DeleteContext(const Context::Handle& handle_);
-				inline Context::Handle					GetCurrentHandle();
-				inline Context::DeviceContextHandle		GetCurrentDeviceContextHandle();
-				inline void								MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_);
-
-
-				Context::Handle CreateContext(const Context::DeviceContextHandle& deviceContextHandle_)
+				inline Context::Handle					CreateContext(const Context::DeviceContextHandle& deviceContextHandle_) // TODO: move this functions to Windows namespace
 				{
 					auto handle = wglCreateContext(deviceContextHandle_);
 
@@ -165,7 +170,7 @@ namespace GreatVEngine2
 
 					return handle;
 				}
-				void DeleteContext(const Context::Handle& handle_)
+				inline void								DeleteContext(const Context::Handle& handle_)
 				{
 					auto result = wglDeleteContext(handle_);
 
@@ -174,19 +179,19 @@ namespace GreatVEngine2
 						throw Exception();
 					}
 				}
-				Context::Handle GetCurrentHandle()
+				inline Context::Handle					GetCurrentContextHandle()
 				{
 					auto handle = wglGetCurrentContext();
 
 					return handle;
 				}
-				Context::DeviceContextHandle GetCurrentDeviceContextHandle()
+				inline Context::DeviceContextHandle		GetCurrentDeviceContextHandle()
 				{
 					auto handle = wglGetCurrentDC();
 
 					return handle;
 				}
-				void MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_)
+				inline void								MakeCurrent(const Context::DeviceContextHandle& deviceContextHandle_, const Context::Handle& handle_)
 				{
 					auto result = wglMakeCurrent(deviceContextHandle_, handle_);
 
@@ -195,6 +200,40 @@ namespace GreatVEngine2
 						throw Exception();
 					}
 				}
+
+
+				class Lock
+				{
+				protected:
+					const Context::Handle				previousContextHandle;
+					const Context::DeviceContextHandle	previousDeviceContextHandle;
+					const Context::Handle				currentContextHandle;
+					const Context::DeviceContextHandle	currentDeviceContextHandle;
+				public:
+					inline Lock(const Context& context_, const Context::DeviceContextHandle& deviceContextHandle_):
+						previousContextHandle(GetCurrentContextHandle()),
+						previousDeviceContextHandle(GetCurrentDeviceContextHandle()),
+						currentContextHandle(context_.GetHandle()),
+						currentDeviceContextHandle(deviceContextHandle_)
+					{
+						if (previousContextHandle != currentContextHandle || previousDeviceContextHandle != currentDeviceContextHandle)
+						{
+							MakeCurrent(currentDeviceContextHandle, currentContextHandle);
+						}
+					}
+					inline Lock(const StrongPointer<Context>& context_, const Context::DeviceContextHandle& deviceContextHandle_):
+						Lock(*context_.GetValue(), deviceContextHandle_)
+					{
+					}
+					inline Lock(const Lock&) = delete;
+					inline ~Lock()
+					{
+						if (previousContextHandle != currentContextHandle || previousDeviceContextHandle != currentDeviceContextHandle)
+						{
+							MakeCurrent(previousDeviceContextHandle, previousContextHandle);
+						}
+					}
+				};
 			}
 #endif
 		}

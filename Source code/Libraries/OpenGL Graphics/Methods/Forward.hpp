@@ -123,15 +123,15 @@ namespace GreatVEngine2
 					protected:
 						class SceneCache;
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
-						class MaterialCache;
+						/*class MaterialCache;
 						using MaterialCaches = Map<Memory<Material>, StrongPointer<MaterialCache>>;
 						class AttributesCache;
 						class ModelCache;
-						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;
+						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;*/
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
-						MaterialCaches materialCaches;
-						ModelCaches modelCaches;
+						// MaterialCaches materialCaches;
+						// ModelCaches modelCaches;
 						SceneCaches sceneCaches;
 					public:
 						Vector<TaskManager> taskManagers = Vector<TaskManager>(std::thread::hardware_concurrency());
@@ -144,8 +144,8 @@ namespace GreatVEngine2
 						inline Forward& operator = (const Forward&) = delete;
 					protected:
 						inline Memory<SceneCache> FindOrAdd(const Memory<Scene>& sceneMemory_);
-						inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
-						inline Memory<ModelCache> FindOrAdd(const Memory<Model>& modelMemory_);
+						// inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
+						// inline Memory<ModelCache> FindOrAdd(const Memory<Model>& modelMemory_);
 						inline void Remove(const Memory<Material>& materialMemory_);
 						inline void Remove(const Memory<Model>& modelMemory_);
 					public:
@@ -258,33 +258,23 @@ namespace GreatVEngine2
 						}
 						inline GL::Buffer::Handle ObtainVerticesBuffer()
 						{
-							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-						
-							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
-						
+							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
+
 							auto buffer = gl_context->GenBuffer();
 						
 							gl_context->BindBuffer(GL::Buffer::Type::Array, buffer);
 							gl_context->BufferData(GL::Buffer::Type::Array, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
 						
-							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
-						
 							return buffer;
 						}
 						inline GL::Buffer::Handle ObtainIndicesBuffer()
 						{
-							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-						
-							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
-						
+							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
+
 							auto buffer = gl_context->GenBuffer();
 						
 							gl_context->BindBuffer(GL::Buffer::Type::ElementArray, buffer);
 							gl_context->BufferData(GL::Buffer::Type::ElementArray, indicesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
-						
-							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 						
 							return buffer;
 						}
@@ -296,17 +286,12 @@ namespace GreatVEngine2
 					public:
 						inline GL::Buffer::Handle		ObtainCameraUniformsBuffer() const
 						{
-							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-
-							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
 
 							const auto &bufferHandle = gl_context->GenBuffer();
 
 							gl_context->BindBuffer(GL::Buffer::Type::Uniform, bufferHandle);
 							gl_context->BufferData(GL::Buffer::Type::Uniform, sizeof(CameraUniformBuffer), nullptr, GL::Buffer::Usage::Dynamic);
-
-							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 
 							return bufferHandle;
 						}
@@ -333,10 +318,7 @@ namespace GreatVEngine2
 						}
 						inline ~ContextHolder()
 						{
-							const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-							const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-
-							GL::OSs::Windows::MakeCurrent(win_deviceContextHandle, gl_context->GetHandle());
+							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
 
 							const auto &currentUniformBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Uniform);
 							{
@@ -367,8 +349,6 @@ namespace GreatVEngine2
 							}
 							
 							gl_context->DeleteBuffer(gl_indicesBuffer);
-
-							GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 						}
 					};
 #pragma endregion
@@ -382,18 +362,18 @@ namespace GreatVEngine2
 						class ModelNode;
 					public:
 						using ObjectsTable = Vector<Memory<Object>>;
-						using ModelsTable = Map<Memory<ModelCache>, ModelNode>;
-						using MaterialsTable = Map<Memory<MaterialCache>, MaterialNode>;
+						// using ModelsTable = Map<Memory<ModelCache>, ModelNode>;
+						// using MaterialsTable = Map<Memory<MaterialCache>, MaterialNode>;
 					protected:
 						const Memory<Forward> methodMemory;
 						const Memory<Scene> sceneMemory;
 						Scene::Version sceneVersion;
-						MaterialsTable materialsTable;
+						// MaterialsTable materialsTable;
 					public:
 						inline SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& methodMemory_, const Memory<Scene>& sceneMemory_);
 					protected:
-						inline MaterialNode& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
-						inline ModelNode& FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_);
+						// inline MaterialNode& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
+						// inline ModelNode& FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_);
 					protected:
 						inline void ForceUpdateCaches();
 						inline void UpdateCaches();
@@ -403,7 +383,7 @@ namespace GreatVEngine2
 						inline StrongPointer<Output> Render(const StrongPointer<Camera>& camera_);
 					};
 #pragma endregion
-#pragma region Forward::MaterialCache
+/*#pragma region Forward::MaterialCache
 					class Forward::MaterialCache
 					{
 					protected:
@@ -505,30 +485,30 @@ namespace GreatVEngine2
 
 							context->UseProgram(programHandle);
 
-							/*if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureAlbedo"))
-							{
-								GL::SetUniform(uniformLocation, 0);
-							}
-							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureNormals"))
-							{
-								GL::SetUniform(uniformLocation, 1);
-							}
-							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureRoughness"))
-							{
-								GL::SetUniform(uniformLocation, 2);
-							}
-							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureMetalness"))
-							{
-								GL::SetUniform(uniformLocation, 3);
-							}
-							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureOcclusion"))
-							{
-								GL::SetUniform(uniformLocation, 4);
-							}
-							if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureEnvironment"))
-							{
-								GL::SetUniform(uniformLocation, 8);
-							}*/
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureAlbedo"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 0);
+							// }
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureNormals"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 1);
+							// }
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureRoughness"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 2);
+							// }
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureMetalness"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 3);
+							// }
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureOcclusion"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 4);
+							// }
+							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureEnvironment"))
+							// {
+							// 	GL::SetUniform(uniformLocation, 8);
+							// }
 
 							return programHandle;
 						}
@@ -573,8 +553,8 @@ namespace GreatVEngine2
 							context->DeleteBuffer(gl_objectsUniformBufferHandle);
 						}
 					};
-#pragma endregion
-#pragma region Forward::AttributesCache
+#pragma endregion*/
+/*#pragma region Forward::AttributesCache
 					class Forward::AttributesCache
 					{
 					protected:
@@ -617,9 +597,9 @@ namespace GreatVEngine2
 							context->DeleteVertexArray(gl_verticesArrayHandle);
 						}
 					};
-#pragma endregion
+#pragma endregion*/
 
-#pragma region Forward::ModelCache
+/*#pragma region Forward::ModelCache
 					class Forward::ModelCache
 					{
 					protected:
@@ -691,8 +671,8 @@ namespace GreatVEngine2
 							context->DeleteBuffer(gl_indicesBufferHandle);
 						}
 					};
-#pragma endregion
-#pragma region Forward::SceneCache::MaterialNode
+#pragma endregion*/
+/*#pragma region Forward::SceneCache::MaterialNode
 					class Forward::SceneCache::MaterialNode
 					{
 					public:
@@ -710,8 +690,8 @@ namespace GreatVEngine2
 						{
 						}
 					};
-#pragma endregion
-#pragma region Forward::SceneCache::ModelNode
+#pragma endregion*/
+/*#pragma region Forward::SceneCache::ModelNode
 					class Forward::SceneCache::ModelNode
 					{
 					public:
@@ -780,7 +760,7 @@ namespace GreatVEngine2
 							context->DeleteVertexArray(gl_vertexArrayHandle);
 						}
 					};
-#pragma endregion
+#pragma endregion*/
 
 #pragma region Forward
 					Forward::Forward(const StrongPointer<Forward>& this_):
@@ -789,16 +769,16 @@ namespace GreatVEngine2
 					}
 					Forward::~Forward()
 					{
-						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						// const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+						// const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						// 
+						// GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
 
-						GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
-
-						sceneCaches.clear();
+						/*sceneCaches.clear();
 						modelCaches.clear();
-						materialCaches.clear();
+						materialCaches.clear();*/
 
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						// GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
 					}
 
 					Memory<Forward::SceneCache> Forward::FindOrAdd(const Memory<Scene>& sceneMemory_)
@@ -821,7 +801,7 @@ namespace GreatVEngine2
 
 						return sceneCacheMemory;
 					}
-					Memory<Forward::MaterialCache> Forward::FindOrAdd(const Memory<Material>& materialMemory_)
+					/*Memory<Forward::MaterialCache> Forward::FindOrAdd(const Memory<Material>& materialMemory_)
 					{
 						const auto it					= materialCaches.find(materialMemory_);
 
@@ -860,10 +840,10 @@ namespace GreatVEngine2
 						const auto modelCacheMemory	= modelCache.GetValue();
 
 						return modelCacheMemory;
-					}
+					}*/
 					void Forward::Remove(const Memory<Material>& materialMemory_)
 					{
-						const auto &it = materialCaches.find(materialMemory_);
+						/*const auto &it = materialCaches.find(materialMemory_);
 
 						if (it == materialCaches.end())
 						{
@@ -877,11 +857,11 @@ namespace GreatVEngine2
 
 						materialCaches.erase(it);
 
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);*/
 					}
 					void Forward::Remove(const Memory<Model>& modelMemory_)
 					{
-						const auto &it = modelCaches.find(modelMemory_);
+						/*const auto &it = modelCaches.find(modelMemory_);
 
 						if (it == modelCaches.end())
 						{
@@ -895,7 +875,7 @@ namespace GreatVEngine2
 
 						modelCaches.erase(it);
 
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);*/
 					}
 
 					StrongPointer<OpenGL::Output> Forward::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
@@ -929,7 +909,7 @@ namespace GreatVEngine2
 						ForceUpdateCaches();
 					}
 
-					Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
+					/*Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
 					{
 						const auto it		= materialsTable.find(materialCacheMemory_);
 
@@ -969,21 +949,19 @@ namespace GreatVEngine2
 						auto &modelNode		= (*nIt.first).second;
 
 						return modelNode;
-					}
+					}*/
 
 					void Forward::SceneCache::ForceUpdateCaches()
 					{
-						const auto &contextHolder	= methodMemory->contextHolder;
-						const auto &deviceContext	= contextHolder->win_deviceContextHandle;
-						const auto &renderContext	= contextHolder->gl_context->GetHandle();
-						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						const auto &contextHolder		= methodMemory->contextHolder;
+						const auto &deviceContextHandle	= contextHolder->win_deviceContextHandle;
+						const auto &renderContext		= contextHolder->gl_context;
 
-						GL::OSs::Windows::MakeCurrent(deviceContext, renderContext);
+						WGL::Lock contextLock(renderContext, deviceContextHandle);
 
 						auto &objects = sceneMemory->objects;
 
-						materialsTable.clear();
+						/*materialsTable.clear();
 
 						for (auto &objectMemory : objects)
 						{
@@ -1018,9 +996,7 @@ namespace GreatVEngine2
 
 								modelNode.objectsUniformBufferData.resize(objectsTable.size());
 							}
-						}
-
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						}*/
 					}
 					void Forward::SceneCache::UpdateCaches()
 					{
@@ -1038,13 +1014,11 @@ namespace GreatVEngine2
 					{
 						UpdateCaches();
 
-						const auto &contextHolder	= methodMemory->contextHolder;
-						const auto &deviceContext	= view_->GetDeviceContextHandle();
-						const auto &renderContext	= contextHolder->gl_context;
-						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+						const auto &contextHolder		= methodMemory->contextHolder;
+						const auto &deviceContextHandle	= view_->GetDeviceContextHandle();
+						const auto &renderContext		= contextHolder->gl_context;
 
-						GL::OSs::Windows::MakeCurrent(deviceContext, renderContext->GetHandle());
+						WGL::Lock contextLock(renderContext, deviceContextHandle);
 						
 						auto viewport = view_->GetViewportRange();
 						auto aspect = viewport.GetAspect();
@@ -1079,7 +1053,7 @@ namespace GreatVEngine2
 
 						const bool useMultithreading = GetAsyncKeyState('H') == 0;
 
-						if (useMultithreading)
+						/*if (useMultithreading)
 						{
 							auto &taskManagers = methodMemory->taskManagers;
 
@@ -1271,14 +1245,14 @@ namespace GreatVEngine2
 								renderContext->BindBuffer(GL::Buffer::Type::Array, verticesBufferHandle);
 								renderContext->BindBuffer(GL::Buffer::Type::ElementArray, indicesBufferHandle);
 
-								/*for (auto &objectIndex : Range(objectsTable.size()))
-								{
-									const auto &objectMemory	= objectsTable[objectIndex];
-									const auto &modelMatrix		= objectMemory->GetMMat();
-									auto &objectData			= objectsData[objectIndex];
-
-									objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
-								}*/
+								// for (auto &objectIndex : Range(objectsTable.size()))
+								// {
+								// 	const auto &objectMemory	= objectsTable[objectIndex];
+								// 	const auto &modelMatrix		= objectMemory->GetMMat();
+								// 	auto &objectData			= objectsData[objectIndex];
+								// 
+								// 	objectData.modelMatrix = Transpose(glm::mat4x3(modelMatrix));
+								// }
 
 								const Size maxObjectsCountPerDrawCall	= materialCacheMemory->maxObjectsCount;
 								const Size drawCallsCount				= (objectsTable.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
@@ -1311,11 +1285,9 @@ namespace GreatVEngine2
 									}
 								}
 							}
-						}
+						}*/
 
-						SwapBuffers(deviceContext);
-						
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						SwapBuffers(deviceContextHandle);
 					}
 
 					StrongPointer<Forward::Output> Forward::SceneCache::Render(const StrongPointer<Camera>& camera_)
