@@ -110,7 +110,6 @@ namespace GreatVEngine2
 						class Output; friend Output;
 					protected:
 						class ContextHolder;
-						class GeometryVerticesRange;
 						class GeometryBufferHolder;
 					public:
 						struct CameraUniformBuffer
@@ -355,19 +354,35 @@ namespace GreatVEngine2
 						}
 					};
 #pragma endregion
-#pragma region GeometryVerticesRange
-					class Forward::GeometryVerticesRange
-					{
-					public:
-						Size verticesBegin = 0;
-						Size verticesSize = 0;
-					};
-#pragma endregion
 #pragma region GeometryBufferHolder
 					class Forward::GeometryBufferHolder
 					{
 					protected:
-						using VerticesRanges = Map<Geometry::VertexPackMode, GeometryVerticesRange>;
+						class VerticesSubRange
+						{
+						public:
+							const Memory<Geometry> geometryMemory;
+							const Size size;
+						public:
+							inline VerticesSubRange(const Memory<Geometry>& geometryMemory_, const Size& size_):
+								geometryMemory(geometryMemory_),
+								size(size_)
+							{
+							}
+						};
+						class VerticesRange
+						{
+						public:
+							const Geometry::VertexPackMode packMode;
+							StrongPointer<VerticesRange> next = StrongPointer<VerticesRange>(nullptr);
+							Vector<StrongPointer<VerticesSubRange>> subRanges;
+						public:
+							inline VerticesRange(const Geometry::VertexPackMode& packMode_, const StrongPointer<VerticesRange>& next_ = StrongPointer<VerticesRange>(nullptr)):
+								packMode(packMode_),
+								next(next_)
+							{
+							}
+						};
 					protected:
 						inline GL::VertexArray::Handle ObtainVerticesArrayHandle() const
 						{
@@ -398,7 +413,7 @@ namespace GreatVEngine2
 						Size							verticesBufferSize = 0;
 						Size							verticesBufferCapacity = 128 * 1024;
 						const GL::Buffer::Handle		gl_verticesBuffer;
-						VerticesRanges					verticesRanges;
+						StrongPointer<VerticesRange>	verticesRange = StrongPointer<VerticesRange>(nullptr);
 					public:
 						inline GeometryBufferHolder(const Memory<ContextHolder>& contextHolder_):
 							contextHolder(contextHolder_),
@@ -420,6 +435,86 @@ namespace GreatVEngine2
 
 							context->UnbindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
 							context->DeleteBuffer(gl_verticesBuffer);
+						}
+					protected:
+						inline StrongPointer<VerticesRange> FindOrCreate(const Geometry::VertexPackMode& packMode_)
+						{
+							auto currentVerticesRange = verticesRange;
+
+							while (currentVerticesRange && currentVerticesRange->packMode != packMode_)
+							{
+								currentVerticesRange = currentVerticesRange->next;
+							}
+
+							if (!currentVerticesRange)
+							{
+								currentVerticesRange = verticesRange = MakeStrong<VerticesRange>(packMode_, verticesRange);
+							}
+
+							return currentVerticesRange;
+						}
+						inline Size GetTotalSize(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							auto size = Size(0);
+
+							if (verticesRangeMemory_)
+							{
+								for (auto &subRange : verticesRangeMemory_->subRanges)
+								{
+									size += subRange->size;
+								}
+							}
+
+							return size;
+						}
+						inline Size GetTotalSizeUntill(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							auto currentVerticesRange = verticesRange;
+							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
+
+							if (currentVerticesRangeMemory)
+							{
+								auto size = GetTotalSize(currentVerticesRangeMemory);
+
+								while (currentVerticesRangeMemory != verticesRangeMemory_)
+								{
+									currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
+
+									size += GetTotalSize(currentVerticesRangeMemory);
+								}
+
+								return size;
+							}
+
+							return 0;
+						}
+					public:
+						inline StrongPointer<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
+						{
+							auto verticesRange = FindOrCreate(packMode_);
+							auto &subRanges = verticesRange->subRanges;
+							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
+								return subRange->geometryMemory == geometryMemory_;
+							});
+
+							if (it == subRanges.end())
+							{
+								auto sizeUntilRange = GetTotalSizeUntill(verticesRange.GetValue());
+								auto totalSize = GetTotalSizeUntill(nullptr);
+								auto amount = totalSize - sizeUntilRange;
+
+								auto data = geometryMemory_->GetVertices(packMode_);
+
+								// TODO: insert to buffer
+
+								subRanges.push_back(MakeStrong<VerticesSubRange>(geometryMemory_, data.size()));
+
+								it = std::prev(subRanges.end());
+							}
+
+							auto subRange = *it;
+
+							return subRange;
 						}
 					};
 #pragma endregion
@@ -1031,6 +1126,13 @@ namespace GreatVEngine2
 						WGL::Lock contextLock(renderContext, deviceContextHandle);
 
 						auto &objects = sceneMemory->objects;
+
+						for (auto &object : objects)
+						{
+							auto geometry = object->GetModel()->GetGeometry();
+
+							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
+						}
 
 						/*materialsTable.clear();
 
