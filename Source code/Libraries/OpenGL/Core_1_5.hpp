@@ -44,6 +44,17 @@ namespace GreatVEngine2
 				ReadWrite	= GL_READ_WRITE,
 			};
 		public:
+			inline static Binding GetBinding(const Type& type_)
+			{
+				switch (type_)
+				{
+				case Type::Array:			return Binding::Array;
+				case Type::ElementArray:	return Binding::ElementArray;
+				case Type::Uniform:			return Binding::Uniform;
+				default:					throw Exception();
+				}
+			}
+		public:
 			class Handle
 			{
 			public:
@@ -135,6 +146,16 @@ namespace GreatVEngine2
 			inline Buffer::Handle								GetBufferBinding(const Buffer::Binding& type_) const;
 			inline void											BindBuffer(const Buffer::Type& type_, const Null&) const;
 			inline void											BindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const;
+			inline void											UnbindBuffer(const Buffer::Type& type_, const Buffer::Handle& handle_) const
+			{
+				const auto &currentBufferHandle = GetBufferBinding(Buffer::GetBinding(type_));
+				{
+					if (handle_ == currentBufferHandle)
+					{
+						BindBuffer(type_, nullptr);
+					}
+				}
+			}
 			inline Buffer::Handle								GenBuffer() const;
 			inline void											DeleteBuffer(const Buffer::Handle& handle_) const;
 			inline void											BufferData(const Buffer::Type& type_, const GLsizeiptr& size_, const Memory<const void>& data_, const Buffer::Usage& usage_) const;

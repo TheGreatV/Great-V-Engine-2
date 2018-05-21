@@ -36,6 +36,15 @@ namespace GreatVEngine2
 			public:
 				inline Handle& operator = (const Handle&) = default;
 			public:
+				inline bool operator == (const Handle& source_) const
+				{
+					return value == source_.value;
+				}
+				inline bool operator != (const Handle& source_) const
+				{
+					return value != source_.value;
+				}
+			public:
 				inline explicit operator Value() const
 				{
 					return value;
@@ -286,6 +295,16 @@ namespace GreatVEngine2
 				const PFNGLISVERTEXARRAYPROC&									glIsVertexArray_
 				);
 		public:
+			inline VertexArray::Handle										GetVertexArrayBinding() const
+			{
+				GLint value;
+
+				glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &value);
+
+				CheckForErrors();
+
+				return VertexArray::Handle(value);
+			}
 			inline void														BindVertexArray(const Null&) const
 			{
 				glBindVertexArray(0);
@@ -297,6 +316,16 @@ namespace GreatVEngine2
 				glBindVertexArray(static_cast<VertexArray::Handle::Value>(handle_));
 
 				CheckForErrors();
+			}
+			inline void														UnbindVertexArray(const VertexArray::Handle& handle_) const
+			{
+				const auto &currentVerticesArrayHandle = GetVertexArrayBinding();
+				{
+					if (handle_ == currentVerticesArrayHandle)
+					{
+						BindVertexArray(nullptr);
+					}
+				}
 			}
 			inline void														DeleteVertexArray(const VertexArray::Handle& handle_) const
 			{

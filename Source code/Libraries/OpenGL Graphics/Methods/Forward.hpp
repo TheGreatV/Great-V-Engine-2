@@ -110,6 +110,8 @@ namespace GreatVEngine2
 						class Output; friend Output;
 					protected:
 						class ContextHolder;
+						class GeometryVerticesRange;
+						class GeometryBufferHolder;
 					public:
 						struct CameraUniformBuffer
 						{
@@ -130,6 +132,7 @@ namespace GreatVEngine2
 						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;*/
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
+						const StrongPointer<GeometryBufferHolder> geometryBufferHolder = MakeStrong<GeometryBufferHolder>(contextHolder);
 						// MaterialCaches materialCaches;
 						// ModelCaches modelCaches;
 						SceneCaches sceneCaches;
@@ -173,7 +176,7 @@ namespace GreatVEngine2
 					class Forward::ContextHolder
 					{
 					public:
-						using GLContext = GL::OSs::Windows::Context_3_3;
+						using GLContext = WGL::Context_3_3;
 					protected:
 						inline static String ObtainWindowClassName()
 						{
@@ -256,7 +259,7 @@ namespace GreatVEngine2
 
 							return deviceContextHandle;
 						}
-						inline GL::Buffer::Handle ObtainVerticesBuffer()
+						/*inline GL::Buffer::Handle ObtainVerticesBuffer()
 						{
 							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
 
@@ -266,8 +269,8 @@ namespace GreatVEngine2
 							gl_context->BufferData(GL::Buffer::Type::Array, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
 						
 							return buffer;
-						}
-						inline GL::Buffer::Handle ObtainIndicesBuffer()
+						}*/
+						/*inline GL::Buffer::Handle ObtainIndicesBuffer()
 						{
 							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
 
@@ -277,7 +280,7 @@ namespace GreatVEngine2
 							gl_context->BufferData(GL::Buffer::Type::ElementArray, indicesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
 						
 							return buffer;
-						}
+						}*/
 					public:
 						const String					win_windowClassName;
 						const HWND						win_windowHandle;
@@ -299,21 +302,21 @@ namespace GreatVEngine2
 						CameraUniformBuffer				cameraUniformsBufferData;
 						const GL::Buffer::Handle		gl_cameraUniformsBuffer;
 					public:
-						Size verticesBufferSize				= 0;
+						/*Size verticesBufferSize				= 0;
 						Size verticesBufferCapacity			= 128 * 1024;
 						const GL::Buffer::Handle			gl_verticesBuffer;
 						Size indicesBufferSize				= 0;
 						Size indicesBufferCapacity			= 16 * 1024;
-						const GL::Buffer::Handle			gl_indicesBuffer;
+						const GL::Buffer::Handle			gl_indicesBuffer;*/
 					public:
 						inline ContextHolder():
 							win_windowClassName(ObtainWindowClassName()),
 							win_windowHandle(ObtainWindowHandle(win_windowClassName)),
 							win_deviceContextHandle(ObtainDeviceContextHandle(win_windowHandle)),
 							gl_context(MakeStrong<GLContext>(win_deviceContextHandle)),
-							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer()),
-							gl_verticesBuffer(ObtainVerticesBuffer()),
-							gl_indicesBuffer(ObtainIndicesBuffer())
+							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer()) // ,
+							// gl_verticesBuffer(ObtainVerticesBuffer()),
+							// gl_indicesBuffer(ObtainIndicesBuffer())
 						{
 						}
 						inline ~ContextHolder()
@@ -330,7 +333,7 @@ namespace GreatVEngine2
 
 							gl_context->DeleteBuffer(gl_cameraUniformsBuffer);
 
-							const auto &currentVerticesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Array);
+							/*const auto &currentVerticesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Array);
 							{
 								if (gl_verticesBuffer == currentVerticesBufferHandle)
 								{
@@ -348,7 +351,75 @@ namespace GreatVEngine2
 								}
 							}
 							
-							gl_context->DeleteBuffer(gl_indicesBuffer);
+							gl_context->DeleteBuffer(gl_indicesBuffer);*/
+						}
+					};
+#pragma endregion
+#pragma region GeometryVerticesRange
+					class Forward::GeometryVerticesRange
+					{
+					public:
+						Size verticesBegin = 0;
+						Size verticesSize = 0;
+					};
+#pragma endregion
+#pragma region GeometryBufferHolder
+					class Forward::GeometryBufferHolder
+					{
+					protected:
+						using VerticesRanges = Map<Geometry::VertexPackMode, GeometryVerticesRange>;
+					protected:
+						inline GL::VertexArray::Handle ObtainVerticesArrayHandle() const
+						{
+							const auto &context				= contextHolder->gl_context;
+							const auto &contextLock			= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+							const auto &verticesArrayHandle	= context->GenVertexArray();
+
+							context->BindVertexArray(verticesArrayHandle);
+
+							return verticesArrayHandle;
+						}
+						inline GL::Buffer::Handle ObtainVerticesBuffer()
+						{
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							auto buffer = context->GenBuffer();
+						
+							context->BindBuffer(GL::Buffer::Type::Array, buffer);
+							context->BufferData(GL::Buffer::Type::Array, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
+						
+							return buffer;
+						}
+					public:
+						const Memory<ContextHolder>		contextHolder;
+						const GL::VertexArray::Handle	gl_verticesArrayHandle; // Indices buffer binding cannot be performed without VAO
+					public:
+						Size							verticesBufferSize = 0;
+						Size							verticesBufferCapacity = 128 * 1024;
+						const GL::Buffer::Handle		gl_verticesBuffer;
+						VerticesRanges					verticesRanges;
+					public:
+						inline GeometryBufferHolder(const Memory<ContextHolder>& contextHolder_):
+							contextHolder(contextHolder_),
+							gl_verticesArrayHandle(ObtainVerticesArrayHandle()),
+							gl_verticesBuffer(ObtainVerticesBuffer())
+						{
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+							
+							context->BindVertexArray(nullptr);
+						}
+						inline ~GeometryBufferHolder()
+						{
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							context->UnbindVertexArray(gl_verticesArrayHandle);
+							context->DeleteVertexArray(gl_verticesArrayHandle);
+
+							context->UnbindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
+							context->DeleteBuffer(gl_verticesBuffer);
 						}
 					};
 #pragma endregion
