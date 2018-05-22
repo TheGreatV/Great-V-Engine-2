@@ -539,6 +539,8 @@ namespace GreatVEngine2
 							while (it != subRanges.end())
 							{
 								(*it)->firstVertex -= verticesCount;
+
+								++it;
 							}
 						}
 						inline Memory<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
@@ -552,21 +554,58 @@ namespace GreatVEngine2
 
 							if (it == subRanges.end())
 							{
-								auto sizeUntilRange	= GetTotalSizeUntill(verticesRangeMemory);
-								auto totalSize		= GetTotalSizeUntill(nullptr);
-								auto amount			= totalSize - sizeUntilRange;
+								// obtain buffer size
+								const auto &previousTotalBufferSize	= GetTotalSizeUntill(nullptr);
+								const auto &previousBeginBufferSize	= GetTotalSizeUntill(verticesRangeMemory);
+								const auto &previousEndBufferSize	= previousTotalBufferSize - previousBeginBufferSize;
 
-								auto data = geometryMemory_->GetVertices(packMode_);
+								// obtain vertices
+								const auto &verticesCount	= geometryMemory_->GetVerticesCount();
+								const auto &verticesData	= geometryMemory_->GetVertices(packMode_);
 
-								// TODO: insert to buffer
-
-								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, data.size(), GetTotalVerticesCount(verticesRangeMemory));
+								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, verticesCount, GetTotalVerticesCount(verticesRangeMemory));
 
 								subRange->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, subRange.GetValue()));
 
 								subRanges.push_back(subRange);
 
 								it = std::prev(subRanges.end());
+
+								const auto &currentTotalBufferSize	= GetTotalSizeUntill(nullptr);
+
+								// context
+								const auto &context		= contextHolder->gl_context;
+								const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+								if (currentTotalBufferSize > verticesBufferCapacity)
+								{
+									// prepare temporal buffer
+									auto temporalBufferHandle = context->GenBuffer();
+									{
+										context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+										context->BufferData(GL::Buffer::Type::CopyWrite, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Stream);
+									}
+
+									// store backup in temporal buffer
+									context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+									context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, verticesBufferCapacity);
+
+									// resize buffer
+									auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(currentTotalBufferSize)) / glm::log(2.0))));
+									auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 128 * 1024);
+
+									context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Stream);
+									
+									// restore data from backup in temporal buffer
+									context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, verticesBufferCapacity);
+
+									verticesBufferCapacity = newBufferSize;
+
+									context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+									context->DeleteBuffer(temporalBufferHandle);
+								}
 							}
 
 							auto subRange = *it;

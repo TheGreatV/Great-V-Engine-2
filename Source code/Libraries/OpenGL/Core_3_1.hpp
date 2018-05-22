@@ -49,6 +49,12 @@ namespace GreatVEngine2
 				const PFNGLUNIFORMBLOCKBINDINGPROC&			glUniformBlockBinding_
 			);
 		public:
+			inline void CopyBufferSubData(const Buffer::Type& readBuffer_, const Buffer::Type& writeBuffer_, const int& readOffset_, const int& writeOffset_, const Size& size_) const
+			{
+				glCopyBufferSubData(static_cast<GLenum>(readBuffer_), static_cast<GLenum>(writeBuffer_), readOffset_, writeOffset_, size_);
+
+				CheckForErrors();
+			}
 			inline Size GetMaxUniformBlockSize() const
 			{
 				GLint value;

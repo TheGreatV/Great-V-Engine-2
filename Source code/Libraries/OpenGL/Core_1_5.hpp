@@ -24,6 +24,8 @@ namespace GreatVEngine2
 				Array = GL_ARRAY_BUFFER,
 				ElementArray = GL_ELEMENT_ARRAY_BUFFER,
 				Uniform = GL_UNIFORM_BUFFER,
+				CopyRead = GL_COPY_READ_BUFFER,
+				CopyWrite = GL_COPY_WRITE_BUFFER,
 			};
 			enum class Binding
 			{
