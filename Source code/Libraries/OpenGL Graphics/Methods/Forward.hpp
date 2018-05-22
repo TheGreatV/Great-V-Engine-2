@@ -358,15 +358,21 @@ namespace GreatVEngine2
 					class Forward::GeometryBufferHolder
 					{
 					protected:
+						class VerticesRange;
 						class VerticesSubRange
 						{
 						public:
+							const Memory<VerticesRange> verticesRangeMemory;
 							const Memory<Geometry> geometryMemory;
-							const Size size;
+							const Size verticesCount;
+							Size firstVertex;
+							Geometry::EventDestruction::Unsubscriber unsubscriber;
 						public:
-							inline VerticesSubRange(const Memory<Geometry>& geometryMemory_, const Size& size_):
+							inline VerticesSubRange(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& verticesCount_, const Size& firstVertex_):
+								verticesRangeMemory(verticesRangeMemory_),
 								geometryMemory(geometryMemory_),
-								size(size_)
+								verticesCount(verticesCount_),
+								firstVertex(firstVertex_)
 							{
 							}
 						};
@@ -374,6 +380,7 @@ namespace GreatVEngine2
 						{
 						public:
 							const Geometry::VertexPackMode packMode;
+							const Size vertexSize = Geometry::GetVertexSize(packMode);
 							StrongPointer<VerticesRange> next = StrongPointer<VerticesRange>(nullptr);
 							Vector<StrongPointer<VerticesSubRange>> subRanges;
 						public:
@@ -453,7 +460,7 @@ namespace GreatVEngine2
 
 							return currentVerticesRange;
 						}
-						inline Size GetTotalSize(const Memory<VerticesRange>& verticesRangeMemory_) const
+						inline Size GetTotalVerticesCount(const Memory<VerticesRange>& verticesRangeMemory_) const
 						{
 							auto size = Size(0);
 
@@ -461,11 +468,20 @@ namespace GreatVEngine2
 							{
 								for (auto &subRange : verticesRangeMemory_->subRanges)
 								{
-									size += subRange->size;
+									size += subRange->verticesCount;
 								}
 							}
 
 							return size;
+						}
+						inline Size GetTotalSize(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							if (verticesRangeMemory_)
+							{
+								return GetTotalVerticesCount(verticesRangeMemory_) * verticesRangeMemory_->vertexSize;
+							}
+
+							return 0;
 						}
 						inline Size GetTotalSizeUntill(const Memory<VerticesRange>& verticesRangeMemory_) const
 						{
@@ -489,9 +505,46 @@ namespace GreatVEngine2
 							return 0;
 						}
 					public:
-						inline StrongPointer<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
+						inline void Free(const Memory<VerticesSubRange>& verticesSubRangeMemory_)
+						{
+							auto currentVerticesRange = verticesRange;
+
+							while (currentVerticesRange && currentVerticesRange.GetValue() != verticesSubRangeMemory_->verticesRangeMemory)
+							{
+								currentVerticesRange = currentVerticesRange->next;
+							}
+
+							if (!currentVerticesRange)
+							{
+								throw Exception();
+							}
+
+							auto &subRanges = currentVerticesRange->subRanges;
+
+							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
+								return subRange.GetValue() == verticesSubRangeMemory_;
+							});
+
+							if (it == subRanges.end())
+							{
+								throw Exception();
+							}
+
+							auto verticesCount = (*it)->verticesCount;
+
+							// TODO: remove from buffer
+
+							it = subRanges.erase(it);
+
+							while (it != subRanges.end())
+							{
+								(*it)->firstVertex -= verticesCount;
+							}
+						}
+						inline Memory<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
 						{
 							auto verticesRange = FindOrCreate(packMode_);
+							auto verticesRangeMemory = verticesRange.GetValue();
 							auto &subRanges = verticesRange->subRanges;
 							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
 								return subRange->geometryMemory == geometryMemory_;
@@ -499,22 +552,26 @@ namespace GreatVEngine2
 
 							if (it == subRanges.end())
 							{
-								auto sizeUntilRange = GetTotalSizeUntill(verticesRange.GetValue());
-								auto totalSize = GetTotalSizeUntill(nullptr);
-								auto amount = totalSize - sizeUntilRange;
+								auto sizeUntilRange	= GetTotalSizeUntill(verticesRangeMemory);
+								auto totalSize		= GetTotalSizeUntill(nullptr);
+								auto amount			= totalSize - sizeUntilRange;
 
 								auto data = geometryMemory_->GetVertices(packMode_);
 
 								// TODO: insert to buffer
 
-								subRanges.push_back(MakeStrong<VerticesSubRange>(geometryMemory_, data.size()));
+								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, data.size(), GetTotalVerticesCount(verticesRangeMemory));
+
+								subRange->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, subRange.GetValue()));
+
+								subRanges.push_back(subRange);
 
 								it = std::prev(subRanges.end());
 							}
 
 							auto subRange = *it;
 
-							return subRange;
+							return subRange.GetValue();
 						}
 					};
 #pragma endregion

@@ -17,6 +17,8 @@ namespace GreatVEngine2
 	class Geometry // TODO: move to other file
 	{
 	public:
+		using EventDestruction = Subscription<void()>;
+	public:
 		enum class VertexPackMode
 		{
 			Pos32F,
@@ -67,6 +69,8 @@ namespace GreatVEngine2
 		static inline StrongPointer<Geometry> CreateSphere(const Float32& radius_, const Vec2& tex_, const UVec2& seg_);
 		static inline StrongPointer<Geometry> CreateTorus(const Float32& radius_, const Float32& width_, const Vec2& tex_, const UVec2& seg_);
 		static inline StrongPointer<Geometry> CreateCapsule(const Float32& radius_, const Float32& height_, const Vec2& tex_, const UVec2& seg_);
+	protected:
+		mutable EventDestruction onDestruction;
 	public:
 		Topology topology = Topology::Triangles;
 		Vector<Vertex> vertices;
@@ -85,7 +89,10 @@ namespace GreatVEngine2
 			indices(std::move(source.indices))
 		{
 		}
-		inline ~Geometry() = default;
+		inline ~Geometry()
+		{
+			onDestruction();
+		}
 	public:
 		inline Geometry& operator = (const Geometry&) = default;
 		inline Geometry& operator = (Geometry&& source)
@@ -94,6 +101,11 @@ namespace GreatVEngine2
 			indices = std::move(source.indices);
 
 			return *this;
+		}
+	public:
+		inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
+		{
+			return Move(onDestruction += subscriber_);
 		}
 	public:
 		inline Topology GetTopology() const
