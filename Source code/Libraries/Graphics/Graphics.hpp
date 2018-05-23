@@ -278,9 +278,10 @@ namespace GreatVEngine2
 		protected:
 			const StrongPointer<Geometry> geometry;
 			const Geometry::VertexPackMode verticesPackMode;
+			const Geometry::IndexPackMode indicesPackMode;
 		public:
 			inline Model() = delete;
-			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_);
+			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_);
 			inline Model(const Model&) = delete;
 			inline ~Model() = default;
 		public:
@@ -290,6 +291,10 @@ namespace GreatVEngine2
 			inline Geometry::VertexPackMode GetVerticesPackMode() const
 			{
 				return verticesPackMode;
+			}
+			inline Geometry::IndexPackMode GetIndicesPackMode() const
+			{
+				return indicesPackMode;
 			}
 		public:
 			inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
@@ -584,10 +589,11 @@ GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_
 
 #pragma region Model
 
-GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_):
+GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_):
 	This(this_),
 	geometry(geometry_),
-	verticesPackMode(verticesPackMode_)
+	verticesPackMode(verticesPackMode_),
+	indicesPackMode(indicesPackMode_)
 {
 }
 

@@ -123,7 +123,7 @@ namespace GreatVEngine2
 				case VertexPackMode::Pos32F:
 					return sizeof(Float32) * 3;
 				case VertexPackMode::Pos32F_TBN32F_Tex32F:
-					return sizeof(Float32) * (4 + 3 * 3 + 2);
+					return sizeof(Float32) * (3 + 3 * 3 + 2);
 				case VertexPackMode::Pos32F_TN16F_Tex32F:
 					return  sizeof(Float32) * (3 + 2) + sizeof(Float16) * (3 * 2);
 				default:

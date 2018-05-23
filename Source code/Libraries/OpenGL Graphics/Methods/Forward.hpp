@@ -258,28 +258,6 @@ namespace GreatVEngine2
 
 							return deviceContextHandle;
 						}
-						/*inline GL::Buffer::Handle ObtainVerticesBuffer()
-						{
-							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
-
-							auto buffer = gl_context->GenBuffer();
-						
-							gl_context->BindBuffer(GL::Buffer::Type::Array, buffer);
-							gl_context->BufferData(GL::Buffer::Type::Array, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
-						
-							return buffer;
-						}*/
-						/*inline GL::Buffer::Handle ObtainIndicesBuffer()
-						{
-							WGL::Lock contextLock(gl_context, win_deviceContextHandle);
-
-							auto buffer = gl_context->GenBuffer();
-						
-							gl_context->BindBuffer(GL::Buffer::Type::ElementArray, buffer);
-							gl_context->BufferData(GL::Buffer::Type::ElementArray, indicesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
-						
-							return buffer;
-						}*/
 					public:
 						const String					win_windowClassName;
 						const HWND						win_windowHandle;
@@ -301,21 +279,12 @@ namespace GreatVEngine2
 						CameraUniformBuffer				cameraUniformsBufferData;
 						const GL::Buffer::Handle		gl_cameraUniformsBuffer;
 					public:
-						/*Size verticesBufferSize				= 0;
-						Size verticesBufferCapacity			= 128 * 1024;
-						const GL::Buffer::Handle			gl_verticesBuffer;
-						Size indicesBufferSize				= 0;
-						Size indicesBufferCapacity			= 16 * 1024;
-						const GL::Buffer::Handle			gl_indicesBuffer;*/
-					public:
 						inline ContextHolder():
 							win_windowClassName(ObtainWindowClassName()),
 							win_windowHandle(ObtainWindowHandle(win_windowClassName)),
 							win_deviceContextHandle(ObtainDeviceContextHandle(win_windowHandle)),
 							gl_context(MakeStrong<GLContext>(win_deviceContextHandle)),
-							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer()) // ,
-							// gl_verticesBuffer(ObtainVerticesBuffer()),
-							// gl_indicesBuffer(ObtainIndicesBuffer())
+							gl_cameraUniformsBuffer(ObtainCameraUniformsBuffer())
 						{
 						}
 						inline ~ContextHolder()
@@ -331,26 +300,6 @@ namespace GreatVEngine2
 							}
 
 							gl_context->DeleteBuffer(gl_cameraUniformsBuffer);
-
-							/*const auto &currentVerticesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::Array);
-							{
-								if (gl_verticesBuffer == currentVerticesBufferHandle)
-								{
-									gl_context->BindBuffer(GL::Buffer::Type::Array, nullptr);
-								}
-							}
-							
-							gl_context->DeleteBuffer(gl_verticesBuffer);
-							
-							const auto &currentIndicesBufferHandle = gl_context->GetBufferBinding(GL::Buffer::Binding::ElementArray);
-							{
-								if (gl_indicesBuffer == currentIndicesBufferHandle)
-								{
-									gl_context->BindBuffer(GL::Buffer::Type::ElementArray, nullptr);
-								}
-							}
-							
-							gl_context->DeleteBuffer(gl_indicesBuffer);*/
 						}
 					};
 #pragma endregion
@@ -359,20 +308,38 @@ namespace GreatVEngine2
 					{
 					protected:
 						class VerticesRange;
-						class VerticesSubRange
+						class IndicesRange;
+						class GeometryVerticesHolder
 						{
 						public:
-							const Memory<VerticesRange> verticesRangeMemory;
-							const Memory<Geometry> geometryMemory;
-							const Size verticesCount;
-							Size firstVertex;
-							Geometry::EventDestruction::Unsubscriber unsubscriber;
+							const Memory<VerticesRange>					verticesRangeMemory;
+							const Memory<Geometry>						geometryMemory;
+							const Size									verticesCount;
+							Size										firstVertex;
+							Geometry::EventDestruction::Unsubscriber	unsubscriber;
 						public:
-							inline VerticesSubRange(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& verticesCount_, const Size& firstVertex_):
+							inline GeometryVerticesHolder(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& verticesCount_, const Size& firstVertex_):
 								verticesRangeMemory(verticesRangeMemory_),
 								geometryMemory(geometryMemory_),
 								verticesCount(verticesCount_),
 								firstVertex(firstVertex_)
+							{
+							}
+						};
+						class GeometryIndicesHolder
+						{
+						public:
+							const Memory<IndicesRange>					indicesRangeMemory;
+							const Memory<Geometry>						geometryMemory;
+							const Size									indicesCount;
+							Size										firstIndex;
+							Geometry::EventDestruction::Unsubscriber	unsubscriber;
+						public:
+							inline GeometryIndicesHolder(const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& indicesCount_, const Size& firstIndex_):
+								indicesRangeMemory(indicesRangeMemory_),
+								geometryMemory(geometryMemory_),
+								indicesCount(indicesCount_),
+								firstIndex(firstIndex_)
 							{
 							}
 						};
@@ -382,11 +349,37 @@ namespace GreatVEngine2
 							const Geometry::VertexPackMode packMode;
 							const Size vertexSize = Geometry::GetVertexSize(packMode);
 							StrongPointer<VerticesRange> next = StrongPointer<VerticesRange>(nullptr);
-							Vector<StrongPointer<VerticesSubRange>> subRanges;
+							Vector<StrongPointer<GeometryVerticesHolder>> geometryVerticesHolders;
 						public:
 							inline VerticesRange(const Geometry::VertexPackMode& packMode_, const StrongPointer<VerticesRange>& next_ = StrongPointer<VerticesRange>(nullptr)):
 								packMode(packMode_),
 								next(next_)
+							{
+							}
+						};
+						class IndicesRange
+						{
+						public:
+							const Geometry::IndexPackMode packMode;
+							const Size indexSize = Geometry::GetIndexSize(packMode);
+							StrongPointer<IndicesRange> next = StrongPointer<IndicesRange>(nullptr);
+							Vector<StrongPointer<GeometryIndicesHolder>> geometryIndicesHolders;
+						public:
+							inline IndicesRange(const Geometry::IndexPackMode& packMode_, const StrongPointer<IndicesRange>& next_ = StrongPointer<IndicesRange>(nullptr)):
+								packMode(packMode_),
+								next(next_)
+							{
+							}
+						};
+						class GeometryHolder
+						{
+						public:
+							const Memory<GeometryVerticesHolder> geometryVerticesHolderMemory;
+							const Memory<GeometryIndicesHolder> geometryIndicesHolderMemory;
+						public:
+							inline GeometryHolder(const Memory<GeometryVerticesHolder>& geometryVerticesHolderMemory_, const Memory<GeometryIndicesHolder>& geometryIndicesHolderMemory_):
+								geometryVerticesHolderMemory(geometryVerticesHolderMemory_),
+								geometryIndicesHolderMemory(geometryIndicesHolderMemory_)
 							{
 							}
 						};
@@ -443,7 +436,185 @@ namespace GreatVEngine2
 							context->DeleteBuffer(gl_verticesBuffer);
 						}
 					protected:
-						inline StrongPointer<VerticesRange> FindOrCreate(const Geometry::VertexPackMode& packMode_)
+						inline Size GetTotalVerticesCount(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							auto size = Size(0);
+
+							if (verticesRangeMemory_)
+							{
+								for (auto &geometryVerticesHolder : verticesRangeMemory_->geometryVerticesHolders)
+								{
+									size += geometryVerticesHolder->verticesCount;
+								}
+							}
+
+							return size;
+						}
+						inline Size GetTotalVerticesSize(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							if (verticesRangeMemory_)
+							{
+								return GetTotalVerticesCount(verticesRangeMemory_) * verticesRangeMemory_->vertexSize;
+							}
+
+							return 0;
+						}
+						inline Size GetTotalVerticesSizeUntil(const Memory<VerticesRange>& verticesRangeMemory_) const
+						{
+							auto currentVerticesRange = verticesRange;
+							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
+
+							if (currentVerticesRangeMemory)
+							{
+								auto size = GetTotalVerticesSize(currentVerticesRangeMemory);
+
+								while (currentVerticesRangeMemory != verticesRangeMemory_)
+								{
+									currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
+
+									size += GetTotalVerticesSize(currentVerticesRangeMemory);
+								}
+
+								return size;
+							}
+
+							return 0;
+						}
+					protected:
+						inline void InsertToVerticesBuffer(const Size& offset_, const Vector<UInt8>& data_)
+						{
+							const auto &totalCurrentBufferSize			= GetTotalVerticesSizeUntil(nullptr); // memory currently allocated
+							const auto &totalBufferSizeAfterInsertion	= totalCurrentBufferSize + data_.size();
+
+							// lock render context
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							// copy currently allocated data to temporal buffer, resize vertices buffer, copy data back
+							if (totalBufferSizeAfterInsertion > verticesBufferCapacity)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalCurrentBufferSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, totalCurrentBufferSize);
+
+								// resize buffer
+								auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(totalBufferSizeAfterInsertion)) / glm::log(2.0))));
+								auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 128 * 1024);
+
+								context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Static);
+									
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, totalCurrentBufferSize);
+
+								verticesBufferCapacity = newBufferSize;
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							const auto &tailSize		= totalCurrentBufferSize - offset_; // number of bytes to move right
+							
+							if (tailSize > 0)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, tailSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, offset_, 0, tailSize);
+
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, offset_ + data_.size(), tailSize);
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							// insert data
+							context->BindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
+							context->BufferSubData(GL::Buffer::Type::Array, offset_, data_.size(), data_.data());
+							context->BindBuffer(GL::Buffer::Type::Array, nullptr);
+						}
+						inline void RemoveFromBuffer(const Size& offset_, const Size& size_)
+						{
+							// lock render context
+							const auto &context = contextHolder->gl_context;
+							const auto &contextLock = WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							const auto &totalCurrentBufferSize	= GetTotalVerticesSizeUntil(nullptr); // memory currently allocated
+							const auto &tailOffset				= offset_ + size_;
+							const auto &tailSize				= totalCurrentBufferSize - tailOffset;
+
+							if (tailSize > 0)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, tailSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, tailOffset, 0, tailSize);
+
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, offset_, tailSize);
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							const auto &totalBufferSizeAfterRemoving	= totalCurrentBufferSize - size_;
+							const auto &sizeLimit						= glm::max<Size>(verticesBufferCapacity / 8, 128 * 1024);
+
+							// resize buffer if needed
+							if (totalBufferSizeAfterRemoving < sizeLimit)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalBufferSizeAfterRemoving, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, totalBufferSizeAfterRemoving);
+
+								// resize buffer
+								context->BufferData(GL::Buffer::Type::CopyRead, sizeLimit, nullptr, GL::Buffer::Usage::Static);
+									
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, totalBufferSizeAfterRemoving);
+
+								verticesBufferCapacity = sizeLimit;
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+						}
+					protected:
+						inline Memory<VerticesRange> FindOrCreate(const Geometry::VertexPackMode& packMode_)
 						{
 							auto currentVerticesRange = verticesRange;
 
@@ -457,59 +628,62 @@ namespace GreatVEngine2
 								currentVerticesRange = verticesRange = MakeStrong<VerticesRange>(packMode_, verticesRange);
 							}
 
-							return currentVerticesRange;
+							return currentVerticesRange.GetValue();
 						}
-						inline Size GetTotalVerticesCount(const Memory<VerticesRange>& verticesRangeMemory_) const
+						inline void Delete(const Memory<GeometryVerticesHolder>& geometryVerticesHolderMemory_)
 						{
-							auto size = Size(0);
+							const auto &verticesRangeMemory = geometryVerticesHolderMemory_->verticesRangeMemory;
 
-							if (verticesRangeMemory_)
+							// calculate offset
+							const auto &verticesRangeTotalDataAmount	= GetTotalVerticesSize(verticesRangeMemory);
+							const auto &verticesRangeDataOffset			= GetTotalVerticesSizeUntil(verticesRangeMemory) - verticesRangeTotalDataAmount;
+							const auto &geometryVerticesDataOffset		= verticesRangeDataOffset + geometryVerticesHolderMemory_->firstVertex * verticesRangeMemory->vertexSize;
+							const auto &geometryVerticesDataSize		= geometryVerticesHolderMemory_->verticesCount * verticesRangeMemory->vertexSize;
+							
+							// remove from buffer
+							RemoveFromBuffer(geometryVerticesDataOffset, geometryVerticesDataSize);
+						}
+						inline Memory<GeometryVerticesHolder> FindOrCreate(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_)
+						{
+							auto &geometryVerticesHolders = verticesRangeMemory_->geometryVerticesHolders;
+
+							// check if holder already exist
+							for (auto &geometryVerticesHolder : geometryVerticesHolders)
 							{
-								for (auto &subRange : verticesRangeMemory_->subRanges)
+								if (geometryVerticesHolder->geometryMemory == geometryMemory_)
 								{
-									size += subRange->verticesCount;
+									return geometryVerticesHolder.GetValue();
 								}
 							}
 
-							return size;
-						}
-						inline Size GetTotalSize(const Memory<VerticesRange>& verticesRangeMemory_) const
-						{
-							if (verticesRangeMemory_)
-							{
-								return GetTotalVerticesCount(verticesRangeMemory_) * verticesRangeMemory_->vertexSize;
-							}
+							// create new holder
+							// obtain vertices data
+							const auto &verticesCount	= geometryMemory_->GetVerticesCount();
+							const auto &verticesData	= geometryMemory_->GetVertices(verticesRangeMemory_->packMode);
 
-							return 0;
-						}
-						inline Size GetTotalSizeUntil(const Memory<VerticesRange>& verticesRangeMemory_) const
-						{
-							auto currentVerticesRange = verticesRange;
-							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
+							// calculate offset within VerticesRange
+							const auto &verticesRangeTotalVerticesCount	= GetTotalVerticesCount(verticesRangeMemory_);
+							const auto &verticesRangeTotalDataAmount	= verticesRangeTotalVerticesCount * verticesRangeMemory_->vertexSize;
 
-							if (currentVerticesRangeMemory)
-							{
-								auto size = GetTotalSize(currentVerticesRangeMemory);
+							// create holder
+							const auto &geometryVerticesHolder = MakeStrong<GeometryVerticesHolder>(verticesRangeMemory_, geometryMemory_, verticesCount, verticesRangeTotalVerticesCount);
 
-								while (currentVerticesRangeMemory != verticesRangeMemory_)
-								{
-									currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
+							geometryVerticesHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryVerticesHolder>& geometryVerticesHolderMemory_)>(&GeometryBufferHolder::Delete), this, geometryVerticesHolder.GetValue()));
 
-									size += GetTotalSize(currentVerticesRangeMemory);
-								}
+							// insert data to buffer
+							InsertToVerticesBuffer(verticesRangeTotalDataAmount, verticesData);
 
-								return size;
-							}
-
-							return 0;
+							geometryVerticesHolders.push_back(geometryVerticesHolder);
+							
+							return geometryVerticesHolder.GetValue();
 						}
 					public:
-						inline void Free(const Memory<VerticesSubRange>& verticesSubRangeMemory_)
+						inline void Free(const Memory<GeometryHolder>& geometryHolderMemory_)
 						{
-							auto currentVerticesRange = verticesRange;
+							/*auto currentVerticesRange = verticesRange;
 							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
 
-							while (currentVerticesRangeMemory && currentVerticesRangeMemory != verticesSubRangeMemory_->verticesRangeMemory)
+							while (currentVerticesRangeMemory && currentVerticesRangeMemory != geometryHolderMemory_->verticesRangeMemory)
 							{
 								currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
 							}
@@ -519,21 +693,21 @@ namespace GreatVEngine2
 								throw Exception();
 							}
 
-							auto &subRanges = currentVerticesRangeMemory->subRanges;
+							auto &geometryHolders = currentVerticesRangeMemory->geometryHolders;
 
-							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
-								return subRange.GetValue() == verticesSubRangeMemory_;
+							auto it = std::find_if(geometryHolders.begin(), geometryHolders.end(), [&](const StrongPointer<GeometryHolder>& geometryHolder){
+								return geometryHolder.GetValue() == geometryHolderMemory_;
 							});
 
-							if (it == subRanges.end())
+							if (it == geometryHolders.end())
 							{
 								throw Exception();
 							}
 
-							auto &subRange = (*it);
+							auto &geometryHolder = (*it);
 
-							const auto &subRangeVerticesCount	= subRange->verticesCount;
-							const auto &subRangeTotalSize		= subRangeVerticesCount * currentVerticesRangeMemory->vertexSize;
+							const auto &geometryHolderVerticesCount			= geometryHolder->verticesCount;
+							const auto &geometryHolderVerticesTotalSize		= geometryHolderVerticesCount * currentVerticesRangeMemory->vertexSize;
 
 							// calculate amount of memory within the range and after the subRange
 							const auto rangeEndSize = [&]()
@@ -541,7 +715,7 @@ namespace GreatVEngine2
 								Size s = 0;
 								auto nit = std::next(it);
 
-								while (nit != subRanges.end())
+								while (nit != geometryHolders.end())
 								{
 									s += (*nit)->verticesCount * currentVerticesRangeMemory->vertexSize;
 
@@ -551,30 +725,30 @@ namespace GreatVEngine2
 								return s;
 							}();
 							// calculate amount of memory after range
-							const auto &rangeTotalSize		= GetTotalSize(currentVerticesRangeMemory);
-							const auto &totalSizeUntilRange	= GetTotalSizeUntil(currentVerticesRangeMemory);
-							const auto &totalEndSize		= GetTotalSizeUntil(nullptr) - totalSizeUntilRange + rangeEndSize;
-							const auto subRangeOffset		= totalSizeUntilRange - rangeEndSize - subRangeTotalSize;
+							const auto &geometryHolderVerticesTotalSize	= GetTotalSize(currentVerticesRangeMemory);
+							const auto &totalVerticesSizeUntilRange		= GetTotalSizeUntil(currentVerticesRangeMemory);
+							const auto &totalVerticesEndSize			= GetTotalSizeUntil(nullptr) - totalVerticesSizeUntilRange + rangeEndSize;
+							const auto geometryHolderVerticesOffset		= totalVerticesSizeUntilRange - totalVerticesEndSize - geometryHolderVerticesTotalSize;
 
 							// context
 							const auto &context		= contextHolder->gl_context;
 							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
 
-							if (totalEndSize > 0)
+							if (totalVerticesEndSize > 0)
 							{
 								// prepare temporal buffer
 								auto temporalBufferHandle = context->GenBuffer();
 								{
 									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
-									context->BufferData(GL::Buffer::Type::CopyWrite, totalEndSize, nullptr, GL::Buffer::Usage::Stream);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalVerticesEndSize, nullptr, GL::Buffer::Usage::Stream);
 								}
 
 								// store backup in temporal buffer
 								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
-								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, subRangeOffset + subRangeTotalSize, 0, totalEndSize);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, geometryHolderVerticesOffset + geometryHolderVerticesTotalSize, 0, totalVerticesEndSize);
 
 								// restore data from backup in temporal buffer
-								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, subRangeOffset, totalEndSize);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, geometryHolderVerticesOffset, totalVerticesEndSize);
 
 								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
 								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
@@ -582,11 +756,11 @@ namespace GreatVEngine2
 								context->DeleteBuffer(temporalBufferHandle);
 							}
 
-							it = subRanges.erase(it);
+							it = geometryHolders.erase(it);
 
-							while (it != subRanges.end())
+							while (it != geometryHolders.end())
 							{
-								(*it)->firstVertex -= subRangeVerticesCount;
+								(*it)->firstVertex -= geometryHolderVerticesCount;
 
 								++it;
 							}
@@ -620,18 +794,21 @@ namespace GreatVEngine2
 								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
 
 								context->DeleteBuffer(temporalBufferHandle);
-							}
+							}*/
 						}
-						inline Memory<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
+						inline Memory<GeometryHolder> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_)
 						{
-							auto verticesRange = FindOrCreate(packMode_);
+							const auto &verticesRangeMemory				= FindOrCreate(verticesPackMode_);
+							const auto &geometryVerticesHolderMemory	= FindOrCreate(verticesRangeMemory, geometryMemory_);
+
+							/*auto verticesRange = FindOrCreate(packMode_);
 							auto verticesRangeMemory = verticesRange.GetValue();
-							auto &subRanges = verticesRange->subRanges;
-							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
-								return subRange->geometryMemory == geometryMemory_;
+							auto &geometryHolders = verticesRange->geometryHolders;
+							auto it = std::find_if(geometryHolders.begin(), geometryHolders.end(), [&](const StrongPointer<GeometryHolder>& geometryHolders){
+								return geometryHolders->geometryMemory == geometryMemory_;
 							});
 
-							if (it == subRanges.end())
+							if (it == geometryHolders.end())
 							{
 								// obtain buffer size [[begin][end][empty]]
 								const auto &previousTotalDataSize	= GetTotalSizeUntil(nullptr);
@@ -642,14 +819,16 @@ namespace GreatVEngine2
 								const auto &firstVertex		= GetTotalVerticesCount(verticesRangeMemory);
 								const auto &verticesCount	= geometryMemory_->GetVerticesCount();
 								const auto &verticesData	= geometryMemory_->GetVertices(packMode_);
+								const auto &indicesCount	= geometryMemory_->GetIndicesCount();
+								const auto &indicesData		= geometryMemory_->GetIndices();
 
-								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, verticesCount, firstVertex);
+								auto geometryHolder = MakeStrong<GeometryHolder>(verticesRangeMemory, geometryMemory_, verticesCount, firstVertex, 0, 0);
 
-								subRange->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, subRange.GetValue()));
+								geometryHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, geometryHolder.GetValue()));
 
-								subRanges.push_back(subRange);
+								geometryHolders.push_back(geometryHolder);
 
-								it = std::prev(subRanges.end());
+								it = std::prev(geometryHolders.end());
 
 								const auto &currentTotalDataSize	= GetTotalSizeUntil(nullptr);
 
@@ -716,9 +895,11 @@ namespace GreatVEngine2
 								context->BufferSubData(GL::Buffer::Type::Array, previousBeginDataSize, verticesData.size(), verticesData.data());
 							}
 
-							auto subRange = *it;
+							auto geometryHolder = *it;
 
-							return subRange.GetValue();
+							return geometryHolder.GetValue();*/
+
+							return nullptr;
 						}
 					};
 #pragma endregion
@@ -1336,7 +1517,7 @@ namespace GreatVEngine2
 							auto model = object->GetModel();
 							auto geometry = model->GetGeometry();
 
-							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), model->GetVerticesPackMode());
+							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), model->GetVerticesPackMode(), model->GetIndicesPackMode());
 						}
 
 						/*materialsTable.clear();
