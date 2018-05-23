@@ -483,7 +483,7 @@ namespace GreatVEngine2
 
 							return 0;
 						}
-						inline Size GetTotalSizeUntill(const Memory<VerticesRange>& verticesRangeMemory_) const
+						inline Size GetTotalSizeUntil(const Memory<VerticesRange>& verticesRangeMemory_) const
 						{
 							auto currentVerticesRange = verticesRange;
 							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
@@ -508,18 +508,19 @@ namespace GreatVEngine2
 						inline void Free(const Memory<VerticesSubRange>& verticesSubRangeMemory_)
 						{
 							auto currentVerticesRange = verticesRange;
+							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
 
-							while (currentVerticesRange && currentVerticesRange.GetValue() != verticesSubRangeMemory_->verticesRangeMemory)
+							while (currentVerticesRangeMemory && currentVerticesRangeMemory != verticesSubRangeMemory_->verticesRangeMemory)
 							{
-								currentVerticesRange = currentVerticesRange->next;
+								currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
 							}
 
-							if (!currentVerticesRange)
+							if (!currentVerticesRangeMemory)
 							{
 								throw Exception();
 							}
 
-							auto &subRanges = currentVerticesRange->subRanges;
+							auto &subRanges = currentVerticesRangeMemory->subRanges;
 
 							auto it = std::find_if(subRanges.begin(), subRanges.end(), [&](const StrongPointer<VerticesSubRange>& subRange){
 								return subRange.GetValue() == verticesSubRangeMemory_;
@@ -530,18 +531,68 @@ namespace GreatVEngine2
 								throw Exception();
 							}
 
-							auto verticesCount = (*it)->verticesCount;
+							auto &subRange = (*it);
 
-							// TODO: remove from buffer
+							const auto &subRangeVerticesCount	= subRange->verticesCount;
+							const auto &subRangeTotalSize		= subRangeVerticesCount * currentVerticesRangeMemory->vertexSize;
+
+							// calculate amount of memory within the range and after the subRange
+							const auto rangeEndSize = [&]()
+							{
+								Size s = 0;
+								auto nit = std::next(it);
+
+								while (nit != subRanges.end())
+								{
+									s += (*nit)->verticesCount * currentVerticesRangeMemory->vertexSize;
+
+									++nit;
+								}
+
+								return s;
+							}();
+							// calculate amount of memory after range
+							const auto &rangeTotalSize		= GetTotalSize(currentVerticesRangeMemory);
+							const auto &totalSizeUntilRange	= GetTotalSizeUntil(currentVerticesRangeMemory);
+							const auto &totalEndSize		= GetTotalSizeUntil(nullptr) - totalSizeUntilRange + rangeEndSize;
+							const auto subRangeOffset		= totalSizeUntilRange - rangeEndSize - subRangeTotalSize;
+
+							// context
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							if (totalEndSize > 0)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalEndSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, subRangeOffset + subRangeTotalSize, 0, totalEndSize);
+
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, subRangeOffset, totalEndSize);
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
 
 							it = subRanges.erase(it);
 
 							while (it != subRanges.end())
 							{
-								(*it)->firstVertex -= verticesCount;
+								(*it)->firstVertex -= subRangeVerticesCount;
 
 								++it;
 							}
+
+							// TODO: resize buffer
 						}
 						inline Memory<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
 						{
@@ -555,15 +606,16 @@ namespace GreatVEngine2
 							if (it == subRanges.end())
 							{
 								// obtain buffer size [[begin][end][empty]]
-								const auto &previousTotalDataSize	= GetTotalSizeUntill(nullptr);
-								const auto &previousBeginDataSize	= GetTotalSizeUntill(verticesRangeMemory);
+								const auto &previousTotalDataSize	= GetTotalSizeUntil(nullptr);
+								const auto &previousBeginDataSize	= GetTotalSizeUntil(verticesRangeMemory);
 								const auto &previousEndDataSize		= previousTotalDataSize - previousBeginDataSize;
 
 								// obtain vertices
+								const auto &firstVertex		= GetTotalVerticesCount(verticesRangeMemory);
 								const auto &verticesCount	= geometryMemory_->GetVerticesCount();
 								const auto &verticesData	= geometryMemory_->GetVertices(packMode_);
 
-								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, verticesCount, GetTotalVerticesCount(verticesRangeMemory));
+								auto subRange = MakeStrong<VerticesSubRange>(verticesRangeMemory, geometryMemory_, verticesCount, firstVertex);
 
 								subRange->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, subRange.GetValue()));
 
@@ -571,7 +623,7 @@ namespace GreatVEngine2
 
 								it = std::prev(subRanges.end());
 
-								const auto &currentTotalDataSize	= GetTotalSizeUntill(nullptr);
+								const auto &currentTotalDataSize	= GetTotalSizeUntil(nullptr);
 
 								// context
 								const auto &context		= contextHolder->gl_context;
