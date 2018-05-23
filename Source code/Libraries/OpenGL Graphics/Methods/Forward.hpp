@@ -124,15 +124,15 @@ namespace GreatVEngine2
 					protected:
 						class SceneCache;
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
-						/*class MaterialCache;
+						class MaterialCache;
 						using MaterialCaches = Map<Memory<Material>, StrongPointer<MaterialCache>>;
-						class AttributesCache;
+						/*class AttributesCache;
 						class ModelCache;
 						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;*/
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
 						const StrongPointer<GeometryBufferHolder> geometryBufferHolder = MakeStrong<GeometryBufferHolder>(contextHolder);
-						// MaterialCaches materialCaches;
+						MaterialCaches materialCaches;
 						// ModelCaches modelCaches;
 						SceneCaches sceneCaches;
 					public:
@@ -146,7 +146,7 @@ namespace GreatVEngine2
 						inline Forward& operator = (const Forward&) = delete;
 					protected:
 						inline Memory<SceneCache> FindOrAdd(const Memory<Scene>& sceneMemory_);
-						// inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
+						inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
 						// inline Memory<ModelCache> FindOrAdd(const Memory<Model>& modelMemory_);
 						inline void Remove(const Memory<Material>& materialMemory_);
 						inline void Remove(const Memory<Model>& modelMemory_);
@@ -303,7 +303,7 @@ namespace GreatVEngine2
 						}
 					};
 #pragma endregion
-#pragma region GeometryBufferHolder
+#pragma region Forward::GeometryBufferHolder
 					class Forward::GeometryBufferHolder
 					{
 					protected:
@@ -936,228 +936,12 @@ namespace GreatVEngine2
 							return geometryIndicesHolder.GetValue();
 						}
 					public:
-						inline void Free(const Memory<GeometryHolder>& geometryHolderMemory_)
-						{
-							/*auto currentVerticesRange = verticesRange;
-							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
-
-							while (currentVerticesRangeMemory && currentVerticesRangeMemory != geometryHolderMemory_->verticesRangeMemory)
-							{
-								currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
-							}
-
-							if (!currentVerticesRangeMemory)
-							{
-								throw Exception();
-							}
-
-							auto &geometryHolders = currentVerticesRangeMemory->geometryHolders;
-
-							auto it = std::find_if(geometryHolders.begin(), geometryHolders.end(), [&](const StrongPointer<GeometryHolder>& geometryHolder){
-								return geometryHolder.GetValue() == geometryHolderMemory_;
-							});
-
-							if (it == geometryHolders.end())
-							{
-								throw Exception();
-							}
-
-							auto &geometryHolder = (*it);
-
-							const auto &geometryHolderVerticesCount			= geometryHolder->verticesCount;
-							const auto &geometryHolderVerticesTotalSize		= geometryHolderVerticesCount * currentVerticesRangeMemory->vertexSize;
-
-							// calculate amount of memory within the range and after the subRange
-							const auto rangeEndSize = [&]()
-							{
-								Size s = 0;
-								auto nit = std::next(it);
-
-								while (nit != geometryHolders.end())
-								{
-									s += (*nit)->verticesCount * currentVerticesRangeMemory->vertexSize;
-
-									++nit;
-								}
-
-								return s;
-							}();
-							// calculate amount of memory after range
-							const auto &geometryHolderVerticesTotalSize	= GetTotalSize(currentVerticesRangeMemory);
-							const auto &totalVerticesSizeUntilRange		= GetTotalSizeUntil(currentVerticesRangeMemory);
-							const auto &totalVerticesEndSize			= GetTotalSizeUntil(nullptr) - totalVerticesSizeUntilRange + rangeEndSize;
-							const auto geometryHolderVerticesOffset		= totalVerticesSizeUntilRange - totalVerticesEndSize - geometryHolderVerticesTotalSize;
-
-							// context
-							const auto &context		= contextHolder->gl_context;
-							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
-
-							if (totalVerticesEndSize > 0)
-							{
-								// prepare temporal buffer
-								auto temporalBufferHandle = context->GenBuffer();
-								{
-									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
-									context->BufferData(GL::Buffer::Type::CopyWrite, totalVerticesEndSize, nullptr, GL::Buffer::Usage::Stream);
-								}
-
-								// store backup in temporal buffer
-								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
-								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, geometryHolderVerticesOffset + geometryHolderVerticesTotalSize, 0, totalVerticesEndSize);
-
-								// restore data from backup in temporal buffer
-								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, geometryHolderVerticesOffset, totalVerticesEndSize);
-
-								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
-								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
-
-								context->DeleteBuffer(temporalBufferHandle);
-							}
-
-							it = geometryHolders.erase(it);
-
-							while (it != geometryHolders.end())
-							{
-								(*it)->firstVertex -= geometryHolderVerticesCount;
-
-								++it;
-							}
-
-							const auto &currentTotalDataSize = GetTotalSizeUntil(nullptr);
-							const auto &sizeLimit = glm::max<Size>(verticesBufferCapacity / 8, 128 * 1024);
-
-							// resize buffer if needed
-							if (currentTotalDataSize < sizeLimit)
-							{
-								// prepare temporal buffer
-								auto temporalBufferHandle = context->GenBuffer();
-								{
-									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
-									context->BufferData(GL::Buffer::Type::CopyWrite, currentTotalDataSize, nullptr, GL::Buffer::Usage::Stream);
-								}
-
-								// store backup in temporal buffer
-								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
-								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, currentTotalDataSize);
-
-								// resize buffer
-								context->BufferData(GL::Buffer::Type::CopyRead, sizeLimit, nullptr, GL::Buffer::Usage::Static);
-									
-								// restore data from backup in temporal buffer
-								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, currentTotalDataSize);
-
-								verticesBufferCapacity = sizeLimit;
-
-								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
-								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
-
-								context->DeleteBuffer(temporalBufferHandle);
-							}*/
-						}
 						inline StrongPointer<GeometryHolder> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_)
 						{
 							const auto &verticesRangeMemory				= FindOrCreate(verticesPackMode_);
 							const auto &geometryVerticesHolderMemory	= FindOrCreate(verticesRangeMemory, geometryMemory_);
 							const auto &indicesRangeMemory				= FindOrCreate(indicesPackMode_);
 							const auto &geometryIndicesHolderMemory		= FindOrCreate(indicesRangeMemory, geometryMemory_);
-
-							/*auto verticesRange = FindOrCreate(packMode_);
-							auto verticesRangeMemory = verticesRange.GetValue();
-							auto &geometryHolders = verticesRange->geometryHolders;
-							auto it = std::find_if(geometryHolders.begin(), geometryHolders.end(), [&](const StrongPointer<GeometryHolder>& geometryHolders){
-								return geometryHolders->geometryMemory == geometryMemory_;
-							});
-
-							if (it == geometryHolders.end())
-							{
-								// obtain buffer size [[begin][end][empty]]
-								const auto &previousTotalDataSize	= GetTotalSizeUntil(nullptr);
-								const auto &previousBeginDataSize	= GetTotalSizeUntil(verticesRangeMemory);
-								const auto &previousEndDataSize		= previousTotalDataSize - previousBeginDataSize;
-
-								// obtain vertices
-								const auto &firstVertex		= GetTotalVerticesCount(verticesRangeMemory);
-								const auto &verticesCount	= geometryMemory_->GetVerticesCount();
-								const auto &verticesData	= geometryMemory_->GetVertices(packMode_);
-								const auto &indicesCount	= geometryMemory_->GetIndicesCount();
-								const auto &indicesData		= geometryMemory_->GetIndices();
-
-								auto geometryHolder = MakeStrong<GeometryHolder>(verticesRangeMemory, geometryMemory_, verticesCount, firstVertex, 0, 0);
-
-								geometryHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(&GeometryBufferHolder::Free, this, geometryHolder.GetValue()));
-
-								geometryHolders.push_back(geometryHolder);
-
-								it = std::prev(geometryHolders.end());
-
-								const auto &currentTotalDataSize	= GetTotalSizeUntil(nullptr);
-
-								// context
-								const auto &context		= contextHolder->gl_context;
-								const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
-
-								// resize buffer if needed
-								if (currentTotalDataSize > verticesBufferCapacity)
-								{
-									// prepare temporal buffer
-									auto temporalBufferHandle = context->GenBuffer();
-									{
-										context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
-										context->BufferData(GL::Buffer::Type::CopyWrite, verticesBufferCapacity, nullptr, GL::Buffer::Usage::Stream);
-									}
-
-									// store backup in temporal buffer
-									context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
-									context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, verticesBufferCapacity);
-
-									// resize buffer
-									auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(currentTotalDataSize)) / glm::log(2.0))));
-									auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 128 * 1024);
-
-									context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Static);
-									
-									// restore data from backup in temporal buffer
-									context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, verticesBufferCapacity);
-
-									verticesBufferCapacity = newBufferSize;
-
-									context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
-									context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
-
-									context->DeleteBuffer(temporalBufferHandle);
-								}
-								
-								// move data at the end if needed
-								if (previousEndDataSize > 0)
-								{
-									// prepare temporal buffer
-									auto temporalBufferHandle = context->GenBuffer();
-									{
-										context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
-										context->BufferData(GL::Buffer::Type::CopyWrite, previousEndDataSize, nullptr, GL::Buffer::Usage::Stream);
-									}
-
-									// store backup in temporal buffer
-									context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
-									context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, previousBeginDataSize, 0, previousEndDataSize);
-
-									// restore data from backup in temporal buffer
-									context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, previousBeginDataSize + verticesData.size(), previousEndDataSize);
-
-									context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
-									context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
-
-									context->DeleteBuffer(temporalBufferHandle);
-								}
-
-								// insert data
-								context->BindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
-								context->BufferSubData(GL::Buffer::Type::Array, previousBeginDataSize, verticesData.size(), verticesData.data());
-							}
-
-							auto geometryHolder = *it;
-
-							return geometryHolder.GetValue();*/
 
 							return MakeStrong<GeometryHolder>(geometryVerticesHolderMemory, geometryIndicesHolderMemory);
 						}
@@ -1194,7 +978,7 @@ namespace GreatVEngine2
 						inline StrongPointer<Output> Render(const StrongPointer<Camera>& camera_);
 					};
 #pragma endregion
-/*#pragma region Forward::MaterialCache
+#pragma region Forward::MaterialCache
 					class Forward::MaterialCache
 					{
 					protected:
@@ -1343,8 +1127,8 @@ namespace GreatVEngine2
 						}
 						inline ~MaterialCache()
 						{
-							const auto &context = methodMemory->contextHolder->gl_context;
-							const auto &currentProgramHandle = context->GetCurrentProgram();
+							const auto &context					= methodMemory->contextHolder->gl_context;
+							const auto &currentProgramHandle	= context->GetCurrentProgram();
 
 							if (currentProgramHandle == gl_programHandle)
 							{
@@ -1364,7 +1148,7 @@ namespace GreatVEngine2
 							context->DeleteBuffer(gl_objectsUniformBufferHandle);
 						}
 					};
-#pragma endregion*/
+#pragma endregion
 /*#pragma region Forward::AttributesCache
 					class Forward::AttributesCache
 					{
@@ -1580,16 +1364,12 @@ namespace GreatVEngine2
 					}
 					Forward::~Forward()
 					{
-						// const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						// const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-						// 
-						// GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
+						const auto &context		= contextHolder->gl_context;
+						const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
 
-						/*sceneCaches.clear();
-						modelCaches.clear();
-						materialCaches.clear();*/
-
-						// GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);
+						sceneCaches.clear();
+						// modelCaches.clear();
+						materialCaches.clear();
 					}
 
 					Memory<Forward::SceneCache> Forward::FindOrAdd(const Memory<Scene>& sceneMemory_)
@@ -1612,7 +1392,7 @@ namespace GreatVEngine2
 
 						return sceneCacheMemory;
 					}
-					/*Memory<Forward::MaterialCache> Forward::FindOrAdd(const Memory<Material>& materialMemory_)
+					Memory<Forward::MaterialCache> Forward::FindOrAdd(const Memory<Material>& materialMemory_)
 					{
 						const auto it					= materialCaches.find(materialMemory_);
 
@@ -1632,7 +1412,7 @@ namespace GreatVEngine2
 
 						return materialCacheMemory;
 					}
-					Memory<Forward::ModelCache> Forward::FindOrAdd(const Memory<Model>& modelMemory_)
+					/*Memory<Forward::ModelCache> Forward::FindOrAdd(const Memory<Model>& modelMemory_)
 					{
 						const auto it				= modelCaches.find(modelMemory_);
 
@@ -1654,21 +1434,17 @@ namespace GreatVEngine2
 					}*/
 					void Forward::Remove(const Memory<Material>& materialMemory_)
 					{
-						/*const auto &it = materialCaches.find(materialMemory_);
+						const auto &it = materialCaches.find(materialMemory_);
 
 						if (it == materialCaches.end())
 						{
 							throw Exception();
 						}
 
-						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-						
-						GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
+						const auto &context		= contextHolder->gl_context;
+						const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
 
 						materialCaches.erase(it);
-
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);*/
 					}
 					void Forward::Remove(const Memory<Model>& modelMemory_)
 					{
@@ -1739,8 +1515,8 @@ namespace GreatVEngine2
 						auto &materialNode	= (*nIt.first).second;
 
 						return materialNode;
-					}
-					Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_)
+					}*/
+					/*Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_)
 					{
 						auto		&modelsTable	= materialNode_.modelsTable;
 						const auto	&it				= modelsTable.find(modelCacheMemory_);
@@ -1772,10 +1548,16 @@ namespace GreatVEngine2
 
 						auto &objects = sceneMemory->objects;
 
-						for (auto &object : objects)
+						for (auto &objectMemory : objects)
 						{
-							auto model = object->GetModel();
-							auto geometry = model->GetGeometry();
+							// obtain material cache
+							const auto &material				= objectMemory->GetMaterial();
+							const auto &materialMemory			= material.GetValue();
+							const auto &materialCacheMemory		= methodMemory->FindOrAdd(materialMemory);
+
+							// TODO
+							const auto &model		= objectMemory->GetModel();
+							const auto &geometry	= model->GetGeometry();
 
 							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), model->GetVerticesPackMode(), model->GetIndicesPackMode());
 						}
