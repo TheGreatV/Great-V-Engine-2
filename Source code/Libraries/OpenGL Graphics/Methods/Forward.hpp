@@ -417,8 +417,7 @@ namespace GreatVEngine2
 						const Memory<ContextHolder>		contextHolder;
 						const GL::VertexArray::Handle	gl_verticesArrayHandle; // Indices buffer binding cannot be performed without VAO
 					public:
-						Size							verticesBufferSize = 0;
-						Size							verticesBufferCapacity = 128 * 1024;
+						Size							verticesBufferCapacity = 128 * 1024; // in bytes
 						const GL::Buffer::Handle		gl_verticesBuffer;
 						StrongPointer<VerticesRange>	verticesRange = StrongPointer<VerticesRange>(nullptr);
 					public:
@@ -592,7 +591,36 @@ namespace GreatVEngine2
 								++it;
 							}
 
-							// TODO: resize buffer
+							const auto &currentTotalDataSize = GetTotalSizeUntil(nullptr);
+							const auto &sizeLimit = glm::max<Size>(verticesBufferCapacity / 8, 128 * 1024);
+
+							// resize buffer if needed
+							if (currentTotalDataSize < sizeLimit)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, currentTotalDataSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, currentTotalDataSize);
+
+								// resize buffer
+								context->BufferData(GL::Buffer::Type::CopyRead, sizeLimit, nullptr, GL::Buffer::Usage::Static);
+									
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, currentTotalDataSize);
+
+								verticesBufferCapacity = sizeLimit;
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
 						}
 						inline Memory<VerticesSubRange> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& packMode_)
 						{
@@ -647,7 +675,7 @@ namespace GreatVEngine2
 									auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(currentTotalDataSize)) / glm::log(2.0))));
 									auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 128 * 1024);
 
-									context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Stream);
+									context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Static);
 									
 									// restore data from backup in temporal buffer
 									context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, verticesBufferCapacity);

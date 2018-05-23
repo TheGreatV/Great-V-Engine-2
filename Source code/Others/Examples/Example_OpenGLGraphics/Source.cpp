@@ -401,7 +401,8 @@ void main()
 					? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F
 					: Geometry::VertexPackMode::Pos32F_TN16F_Tex32F;
 
-				models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), packMode));
+				models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), packMode));
+				// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), packMode));
 
 				changeModelsCountLock = true;
 			}
