@@ -406,6 +406,18 @@ namespace GreatVEngine2
 						
 							return buffer;
 						}
+						inline GL::Buffer::Handle ObtainIndicesBuffer()
+						{
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							auto buffer = context->GenBuffer();
+						
+							context->BindBuffer(GL::Buffer::Type::ElementArray, buffer);
+							context->BufferData(GL::Buffer::Type::ElementArray, indicesBufferCapacity, nullptr, GL::Buffer::Usage::Static);
+						
+							return buffer;
+						}
 					public:
 						const Memory<ContextHolder>		contextHolder;
 						const GL::VertexArray::Handle	gl_verticesArrayHandle; // Indices buffer binding cannot be performed without VAO
@@ -413,11 +425,15 @@ namespace GreatVEngine2
 						Size							verticesBufferCapacity = 128 * 1024; // in bytes
 						const GL::Buffer::Handle		gl_verticesBuffer;
 						StrongPointer<VerticesRange>	verticesRange = StrongPointer<VerticesRange>(nullptr);
+						Size							indicesBufferCapacity = 16 * 1024; // in bytes
+						const GL::Buffer::Handle		gl_indicesBuffer;
+						StrongPointer<IndicesRange>		indicesRange = StrongPointer<IndicesRange>(nullptr);
 					public:
 						inline GeometryBufferHolder(const Memory<ContextHolder>& contextHolder_):
 							contextHolder(contextHolder_),
 							gl_verticesArrayHandle(ObtainVerticesArrayHandle()),
-							gl_verticesBuffer(ObtainVerticesBuffer())
+							gl_verticesBuffer(ObtainVerticesBuffer()),
+							gl_indicesBuffer(ObtainIndicesBuffer())
 						{
 							const auto &context		= contextHolder->gl_context;
 							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
@@ -434,6 +450,9 @@ namespace GreatVEngine2
 
 							context->UnbindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
 							context->DeleteBuffer(gl_verticesBuffer);
+
+							context->UnbindBuffer(GL::Buffer::Type::ElementArray, gl_indicesBuffer);
+							context->DeleteBuffer(gl_indicesBuffer);
 						}
 					protected:
 						inline Size GetTotalVerticesCount(const Memory<VerticesRange>& verticesRangeMemory_) const
@@ -461,8 +480,8 @@ namespace GreatVEngine2
 						}
 						inline Size GetTotalVerticesSizeUntil(const Memory<VerticesRange>& verticesRangeMemory_) const
 						{
-							auto currentVerticesRange = verticesRange;
-							auto currentVerticesRangeMemory = currentVerticesRange.GetValue();
+							auto currentVerticesRange		= verticesRange;
+							auto currentVerticesRangeMemory	= currentVerticesRange.GetValue();
 
 							if (currentVerticesRangeMemory)
 							{
@@ -473,6 +492,50 @@ namespace GreatVEngine2
 									currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
 
 									size += GetTotalVerticesSize(currentVerticesRangeMemory);
+								}
+
+								return size;
+							}
+
+							return 0;
+						}
+						inline Size GetTotalIndicesCount(const Memory<IndicesRange>& indicesRangeMemory_) const
+						{
+							auto size = Size(0);
+
+							if (indicesRangeMemory_)
+							{
+								for (auto &geometryIndicesHolder : indicesRangeMemory_->geometryIndicesHolders)
+								{
+									size += geometryIndicesHolder->indicesCount;
+								}
+							}
+
+							return size;
+						}
+						inline Size GetTotalIndicesSize(const Memory<IndicesRange>& indicesRangeMemory_) const
+						{
+							if (indicesRangeMemory_)
+							{
+								return GetTotalIndicesCount(indicesRangeMemory_) * indicesRangeMemory_->indexSize;
+							}
+
+							return 0;
+						}
+						inline Size GetTotalIndicesSizeUntil(const Memory<IndicesRange>& indicesRangeMemory_) const
+						{
+							auto currentIndicesRange		= indicesRange;
+							auto currentIndicesRangeMemory	= currentIndicesRange.GetValue();
+
+							if (currentIndicesRangeMemory)
+							{
+								auto size = GetTotalIndicesSize(currentIndicesRangeMemory);
+
+								while (currentIndicesRangeMemory != indicesRangeMemory_)
+								{
+									currentIndicesRangeMemory = currentIndicesRangeMemory->next.GetValue();
+
+									size += GetTotalIndicesSize(currentIndicesRangeMemory);
 								}
 
 								return size;
@@ -550,7 +613,7 @@ namespace GreatVEngine2
 							context->BufferSubData(GL::Buffer::Type::Array, offset_, data_.size(), data_.data());
 							context->BindBuffer(GL::Buffer::Type::Array, nullptr);
 						}
-						inline void RemoveFromBuffer(const Size& offset_, const Size& size_)
+						inline void RemoveFromVerticesBuffer(const Size& offset_, const Size& size_)
 						{
 							// lock render context
 							const auto &context = contextHolder->gl_context;
@@ -613,6 +676,138 @@ namespace GreatVEngine2
 								context->DeleteBuffer(temporalBufferHandle);
 							}
 						}
+						inline void InsertToIndicesBuffer(const Size& offset_, const Vector<UInt8>& data_)
+						{
+							const auto &totalCurrentBufferSize			= GetTotalIndicesSizeUntil(nullptr); // memory currently allocated
+							const auto &totalBufferSizeAfterInsertion	= totalCurrentBufferSize + data_.size();
+
+							// lock render context
+							const auto &context		= contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							// copy currently allocated data to temporal buffer, resize indices buffer, copy data back
+							if (totalBufferSizeAfterInsertion > indicesBufferCapacity)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalCurrentBufferSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_indicesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, totalCurrentBufferSize);
+
+								// resize buffer
+								auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(totalBufferSizeAfterInsertion)) / glm::log(2.0))));
+								auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 16 * 1024);
+
+								context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Static);
+									
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, totalCurrentBufferSize);
+
+								indicesBufferCapacity = newBufferSize;
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							const auto &tailSize		= totalCurrentBufferSize - offset_; // number of bytes to move right
+							
+							if (tailSize > 0)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, tailSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_indicesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, offset_, 0, tailSize);
+
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, offset_ + data_.size(), tailSize);
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							// insert data
+							context->BindBuffer(GL::Buffer::Type::Array, gl_indicesBuffer);
+							context->BufferSubData(GL::Buffer::Type::Array, offset_, data_.size(), data_.data());
+							context->BindBuffer(GL::Buffer::Type::Array, nullptr);
+						}
+						inline void RemoveFromIndicesBuffer(const Size& offset_, const Size& size_)
+						{
+							// lock render context
+							const auto &context = contextHolder->gl_context;
+							const auto &contextLock = WGL::Lock(context, contextHolder->win_deviceContextHandle);
+
+							const auto &totalCurrentBufferSize	= GetTotalIndicesSizeUntil(nullptr); // memory currently allocated
+							const auto &tailOffset				= offset_ + size_;
+							const auto &tailSize				= totalCurrentBufferSize - tailOffset;
+
+							if (tailSize > 0)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, tailSize, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_indicesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, tailOffset, 0, tailSize);
+
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, offset_, tailSize);
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+
+							const auto &totalBufferSizeAfterRemoving	= totalCurrentBufferSize - size_;
+							const auto &sizeLimit						= glm::max<Size>(indicesBufferCapacity / 8, 128 * 1024);
+
+							// resize buffer if needed
+							if (totalBufferSizeAfterRemoving < sizeLimit)
+							{
+								// prepare temporal buffer
+								auto temporalBufferHandle = context->GenBuffer();
+								{
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+									context->BufferData(GL::Buffer::Type::CopyWrite, totalBufferSizeAfterRemoving, nullptr, GL::Buffer::Usage::Stream);
+								}
+
+								// store backup in temporal buffer
+								context->BindBuffer(GL::Buffer::Type::CopyRead, gl_indicesBuffer);
+								context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, totalBufferSizeAfterRemoving);
+
+								// resize buffer
+								context->BufferData(GL::Buffer::Type::CopyRead, sizeLimit, nullptr, GL::Buffer::Usage::Static);
+									
+								// restore data from backup in temporal buffer
+								context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, 0, totalBufferSizeAfterRemoving);
+
+								indicesBufferCapacity = sizeLimit;
+
+								context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+								context->DeleteBuffer(temporalBufferHandle);
+							}
+						}
 					protected:
 						inline Memory<VerticesRange> FindOrCreate(const Geometry::VertexPackMode& packMode_)
 						{
@@ -641,7 +836,7 @@ namespace GreatVEngine2
 							const auto &geometryVerticesDataSize		= geometryVerticesHolderMemory_->verticesCount * verticesRangeMemory->vertexSize;
 							
 							// remove from buffer
-							RemoveFromBuffer(geometryVerticesDataOffset, geometryVerticesDataSize);
+							RemoveFromVerticesBuffer(geometryVerticesDataOffset, geometryVerticesDataSize);
 						}
 						inline Memory<GeometryVerticesHolder> FindOrCreate(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_)
 						{
@@ -676,6 +871,69 @@ namespace GreatVEngine2
 							geometryVerticesHolders.push_back(geometryVerticesHolder);
 							
 							return geometryVerticesHolder.GetValue();
+						}
+						inline Memory<IndicesRange> FindOrCreate(const Geometry::IndexPackMode& packMode_)
+						{
+							auto currentIndicesRange = indicesRange;
+
+							while (currentIndicesRange && currentIndicesRange->packMode != packMode_)
+							{
+								currentIndicesRange = currentIndicesRange->next;
+							}
+
+							if (!currentIndicesRange)
+							{
+								currentIndicesRange = indicesRange = MakeStrong<IndicesRange>(packMode_, indicesRange);
+							}
+
+							return currentIndicesRange.GetValue();
+						}
+						inline void Delete(const Memory<GeometryIndicesHolder>& geometryIndicesHolderMemory_)
+						{
+							const auto &indicesRangeMemory = geometryIndicesHolderMemory_->indicesRangeMemory;
+
+							// calculate offset
+							const auto &indicesRangeTotalDataAmount	= GetTotalIndicesSize(indicesRangeMemory);
+							const auto &indicesRangeDataOffset		= GetTotalIndicesSizeUntil(indicesRangeMemory) - indicesRangeTotalDataAmount;
+							const auto &geometryIndicesDataOffset	= indicesRangeDataOffset + geometryIndicesHolderMemory_->firstIndex * indicesRangeMemory->indexSize;
+							const auto &geometryIndicesDataSize		= geometryIndicesHolderMemory_->indicesCount * indicesRangeMemory->indexSize;
+							
+							// remove from buffer
+							RemoveFromIndicesBuffer(geometryIndicesDataOffset, geometryIndicesDataSize);
+						}
+						inline Memory<GeometryIndicesHolder> FindOrCreate(const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry>& geometryMemory_)
+						{
+							auto &geometryIndicesHolders = indicesRangeMemory_->geometryIndicesHolders;
+
+							// check if holder already exist
+							for (auto &geometryIndicesHolder : geometryIndicesHolders)
+							{
+								if (geometryIndicesHolder->geometryMemory == geometryMemory_)
+								{
+									return geometryIndicesHolder.GetValue();
+								}
+							}
+
+							// create new holder
+							// obtain indices data
+							const auto &indicesCount	= geometryMemory_->GetIndicesCount();
+							const auto &indicesData		= geometryMemory_->GetIndices(indicesRangeMemory_->packMode);
+
+							// calculate offset within IndicesRange
+							const auto &indicesRangeTotalIndicesCount	= GetTotalIndicesCount(indicesRangeMemory_);
+							const auto &indicesRangeTotalDataAmount		= indicesRangeTotalIndicesCount * indicesRangeMemory_->indexSize;
+
+							// create holder
+							const auto &geometryIndicesHolder = MakeStrong<GeometryIndicesHolder>(indicesRangeMemory_, geometryMemory_, indicesCount, indicesRangeTotalIndicesCount);
+
+							geometryIndicesHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryIndicesHolder>& geometryIndicesHolderMemory_)>(&GeometryBufferHolder::Delete), this, geometryIndicesHolder.GetValue()));
+
+							// insert data to buffer
+							InsertToIndicesBuffer(indicesRangeTotalDataAmount, indicesData);
+
+							geometryIndicesHolders.push_back(geometryIndicesHolder);
+							
+							return geometryIndicesHolder.GetValue();
 						}
 					public:
 						inline void Free(const Memory<GeometryHolder>& geometryHolderMemory_)
@@ -796,10 +1054,12 @@ namespace GreatVEngine2
 								context->DeleteBuffer(temporalBufferHandle);
 							}*/
 						}
-						inline Memory<GeometryHolder> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_)
+						inline StrongPointer<GeometryHolder> Allocate(const Memory<Geometry>& geometryMemory_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_)
 						{
 							const auto &verticesRangeMemory				= FindOrCreate(verticesPackMode_);
 							const auto &geometryVerticesHolderMemory	= FindOrCreate(verticesRangeMemory, geometryMemory_);
+							const auto &indicesRangeMemory				= FindOrCreate(indicesPackMode_);
+							const auto &geometryIndicesHolderMemory		= FindOrCreate(indicesRangeMemory, geometryMemory_);
 
 							/*auto verticesRange = FindOrCreate(packMode_);
 							auto verticesRangeMemory = verticesRange.GetValue();
@@ -899,7 +1159,7 @@ namespace GreatVEngine2
 
 							return geometryHolder.GetValue();*/
 
-							return nullptr;
+							return MakeStrong<GeometryHolder>(geometryVerticesHolderMemory, geometryIndicesHolderMemory);
 						}
 					};
 #pragma endregion
