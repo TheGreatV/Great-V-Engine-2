@@ -277,15 +277,20 @@ namespace GreatVEngine2
 			mutable EventDestruction onDestruction;
 		protected:
 			const StrongPointer<Geometry> geometry;
+			const Geometry::VertexPackMode verticesPackMode;
 		public:
 			inline Model() = delete;
-			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_);
+			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_);
 			inline Model(const Model&) = delete;
 			inline ~Model() = default;
 		public:
 			inline Model& operator = (const Model&) = delete;
 		public:
 			inline StrongPointer<Geometry> GetGeometry() const;
+			inline Geometry::VertexPackMode GetVerticesPackMode() const
+			{
+				return verticesPackMode;
+			}
 		public:
 			inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
 			{
@@ -579,9 +584,10 @@ GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_
 
 #pragma region Model
 
-GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_):
+GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_):
 	This(this_),
-	geometry(geometry_)
+	geometry(geometry_),
+	verticesPackMode(verticesPackMode_)
 {
 }
 

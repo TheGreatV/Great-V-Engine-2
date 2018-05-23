@@ -173,6 +173,32 @@ namespace GreatVEngine2
 
 					return bytes;
 				} break;
+				case VertexPackMode::Pos32F_TN16F_Tex32F:
+				{
+					const auto positionOffset	= Size(0);
+					const auto tangentOffset	= Size(sizeof(Vec3));
+					const auto normalOffset		= Size(sizeof(Vec3) + sizeof(Float16) * 3);
+					const auto texCoordOffset	= Size(sizeof(Vec3) + sizeof(Float16) * 3 * 2);
+
+					Size i = 0;
+					for(auto &vertex : vertices)
+					{
+						auto byte = bytes.data() + i;
+					
+						*reinterpret_cast<Vec3*>	(byte + positionOffset)							= vertex.pos;
+						*reinterpret_cast<Float16*>	(byte + tangentOffset + sizeof(Float16) * 0)	= vertex.tan.x;
+						*reinterpret_cast<Float16*>	(byte + tangentOffset + sizeof(Float16) * 1)	= vertex.tan.y;
+						*reinterpret_cast<Float16*>	(byte + tangentOffset + sizeof(Float16) * 2)	= vertex.tan.z;
+						*reinterpret_cast<Float16*>	(byte + normalOffset + sizeof(Float16) * 0)		= vertex.nor.x;
+						*reinterpret_cast<Float16*>	(byte + normalOffset + sizeof(Float16) * 1)		= vertex.nor.y;
+						*reinterpret_cast<Float16*>	(byte + normalOffset + sizeof(Float16) * 2)		= vertex.nor.z;
+						*reinterpret_cast<Vec2*>	(byte + texCoordOffset)							= vertex.tex;
+					
+						i += vertexSize;
+					}
+
+					return bytes;
+				} break;
 				default:
 				{
 					throw NotImplementedException();

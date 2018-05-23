@@ -152,18 +152,18 @@ void main()
 
 	auto models = Vector<StrongPointer<Graphics::Model>>();
 	{
-		for (auto &i : Range(10))
+		for (auto &i : Range(1))
 		{
-			// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
-			models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32))));
+			// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
 		}
 	}
 
 	auto materials = Vector<StrongPointer<Graphics::Material>>();
 	{
-		for (auto &i : Range(10))
+		for (auto &i : Range(1))
 		{
 			auto material1 = Make<Graphics::Material>();
 			{
@@ -396,7 +396,12 @@ void main()
 		{
 			if (!changeModelsCountLock)
 			{
-				models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1))));
+				auto r = rand() % 2;
+				auto packMode = r == 0
+					? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F
+					: Geometry::VertexPackMode::Pos32F_TN16F_Tex32F;
+
+				models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), packMode));
 
 				changeModelsCountLock = true;
 			}

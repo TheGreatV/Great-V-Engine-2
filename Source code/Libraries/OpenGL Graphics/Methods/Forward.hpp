@@ -554,10 +554,10 @@ namespace GreatVEngine2
 
 							if (it == subRanges.end())
 							{
-								// obtain buffer size
-								const auto &previousTotalBufferSize	= GetTotalSizeUntill(nullptr);
-								const auto &previousBeginBufferSize	= GetTotalSizeUntill(verticesRangeMemory);
-								const auto &previousEndBufferSize	= previousTotalBufferSize - previousBeginBufferSize;
+								// obtain buffer size [[begin][end][empty]]
+								const auto &previousTotalDataSize	= GetTotalSizeUntill(nullptr);
+								const auto &previousBeginDataSize	= GetTotalSizeUntill(verticesRangeMemory);
+								const auto &previousEndDataSize		= previousTotalDataSize - previousBeginDataSize;
 
 								// obtain vertices
 								const auto &verticesCount	= geometryMemory_->GetVerticesCount();
@@ -571,13 +571,14 @@ namespace GreatVEngine2
 
 								it = std::prev(subRanges.end());
 
-								const auto &currentTotalBufferSize	= GetTotalSizeUntill(nullptr);
+								const auto &currentTotalDataSize	= GetTotalSizeUntill(nullptr);
 
 								// context
 								const auto &context		= contextHolder->gl_context;
 								const auto &contextLock	= WGL::Lock(context, contextHolder->win_deviceContextHandle);
 
-								if (currentTotalBufferSize > verticesBufferCapacity)
+								// resize buffer if needed
+								if (currentTotalDataSize > verticesBufferCapacity)
 								{
 									// prepare temporal buffer
 									auto temporalBufferHandle = context->GenBuffer();
@@ -591,7 +592,7 @@ namespace GreatVEngine2
 									context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, 0, 0, verticesBufferCapacity);
 
 									// resize buffer
-									auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(currentTotalBufferSize)) / glm::log(2.0))));
+									auto powerOfTwoSize = static_cast<Size>(glm::pow(2, glm::ceil(glm::log(static_cast<Float64>(currentTotalDataSize)) / glm::log(2.0))));
 									auto newBufferSize = glm::max<Size>(powerOfTwoSize * 2, 128 * 1024);
 
 									context->BufferData(GL::Buffer::Type::CopyRead, newBufferSize, nullptr, GL::Buffer::Usage::Stream);
@@ -606,6 +607,33 @@ namespace GreatVEngine2
 
 									context->DeleteBuffer(temporalBufferHandle);
 								}
+								
+								// move data at the end if needed
+								if (previousEndDataSize > 0)
+								{
+									// prepare temporal buffer
+									auto temporalBufferHandle = context->GenBuffer();
+									{
+										context->BindBuffer(GL::Buffer::Type::CopyWrite, temporalBufferHandle);
+										context->BufferData(GL::Buffer::Type::CopyWrite, previousEndDataSize, nullptr, GL::Buffer::Usage::Stream);
+									}
+
+									// store backup in temporal buffer
+									context->BindBuffer(GL::Buffer::Type::CopyRead, gl_verticesBuffer);
+									context->CopyBufferSubData(GL::Buffer::Type::CopyRead, GL::Buffer::Type::CopyWrite, previousBeginDataSize, 0, previousEndDataSize);
+
+									// restore data from backup in temporal buffer
+									context->CopyBufferSubData(GL::Buffer::Type::CopyWrite, GL::Buffer::Type::CopyRead, 0, previousBeginDataSize + verticesData.size(), previousEndDataSize);
+
+									context->BindBuffer(GL::Buffer::Type::CopyRead, nullptr);
+									context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
+
+									context->DeleteBuffer(temporalBufferHandle);
+								}
+
+								// insert data
+								context->BindBuffer(GL::Buffer::Type::Array, gl_verticesBuffer);
+								context->BufferSubData(GL::Buffer::Type::Array, previousBeginDataSize, verticesData.size(), verticesData.data());
 							}
 
 							auto subRange = *it;
@@ -1225,9 +1253,10 @@ namespace GreatVEngine2
 
 						for (auto &object : objects)
 						{
-							auto geometry = object->GetModel()->GetGeometry();
+							auto model = object->GetModel();
+							auto geometry = model->GetGeometry();
 
-							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
+							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), model->GetVerticesPackMode());
 						}
 
 						/*materialsTable.clear();
