@@ -188,6 +188,35 @@ namespace GreatVEngine2
 					return offset;
 				}
 			};
+			class Uniform
+			{
+			public:
+				class Location
+				{
+				public:
+					using Value = GLint;
+				protected:
+					Value value;
+				public:
+					inline Location() = default;
+					inline explicit Location(const Value& value_):
+						value(value_)
+					{}
+					inline Location(const Location&) = default;
+					inline ~Location() = default;
+				public:
+					inline Location& operator = (const Location&) = default;
+				public:
+					inline operator Value() const
+					{
+						return value;
+					}
+					inline operator bool() const
+					{
+						return value != -1;
+					}
+				};
+			};
 		};
 
 		class Core_2_0:
@@ -591,6 +620,33 @@ namespace GreatVEngine2
 				}
 
 				glEnableVertexAttribArray(static_cast<GLuint>(static_cast<Program::Attribute::Location::Value>(location_)));
+
+				CheckForErrors();
+			}
+			inline void								DisableVertexAttributeArray(const Program::Attribute::Location& location_) const
+			{
+				if (!location_)
+				{
+					throw Exception();
+				}
+
+				glDisableVertexAttribArray(static_cast<GLuint>(static_cast<Program::Attribute::Location::Value>(location_)));
+
+				CheckForErrors();
+			}
+			inline Program::Uniform::Location		GetUniformLocation(const Program::Handle& handle_, const String& name_) const
+			{
+				const auto value = glGetUniformLocation(static_cast<Program::Handle::Value>(handle_), name_.c_str());
+
+				CheckForErrors();
+
+				const auto location = Program::Uniform::Location(value);
+
+				return location;
+			}
+			inline void								SetUniform(const Program::Uniform::Location& location_, const Mat4& mat_) const
+			{
+				glUniformMatrix4fv(static_cast<GLint>(location_), 1, GL_FALSE, &mat_[0][0]);
 
 				CheckForErrors();
 			}

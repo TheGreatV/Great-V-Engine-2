@@ -126,14 +126,11 @@ namespace GreatVEngine2
 						using SceneCaches = Map<Memory<Scene>, StrongPointer<SceneCache>>;
 						class MaterialCache;
 						using MaterialCaches = Map<Memory<Material>, StrongPointer<MaterialCache>>;
-						/*class AttributesCache;
-						class ModelCache;
-						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;*/
+						class AttributesCache;
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
 						const StrongPointer<GeometryBufferHolder> geometryBufferHolder = MakeStrong<GeometryBufferHolder>(contextHolder);
 						MaterialCaches materialCaches;
-						// ModelCaches modelCaches;
 						SceneCaches sceneCaches;
 					public:
 						Vector<TaskManager> taskManagers = Vector<TaskManager>(std::thread::hardware_concurrency());
@@ -149,7 +146,7 @@ namespace GreatVEngine2
 						inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
 						// inline Memory<ModelCache> FindOrAdd(const Memory<Model>& modelMemory_);
 						inline void Remove(const Memory<Material>& materialMemory_);
-						inline void Remove(const Memory<Model>& modelMemory_);
+						// inline void Remove(const Memory<Model>& modelMemory_);
 					public:
 						inline virtual StrongPointer<OpenGL::Output> Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_) override;
 					};
@@ -306,7 +303,9 @@ namespace GreatVEngine2
 #pragma region Forward::GeometryBufferHolder
 					class Forward::GeometryBufferHolder
 					{
-					protected:
+					public:
+						using EventUpdate = Subscription<void()>;
+					public:
 						class VerticesRange;
 						class IndicesRange;
 						class GeometryVerticesHolder
@@ -346,10 +345,11 @@ namespace GreatVEngine2
 						class VerticesRange
 						{
 						public:
-							const Geometry::VertexPackMode packMode;
-							const Size vertexSize = Geometry::GetVertexSize(packMode);
-							StrongPointer<VerticesRange> next = StrongPointer<VerticesRange>(nullptr);
-							Vector<StrongPointer<GeometryVerticesHolder>> geometryVerticesHolders;
+							const Geometry::VertexPackMode					packMode;
+							const Size										vertexSize = Geometry::GetVertexSize(packMode);
+							StrongPointer<VerticesRange>					next = StrongPointer<VerticesRange>(nullptr);
+							Size											offset = 0; // in bytes
+							Vector<StrongPointer<GeometryVerticesHolder>>	geometryVerticesHolders;
 						public:
 							inline VerticesRange(const Geometry::VertexPackMode& packMode_, const StrongPointer<VerticesRange>& next_ = StrongPointer<VerticesRange>(nullptr)):
 								packMode(packMode_),
@@ -360,10 +360,11 @@ namespace GreatVEngine2
 						class IndicesRange
 						{
 						public:
-							const Geometry::IndexPackMode packMode;
-							const Size indexSize = Geometry::GetIndexSize(packMode);
-							StrongPointer<IndicesRange> next = StrongPointer<IndicesRange>(nullptr);
-							Vector<StrongPointer<GeometryIndicesHolder>> geometryIndicesHolders;
+							const Geometry::IndexPackMode					packMode;
+							const Size										indexSize = Geometry::GetIndexSize(packMode);
+							StrongPointer<IndicesRange>						next = StrongPointer<IndicesRange>(nullptr);
+							Size											offset = 0; // in bytes
+							Vector<StrongPointer<GeometryIndicesHolder>>	geometryIndicesHolders;
 						public:
 							inline IndicesRange(const Geometry::IndexPackMode& packMode_, const StrongPointer<IndicesRange>& next_ = StrongPointer<IndicesRange>(nullptr)):
 								packMode(packMode_),
@@ -418,6 +419,8 @@ namespace GreatVEngine2
 						
 							return buffer;
 						}
+					protected:
+						mutable EventUpdate onUpdate;
 					public:
 						const Memory<ContextHolder>		contextHolder;
 						const GL::VertexArray::Handle	gl_verticesArrayHandle; // Indices buffer binding cannot be performed without VAO
@@ -454,7 +457,12 @@ namespace GreatVEngine2
 							context->UnbindBuffer(GL::Buffer::Type::ElementArray, gl_indicesBuffer);
 							context->DeleteBuffer(gl_indicesBuffer);
 						}
-					protected:
+					public:
+						inline EventUpdate::Unsubscriber OnUpdate(const EventUpdate::Subscriber& subscriber_) const
+						{
+							return Move(onUpdate += subscriber_);
+						}
+					public:
 						inline Size GetTotalVerticesCount(const Memory<VerticesRange>& verticesRangeMemory_) const
 						{
 							auto size = Size(0);
@@ -870,6 +878,18 @@ namespace GreatVEngine2
 
 							geometryVerticesHolders.push_back(geometryVerticesHolder);
 							
+							// update offset in next buffers
+							auto currentVerticesRangeMemory = verticesRangeMemory_->next.GetValue();
+
+							while (currentVerticesRangeMemory)
+							{
+								currentVerticesRangeMemory->offset += verticesData.size();
+
+								currentVerticesRangeMemory = currentVerticesRangeMemory->next.GetValue();
+							}
+
+							onUpdate();
+
 							return geometryVerticesHolder.GetValue();
 						}
 						inline Memory<IndicesRange> FindOrCreate(const Geometry::IndexPackMode& packMode_)
@@ -933,6 +953,16 @@ namespace GreatVEngine2
 
 							geometryIndicesHolders.push_back(geometryIndicesHolder);
 							
+							// update offset in next buffers
+							auto currentIndicesRangeMemory = indicesRangeMemory_->next.GetValue();
+
+							while (currentIndicesRangeMemory)
+							{
+								currentIndicesRangeMemory->offset += indicesData.size();
+
+								currentIndicesRangeMemory = currentIndicesRangeMemory->next.GetValue();
+							}
+
 							return geometryIndicesHolder.GetValue();
 						}
 					public:
@@ -957,18 +987,18 @@ namespace GreatVEngine2
 						class ModelNode;
 					public:
 						using ObjectsTable = Vector<Memory<Object>>;
-						// using ModelsTable = Map<Memory<ModelCache>, ModelNode>;
-						// using MaterialsTable = Map<Memory<MaterialCache>, MaterialNode>;
+						using ModelsTable = Map<Memory<Model>, ModelNode>;
+						using MaterialsTable = Map<Memory<MaterialCache>, MaterialNode>;
 					protected:
 						const Memory<Forward> methodMemory;
 						const Memory<Scene> sceneMemory;
 						Scene::Version sceneVersion;
-						// MaterialsTable materialsTable;
+						MaterialsTable materialsTable;
 					public:
 						inline SceneCache(const StrongPointer<SceneCache>& this_, const Memory<Forward>& methodMemory_, const Memory<Scene>& sceneMemory_);
 					protected:
-						// inline MaterialNode& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
-						// inline ModelNode& FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_);
+						inline MaterialNode& FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_);
+						inline ModelNode& FindOrCreate(MaterialNode& materialNode_, const Memory<Model>& modelMemory_);
 					protected:
 						inline void ForceUpdateCaches();
 						inline void UpdateCaches();
@@ -981,6 +1011,8 @@ namespace GreatVEngine2
 #pragma region Forward::MaterialCache
 					class Forward::MaterialCache
 					{
+					public:
+						using AttributesCaches = Map<Pair<Memory<GeometryBufferHolder::VerticesRange>, Memory<GeometryBufferHolder::IndicesRange>>, StrongPointer<AttributesCache>>;
 					protected:
 						inline Size ObtainMaxObjectsCount() const
 						{
@@ -1116,6 +1148,8 @@ namespace GreatVEngine2
 						const Size										maxObjectsCount;
 						const GL::Buffer::Handle						gl_objectsUniformBufferHandle;
 					public:
+						AttributesCaches								attributesCaches;
+					public:
 						inline MaterialCache(const Memory<Forward>& methodMemory_, const Memory<Material>& materialMemory_):
 							methodMemory(methodMemory_),
 							materialMemory(materialMemory_),
@@ -1147,127 +1181,153 @@ namespace GreatVEngine2
 
 							context->DeleteBuffer(gl_objectsUniformBufferHandle);
 						}
+					public:
+						inline Memory<AttributesCache> FindOrCreate(const Memory<Forward::GeometryBufferHolder::GeometryHolder>& geometryHolder_);
 					};
 #pragma endregion
-/*#pragma region Forward::AttributesCache
+#pragma region Forward::AttributesCache
 					class Forward::AttributesCache
 					{
 					protected:
-						inline GL::VertexArray::Handle ObtainVerticesArrayHandle() const
+						inline void ConfigureAttributes() const
 						{
-							const auto &methodMemory	= materialCacheMemory->methodMemory;
-							const auto &context			= methodMemory->contextHolder->gl_context;
-							const auto &bufferHandle	= context->GenVertexArray();
+							// materialCacheMemory->methodMemory->geometryBufferHolder->
 
-							return bufferHandle;
-						}
-					protected:
-						const Memory<MaterialCache>			materialCacheMemory;
-						const GL::VertexArray::Handle		gl_verticesArrayHandle;
-					public:
-						inline AttributesCache(const Memory<MaterialCache>& materialCacheMemory_, const Vector<GL::Program::Attribute>& attributes_):
-							materialCacheMemory(materialCacheMemory_),
-							gl_verticesArrayHandle(ObtainVerticesArrayHandle())
-						{
-							const auto &methodMemory	= materialCacheMemory->methodMemory;
-							const auto &context			= methodMemory->contextHolder->gl_context;
-
-							context->BindBuffer(GL::Buffer::Type::Array, methodMemory->contextHolder->gl_verticesBuffer);
-
-							for (auto &attribute : attributes_)
+							const auto &methodMemory			= materialCacheMemory->methodMemory;
+							const auto &context					= methodMemory->contextHolder->gl_context;
+							const auto &verticesPackMode		= verticesRangeMemory->packMode;
+							const auto &vertexSize				= verticesRangeMemory->vertexSize;
+							const auto &GetAttributeLocation	= [this](const String& key_) -> GL::Program::Attribute::Location
 							{
-								if (auto &location = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, attribute.GetName()))
+								const auto &it = gl_attributesLocations.find(key_);
+
+								if (it == gl_attributesLocations.end())
 								{
-									context->VertexAttributePointer(location, attribute.GetSize(), attribute.GetType(), false, attribute.GetStride(), attribute.GetOffset());
-									context->EnableVertexAttributeArray(location);
+									throw Exception();
+								}
+
+								return (*it).second;
+							};
+
+							context->BindBuffer(GL::Buffer::Type::Array, methodMemory->geometryBufferHolder->gl_verticesBuffer);
+
+							if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							{
+								if (const auto &attributeLocation = GetAttributeLocation("vPos"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, verticesRangeMemory->offset);
 								}
 							}
+						}
+						inline void EnableAttributes() const
+						{
+							const auto &context					= materialCacheMemory->methodMemory->contextHolder->gl_context;
+							const auto &verticesPackMode		= verticesRangeMemory->packMode;
+							
+							if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							{
+								for (auto &attributeLocationIt : gl_attributesLocations)
+								{
+									const auto &attributeLocation = attributeLocationIt.second;
+
+									if (attributeLocation)
+									{
+										context->EnableVertexAttributeArray(attributeLocation);
+									}
+								}
+							}
+						}
+						inline void DisableAttributes() const
+						{
+							const auto &context					= materialCacheMemory->methodMemory->contextHolder->gl_context;
+							const auto &verticesPackMode		= verticesRangeMemory->packMode;
+							
+							if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							{
+								for (auto &attributeLocationIt : gl_attributesLocations)
+								{
+									const auto &attributeLocation = attributeLocationIt.second;
+
+									if (attributeLocation)
+									{
+										context->EnableVertexAttributeArray(attributeLocation);
+									}
+								}
+							}
+						}
+						inline void Update() const
+						{
+							const auto &methodMemory		= materialCacheMemory->methodMemory;
+							const auto &context				= methodMemory->contextHolder->gl_context;
+							const auto &contextLock			= WGL::Lock(context, methodMemory->contextHolder->win_deviceContextHandle);
+
+							context->BindVertexArray(gl_verticesArrayHandle);
+
+							DisableAttributes();
+							ConfigureAttributes();
+							EnableAttributes();
+
+							context->BindVertexArray(nullptr);
+						}
+					protected:
+						inline Map<String, GL::Program::Attribute::Location> ObtainAttributesLocations() const
+						{
+							const auto &context = materialCacheMemory->methodMemory->contextHolder->gl_context;
+
+							Map<String, GL::Program::Attribute::Location> attributesLocations;
+
+							if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							{
+								attributesLocations.insert({ "vPos", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vPos") });
+								attributesLocations.insert({ "vTan", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTan") });
+								attributesLocations.insert({ "vBin", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vBin") });
+								attributesLocations.insert({ "vNor", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vNor") });
+								attributesLocations.insert({ "vTex", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTex") });
+							}
+
+							return Move(attributesLocations);
+						}
+						inline GL::VertexArray::Handle ObtainVerticesArrayHandle() const
+						{
+							const auto &methodMemory		= materialCacheMemory->methodMemory;
+							const auto &context				= methodMemory->contextHolder->gl_context;
+							const auto &verticesArrayHandle	= context->GenVertexArray();
+
+							context->BindVertexArray(verticesArrayHandle);
+
+							context->BindBuffer(GL::Buffer::Type::ElementArray, methodMemory->geometryBufferHolder->gl_indicesBuffer);
+
+							ConfigureAttributes();
+							EnableAttributes();
+
+							context->BindVertexArray(nullptr);
+
+							return verticesArrayHandle;
+						}
+					public:
+						const Memory<MaterialCache>									materialCacheMemory;
+						const Memory<GeometryBufferHolder::VerticesRange>			verticesRangeMemory;
+						const Memory<GeometryBufferHolder::IndicesRange>			indicesRangeMemory;
+						const Map<String, GL::Program::Attribute::Location>			gl_attributesLocations;
+						const GL::VertexArray::Handle								gl_verticesArrayHandle;
+						const GeometryBufferHolder::EventUpdate::Unsubscriber		unsubscribeUpdate;
+					public:
+						inline AttributesCache(const Memory<MaterialCache>& materialCacheMemory_, const Memory<GeometryBufferHolder::VerticesRange>& verticesRangeMemory_, const Memory<GeometryBufferHolder::IndicesRange>& indicesRangeMemory_):
+							materialCacheMemory(materialCacheMemory_),
+							verticesRangeMemory(verticesRangeMemory_),
+							indicesRangeMemory(indicesRangeMemory_),
+							gl_attributesLocations(ObtainAttributesLocations()),
+							gl_verticesArrayHandle(ObtainVerticesArrayHandle()),
+							unsubscribeUpdate(materialCacheMemory->methodMemory->geometryBufferHolder->OnUpdate(std::bind(&AttributesCache::Update, this)))
+						{
 						}
 						inline ~AttributesCache()
 						{
-							const auto &methodMemory	= materialCacheMemory->methodMemory;
-							const auto &context			= methodMemory->contextHolder->gl_context;
-
-							context->BindVertexArray(nullptr);
-							context->DeleteVertexArray(gl_verticesArrayHandle);
+							// TODO
 						}
 					};
-#pragma endregion*/
-
-/*#pragma region Forward::ModelCache
-					class Forward::ModelCache
-					{
-					protected:
-						inline GL::Buffer::Handle ObtainVerticesBufferHandle()
-						{
-							const auto &context			= methodMemory->contextHolder->gl_context;
-							const auto &bufferHandle	= context->GenBuffer();
-
-							context->BindBuffer(GL::Buffer::Type::Array, bufferHandle);
-							
-							const auto &geometry	= modelMemory->GetGeometry();
-							const auto &data		= geometry->GetVertices(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
-							
-							context->BufferData(GL::Buffer::Type::Array, data, GL::Buffer::Usage::Static);
-
-							return bufferHandle;
-						}
-						inline GL::Buffer::Handle ObtainIndicesBufferHandle()
-						{
-							const auto &context			= methodMemory->contextHolder->gl_context;
-							const auto &bufferHandle	= context->GenBuffer();
-
-							context->BindBuffer(GL::Buffer::Type::ElementArray, bufferHandle);
-							
-							const auto &geometry	= modelMemory->GetGeometry();
-							const auto &data		= geometry->GetIndices(Geometry::IndexPackMode::UInt32);
-							
-							context->BufferData(GL::Buffer::Type::ElementArray, data, GL::Buffer::Usage::Static);
-
-							return bufferHandle;
-						}
-					public:
-						const Memory<Forward>						methodMemory;
-						const Memory<Model>							modelMemory;
-						const Model::EventDestruction::Unsubscriber	unsubscriber;
-						const GL::Buffer::Handle					gl_verticesBufferHandle;
-						const GL::Buffer::Handle					gl_indicesBufferHandle;
-					public:
-						inline ModelCache(const Memory<Forward>& methodMemory_, const Memory<Model> modelMemory_):
-							methodMemory(methodMemory_),
-							modelMemory(modelMemory_),
-							unsubscriber(modelMemory->OnDestruction(std::bind(static_cast<void(Forward::*)(const Memory<Model>&)>(&Forward::Remove), methodMemory, modelMemory))),
-							gl_verticesBufferHandle(ObtainVerticesBufferHandle()),
-							gl_indicesBufferHandle(ObtainIndicesBufferHandle())
-						{
-						}
-						inline ~ModelCache()
-						{
-							const auto &context = methodMemory->contextHolder->gl_context;
-
-							const auto &currentArrayBufferHandle = context->GetBufferBinding(GL::Buffer::Binding::Array);
-							{
-								if (gl_verticesBufferHandle == currentArrayBufferHandle)
-								{
-									context->BindBuffer(GL::Buffer::Type::Array, nullptr);
-								}
-							}
-
-							context->DeleteBuffer(gl_verticesBufferHandle);
-
-							const auto &currentElementArrayBufferHandle = context->GetBufferBinding(GL::Buffer::Binding::ElementArray);
-							{
-								if (gl_indicesBufferHandle == currentElementArrayBufferHandle)
-								{
-									context->BindBuffer(GL::Buffer::Type::ElementArray, nullptr);
-								}
-							}
-
-							context->DeleteBuffer(gl_indicesBufferHandle);
-						}
-					};
-#pragma endregion*/
-/*#pragma region Forward::SceneCache::MaterialNode
+#pragma endregion
+#pragma region Forward::SceneCache::MaterialNode
 					class Forward::SceneCache::MaterialNode
 					{
 					public:
@@ -1284,78 +1344,35 @@ namespace GreatVEngine2
 						inline ~MaterialNode()
 						{
 						}
+					public:
+
 					};
-#pragma endregion*/
-/*#pragma region Forward::SceneCache::ModelNode
+#pragma endregion
+#pragma region Forward::SceneCache::ModelNode
 					class Forward::SceneCache::ModelNode
 					{
 					public:
-						inline GL::VertexArray::Handle ObtainVertexArraysHandle() const
-						{
-							const auto &context = materialNodeMemory->sceneCacheMemory->methodMemory->contextHolder->gl_context;
-							const auto &vertexArrayHandle = context->GenVertexArray();
-							const auto vertexSize = modelCacheMemory->modelMemory->GetGeometry()->GetVertexSize(Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F);
-
-							context->BindVertexArray(vertexArrayHandle);
-
-							context->BindBuffer(GL::Buffer::Type::Array, modelCacheMemory->gl_verticesBufferHandle);
-							
-							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vPos"))
-							{
-								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 0);
-								context->EnableVertexAttributeArray(attributeLocation);
-							}
-							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vTan"))
-							{
-								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 3);
-								context->EnableVertexAttributeArray(attributeLocation);
-							}
-							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vBin"))
-							{
-								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 6);
-								context->EnableVertexAttributeArray(attributeLocation);
-							}
-							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vNor"))
-							{
-								context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 9);
-								context->EnableVertexAttributeArray(attributeLocation);
-							}
-							if (const auto attributeLocation = context->GetAttributeLocation(materialNodeMemory->materialCacheMemory->gl_programHandle, "vTex"))
-							{
-								context->VertexAttributePointer(attributeLocation, 2, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Float32)* 12);
-								context->EnableVertexAttributeArray(attributeLocation);
-							}
-
-							context->BindVertexArray(nullptr);
-
-							return vertexArrayHandle;
-						}
-					public:
 						const Memory<MaterialNode> materialNodeMemory;
-						const Memory<ModelCache> modelCacheMemory;
+						const Memory<Model> modelMemory;
+						const StrongPointer<GeometryBufferHolder::GeometryHolder> geometryHolder;
+						const Memory<AttributesCache> attributesCacheMemory;
 						ObjectsTable objectsTable;
-						Vector<ObjectUniformBuffer> objectsUniformBufferData;
-						const GL::VertexArray::Handle gl_vertexArrayHandle;
-						Vector<Vector<Threading::Event>> events;
+						// Vector<ObjectUniformBuffer> objectsUniformBufferData;
+						// Vector<Vector<Threading::Event>> events;
 					public:
-						inline ModelNode(const Memory<MaterialNode>& materialNodeMemory_, const Memory<ModelCache>& modelCacheMemory_):
+						inline ModelNode(const Memory<MaterialNode>& materialNodeMemory_, const Memory<Model>& modelMemory_, const StrongPointer<GeometryBufferHolder::GeometryHolder>& geometryHolder_, const Memory<AttributesCache>& attributesCacheMemory_):
 							materialNodeMemory(materialNodeMemory_),
-							modelCacheMemory(modelCacheMemory_),
-							gl_vertexArrayHandle(ObtainVertexArraysHandle())
+							modelMemory(modelMemory_),
+							geometryHolder(geometryHolder_),
+							attributesCacheMemory(attributesCacheMemory_)
 						{
 						}
 						inline ModelNode(const ModelNode&) = delete;
 						inline ~ModelNode()
 						{
-							const auto &context = materialNodeMemory->sceneCacheMemory->methodMemory->contextHolder->gl_context;
-
-							// TODO: check
-
-							context->BindVertexArray(nullptr);
-							context->DeleteVertexArray(gl_vertexArrayHandle);
 						}
 					};
-#pragma endregion*/
+#pragma endregion
 
 #pragma region Forward
 					Forward::Forward(const StrongPointer<Forward>& this_):
@@ -1446,24 +1463,24 @@ namespace GreatVEngine2
 
 						materialCaches.erase(it);
 					}
-					void Forward::Remove(const Memory<Model>& modelMemory_)
-					{
-						/*const auto &it = modelCaches.find(modelMemory_);
-
-						if (it == modelCaches.end())
-						{
-							throw Exception();
-						}
-
-						const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
-						const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
-
-						GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
-
-						modelCaches.erase(it);
-
-						GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);*/
-					}
+					// void Forward::Remove(const Memory<Model>& modelMemory_)
+					// {
+					// 	/*const auto &it = modelCaches.find(modelMemory_);
+					// 
+					// 	if (it == modelCaches.end())
+					// 	{
+					// 		throw Exception();
+					// 	}
+					// 
+					// 	const auto &previousDeviceContextHandle = GL::OSs::Windows::GetCurrentDeviceContextHandle();
+					// 	const auto &previousRenderContextHandle = GL::OSs::Windows::GetCurrentHandle();
+					// 
+					// 	GL::OSs::Windows::MakeCurrent(contextHolder->win_deviceContextHandle, contextHolder->gl_context->GetHandle());
+					// 
+					// 	modelCaches.erase(it);
+					// 
+					// 	GL::OSs::Windows::MakeCurrent(previousDeviceContextHandle, previousRenderContextHandle);*/
+					// }
 
 					StrongPointer<OpenGL::Output> Forward::Render(const StrongPointer<Scene>& scene_, const StrongPointer<Camera>& camera_)
 					{
@@ -1496,7 +1513,7 @@ namespace GreatVEngine2
 						ForceUpdateCaches();
 					}
 
-					/*Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
+					Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
 					{
 						const auto it		= materialsTable.find(materialCacheMemory_);
 
@@ -1515,11 +1532,11 @@ namespace GreatVEngine2
 						auto &materialNode	= (*nIt.first).second;
 
 						return materialNode;
-					}*/
-					/*Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<ModelCache>& modelCacheMemory_)
+					}
+					Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<Model>& modelMemory_)
 					{
 						auto		&modelsTable	= materialNode_.modelsTable;
-						const auto	&it				= modelsTable.find(modelCacheMemory_);
+						const auto	&it				= modelsTable.find(modelMemory_);
 
 						if (it != modelsTable.end())
 						{
@@ -1528,15 +1545,17 @@ namespace GreatVEngine2
 							return modelNode;
 						}
 
-						const auto &nIt		= modelsTable.emplace(
+						const auto &geometryHolder			= methodMemory->geometryBufferHolder->Allocate(modelMemory_->GetGeometry().GetValue(), modelMemory_->GetVerticesPackMode(), modelMemory_->GetIndicesPackMode());
+						const auto &attributesCacheMemory	= materialNode_.materialCacheMemory->FindOrCreate(geometryHolder.GetValue());
+						const auto &nIt						= modelsTable.emplace(
 							std::piecewise_construct,
-							std::forward_as_tuple(modelCacheMemory_),
-							std::forward_as_tuple(&materialNode_, modelCacheMemory_)
+							std::forward_as_tuple(modelMemory_),
+							std::forward_as_tuple(&materialNode_, modelMemory_, geometryHolder, attributesCacheMemory)
 						); // TODO: add check?
 						auto &modelNode		= (*nIt.first).second;
 
 						return modelNode;
-					}*/
+					}
 
 					void Forward::SceneCache::ForceUpdateCaches()
 					{
@@ -1548,6 +1567,8 @@ namespace GreatVEngine2
 
 						auto &objects = sceneMemory->objects;
 
+						materialsTable.clear();
+
 						for (auto &objectMemory : objects)
 						{
 							// obtain material cache
@@ -1556,10 +1577,16 @@ namespace GreatVEngine2
 							const auto &materialCacheMemory		= methodMemory->FindOrAdd(materialMemory);
 
 							// TODO
-							const auto &model		= objectMemory->GetModel();
-							const auto &geometry	= model->GetGeometry();
+							const auto &model					= objectMemory->GetModel();
+							const auto &modelMemory				= model.GetValue();
+							
+							// obtain tables
+							auto &materialNode					= FindOrCreate(materialCacheMemory);
+							auto &modelsTable					= materialNode.modelsTable;
+							auto &modelNode						= FindOrCreate(materialNode, modelMemory);
+							auto &objectsTable					= modelNode.objectsTable;
 
-							methodMemory->geometryBufferHolder->Allocate(geometry.GetValue(), model->GetVerticesPackMode(), model->GetIndicesPackMode());
+							objectsTable.push_back(objectMemory);
 						}
 
 						/*materialsTable.clear();
@@ -1653,6 +1680,46 @@ namespace GreatVEngine2
 						}
 
 						const bool useMultithreading = GetAsyncKeyState('H') == 0;
+
+						for (auto &materialIt : materialsTable)
+						{
+							const auto	&materialCacheMemory	= materialIt.first;
+							const auto	&materialNode			= materialIt.second;
+							const auto	&modelsTable			= materialNode.modelsTable;
+
+							renderContext->UseProgram(materialCacheMemory->gl_programHandle);
+
+							for (auto &modelIt : modelsTable)
+							{
+								const auto &modelNode				= modelIt.second;
+								const auto &geometryMemory			= modelNode.modelMemory->GetGeometry().GetValue();
+								const auto &attributesCacheMemory	= modelNode.attributesCacheMemory;
+								const auto &objectsTable			= modelNode.objectsTable;
+
+								renderContext->BindVertexArray(attributesCacheMemory->gl_verticesArrayHandle);
+
+								for (auto &objectMemory : objectsTable)
+								{
+									if (auto location = renderContext->GetUniformLocation(materialCacheMemory->gl_programHandle, "modelViewProjectionMatrix"))
+									{
+										renderContext->SetUniform(location, Perspective(60.0f, aspect, 0.1f, 10000.0f) * camera_->GetVMat() * objectMemory->GetMMat());
+									}
+
+									renderContext->DrawElementsBaseVertex(
+										GL::PrimitiveType::Triangles,
+										geometryMemory->GetIndicesCount(),
+										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :
+										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :
+										GL::IndexType::UInt8,
+										attributesCacheMemory->indicesRangeMemory->offset,
+										modelNode.geometryHolder->geometryVerticesHolderMemory->firstVertex
+									);
+								}
+							}
+						}
+						
+						renderContext->BindVertexArray(nullptr);
+
 
 						/*if (useMultithreading)
 						{
@@ -1894,6 +1961,31 @@ namespace GreatVEngine2
 					StrongPointer<Forward::Output> Forward::SceneCache::Render(const StrongPointer<Camera>& camera_)
 					{
 						return Make<Output>(GetThis<SceneCache>(), camera_);
+					}
+#pragma endregion
+#pragma region Forward::MaterialCache
+					inline Memory<Forward::AttributesCache> Forward::MaterialCache::FindOrCreate(const Memory<Forward::GeometryBufferHolder::GeometryHolder>& geometryHolder_)
+					{
+						const auto &verticesRangeMemory	= geometryHolder_->geometryVerticesHolderMemory->verticesRangeMemory;
+						const auto &indicesRangeMemory	= geometryHolder_->geometryIndicesHolderMemory->indicesRangeMemory;
+
+						const auto	&it		= attributesCaches.find({ verticesRangeMemory, indicesRangeMemory });
+
+						if (it != attributesCaches.end())
+						{
+							const auto &attributesCache			= (*it).second;
+							const auto &attributesCacheMemory	= attributesCache.GetValue();
+
+							return attributesCacheMemory;
+						}
+
+						const auto &attributesCache		= MakeStrong<AttributesCache>(this, verticesRangeMemory, indicesRangeMemory);
+
+						attributesCaches.insert({ { verticesRangeMemory, indicesRangeMemory }, attributesCache });
+
+						const auto &attributesCacheMemory	= attributesCache.GetValue();
+
+						return attributesCacheMemory;
 					}
 #pragma endregion
 				}

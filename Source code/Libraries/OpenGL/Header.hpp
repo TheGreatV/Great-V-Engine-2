@@ -35,6 +35,8 @@ namespace GreatVEngine2
 		};
 		enum class IndexType: GLenum
 		{
+			UInt8 = GL_UNSIGNED_BYTE,
+			UInt16 = GL_UNSIGNED_SHORT,
 			UInt32 = GL_UNSIGNED_INT,
 		};
 

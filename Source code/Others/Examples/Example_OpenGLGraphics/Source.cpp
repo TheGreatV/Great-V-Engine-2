@@ -169,7 +169,7 @@ void main()
 			{
 				material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
 					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader"
 				));
 
 				materials.push_back(material1);
@@ -366,7 +366,7 @@ void main()
 				{
 					material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
 						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle1.glsl.fragment-shader"
+						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader"
 					));
 				}
 

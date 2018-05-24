@@ -61,7 +61,14 @@ namespace GreatVEngine2
 				const PFNGLTEXIMAGE3DMULTISAMPLEPROC&			glTexImage3DMultisample_,
 				const PFNGLGETMULTISAMPLEFVPROC&				glGetMultisamplefv_,
 				const PFNGLSAMPLEMASKIPROC&						glSampleMaski_
-				);
+			);
+		public:
+			inline void DrawElementsBaseVertex(const PrimitiveType& primitiveType_, const Size& indicesCount_, const IndexType& indexType_, const Size& indicesOffset_, const Size& baseVertex_) const
+			{
+				glDrawElementsBaseVertex(static_cast<GLenum>(primitiveType_), indicesCount_, static_cast<GLenum>(indexType_), reinterpret_cast<const void*>(indicesOffset_), baseVertex_);
+
+				CheckForErrors();
+			}
 		};
 #pragma region Core_3_2
 		Core_3_2::Core_3_2(
