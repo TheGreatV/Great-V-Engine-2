@@ -47,9 +47,9 @@ namespace GreatVEngine2
 			}
 			template<class... Arguments_> inline void Invoke(Arguments_&&... arguments_)
 			{
-				auto toInvoke = subscribers;
+				const auto toInvoke = subscribers; // copy
 
-				for (auto &subscriber : toInvoke)
+				for (auto subscriber : toInvoke)
 				{
 					subscriber(Forward<Arguments_&&>(arguments_)...);
 				}

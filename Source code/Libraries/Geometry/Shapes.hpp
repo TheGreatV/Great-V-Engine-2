@@ -264,9 +264,9 @@ namespace GreatVEngine2
 		{
 			switch(indexPackMode_)
 			{
-				case IndexPackMode::UInt32: return 4;
-				case IndexPackMode::UInt16: return 2;
-				case IndexPackMode::UInt8: return 1;
+				case IndexPackMode::UInt32: return sizeof(UInt32);
+				case IndexPackMode::UInt16: return sizeof(UInt16);
+				case IndexPackMode::UInt8: return sizeof(UInt8);
 				default: throw Exception("Unknown index packing mode");
 			}
 		}
@@ -276,11 +276,12 @@ namespace GreatVEngine2
 		}
 		inline Bytes GetIndices(const IndexPackMode& indexPackMode_ = IndexPackMode::Default) const
 		{
-			switch(indexPackMode_)
+			const auto &indexSize = GetIndexSize(indexPackMode_);
+			
+			switch (indexPackMode_)
 			{
 				case IndexPackMode::UInt32:
 				{
-					Size indexSize = sizeof(UInt32);
 					auto bytes = Bytes(indices.size() * indexSize);
 
 					Size i = 0;
@@ -289,6 +290,38 @@ namespace GreatVEngine2
 						auto byte = bytes.data() + i;
 					
 						*(UInt32*)(byte + 0) = index;
+					
+						i += indexSize;
+					}
+
+					return bytes;
+				} break;
+				case IndexPackMode::UInt16:
+				{
+					auto bytes = Bytes(indices.size() * indexSize);
+
+					Size i = 0;
+					for(auto &index : indices)
+					{
+						auto byte = bytes.data() + i;
+					
+						*(UInt16*)(byte + 0) = index;
+					
+						i += indexSize;
+					}
+
+					return bytes;
+				} break;
+				case IndexPackMode::UInt8:
+				{
+					auto bytes = Bytes(indices.size() * indexSize);
+
+					Size i = 0;
+					for(auto &index : indices)
+					{
+						auto byte = bytes.data() + i;
+					
+						*(UInt8*)(byte + 0) = index;
 					
 						i += indexSize;
 					}

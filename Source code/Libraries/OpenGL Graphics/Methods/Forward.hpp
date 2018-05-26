@@ -657,7 +657,7 @@ namespace GreatVEngine2
 							const auto &sizeLimit						= glm::max<Size>(verticesBufferCapacity / 8, 128 * 1024);
 
 							// resize buffer if needed
-							if (totalBufferSizeAfterRemoving < sizeLimit)
+							/*if (totalBufferSizeAfterRemoving < sizeLimit)
 							{
 								// prepare temporal buffer
 								auto temporalBufferHandle = context->GenBuffer();
@@ -682,7 +682,7 @@ namespace GreatVEngine2
 								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
 
 								context->DeleteBuffer(temporalBufferHandle);
-							}
+							}*/
 						}
 						inline void InsertToIndicesBuffer(const Size& offset_, const Vector<UInt8>& data_)
 						{
@@ -789,7 +789,7 @@ namespace GreatVEngine2
 							const auto &sizeLimit						= glm::max<Size>(indicesBufferCapacity / 8, 128 * 1024);
 
 							// resize buffer if needed
-							if (totalBufferSizeAfterRemoving < sizeLimit)
+							/*if (totalBufferSizeAfterRemoving < sizeLimit)
 							{
 								// prepare temporal buffer
 								auto temporalBufferHandle = context->GenBuffer();
@@ -814,7 +814,7 @@ namespace GreatVEngine2
 								context->BindBuffer(GL::Buffer::Type::CopyWrite, nullptr);
 
 								context->DeleteBuffer(temporalBufferHandle);
-							}
+							}*/
 						}
 					protected:
 						inline Memory<VerticesRange> FindOrCreate(const Geometry::VertexPackMode& packMode_)
@@ -835,7 +835,7 @@ namespace GreatVEngine2
 						}
 						inline void Delete(const Memory<GeometryVerticesHolder>& geometryVerticesHolderMemory_)
 						{
-							const auto &verticesRangeMemory = geometryVerticesHolderMemory_->verticesRangeMemory;
+							const auto verticesRangeMemory = geometryVerticesHolderMemory_->verticesRangeMemory;
 
 							// calculate offset
 							const auto &verticesRangeTotalDataAmount	= GetTotalVerticesSize(verticesRangeMemory);
@@ -845,6 +845,40 @@ namespace GreatVEngine2
 							
 							// remove from buffer
 							RemoveFromVerticesBuffer(geometryVerticesDataOffset, geometryVerticesDataSize);
+
+							auto &geometryVerticesHolders = verticesRangeMemory->geometryVerticesHolders;
+
+							auto it = std::find_if(geometryVerticesHolders.begin(), geometryVerticesHolders.end(), [&](const StrongPointer<GeometryVerticesHolder>& GeometryVerticesHolder_){
+								return GeometryVerticesHolder_.GetValue() == geometryVerticesHolderMemory_;
+							});
+
+							if (it == geometryVerticesHolders.end())
+							{
+								throw Exception();
+							}
+
+							const auto verticesCount = geometryVerticesHolderMemory_->verticesCount; // geometryVerticesHolderMemory_ will be deleted after erase
+
+							it = geometryVerticesHolders.erase(it);
+
+							while (it != geometryVerticesHolders.end())
+							{
+								(*it)->firstVertex -= verticesCount;
+
+								++it;
+							}
+							
+							const auto &totalVerticesSize = verticesCount * verticesRangeMemory->vertexSize;
+							auto currentVerticesRangeMemory = verticesRangeMemory->next;
+
+							while (currentVerticesRangeMemory)
+							{
+								currentVerticesRangeMemory->offset -= totalVerticesSize;
+
+								currentVerticesRangeMemory = currentVerticesRangeMemory->next;
+							}
+
+							onUpdate();
 						}
 						inline Memory<GeometryVerticesHolder> FindOrCreate(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_)
 						{
@@ -865,8 +899,9 @@ namespace GreatVEngine2
 							const auto &verticesData	= geometryMemory_->GetVertices(verticesRangeMemory_->packMode);
 
 							// calculate offset within VerticesRange
-							const auto &verticesRangeTotalVerticesCount	= GetTotalVerticesCount(verticesRangeMemory_);
-							const auto &verticesRangeTotalDataAmount	= verticesRangeTotalVerticesCount * verticesRangeMemory_->vertexSize;
+							const auto &verticesRangeTotalVerticesCount		= GetTotalVerticesCount(verticesRangeMemory_);
+							const auto &verticesRangeTotalDataAmount		= verticesRangeTotalVerticesCount * verticesRangeMemory_->vertexSize;
+							const auto &totalVerticesBufferSizeUntillRange	= GetTotalVerticesSizeUntil(verticesRangeMemory_);
 
 							// create holder
 							const auto &geometryVerticesHolder = MakeStrong<GeometryVerticesHolder>(verticesRangeMemory_, geometryMemory_, verticesCount, verticesRangeTotalVerticesCount);
@@ -874,7 +909,7 @@ namespace GreatVEngine2
 							geometryVerticesHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryVerticesHolder>& geometryVerticesHolderMemory_)>(&GeometryBufferHolder::Delete), this, geometryVerticesHolder.GetValue()));
 
 							// insert data to buffer
-							InsertToVerticesBuffer(verticesRangeTotalDataAmount, verticesData);
+							InsertToVerticesBuffer(totalVerticesBufferSizeUntillRange, verticesData);
 
 							geometryVerticesHolders.push_back(geometryVerticesHolder);
 							
@@ -910,7 +945,7 @@ namespace GreatVEngine2
 						}
 						inline void Delete(const Memory<GeometryIndicesHolder>& geometryIndicesHolderMemory_)
 						{
-							const auto &indicesRangeMemory = geometryIndicesHolderMemory_->indicesRangeMemory;
+							const auto indicesRangeMemory = geometryIndicesHolderMemory_->indicesRangeMemory; // store
 
 							// calculate offset
 							const auto &indicesRangeTotalDataAmount	= GetTotalIndicesSize(indicesRangeMemory);
@@ -920,6 +955,38 @@ namespace GreatVEngine2
 							
 							// remove from buffer
 							RemoveFromIndicesBuffer(geometryIndicesDataOffset, geometryIndicesDataSize);
+
+							auto &geometryIndicesHolders = indicesRangeMemory->geometryIndicesHolders;
+
+							auto it = std::find_if(geometryIndicesHolders.begin(), geometryIndicesHolders.end(), [&](const StrongPointer<GeometryIndicesHolder>& GeometryIndicesHolder_){
+								return GeometryIndicesHolder_.GetValue() == geometryIndicesHolderMemory_;
+							});
+
+							if (it == geometryIndicesHolders.end())
+							{
+								throw Exception();
+							}
+
+							const auto indicesCount = geometryIndicesHolderMemory_->indicesCount; // geometryIndicesHolderMemory_ will be deleted after erase
+
+							it = geometryIndicesHolders.erase(it);
+
+							while (it != geometryIndicesHolders.end())
+							{
+								(*it)->firstIndex -= indicesCount;
+
+								++it;
+							}
+
+							const auto &totalIndicesSize = indicesCount * indicesRangeMemory->indexSize;
+							auto currentIndicesRangeMemory = indicesRangeMemory->next;
+
+							while (currentIndicesRangeMemory)
+							{
+								currentIndicesRangeMemory->offset -= totalIndicesSize;
+
+								currentIndicesRangeMemory = currentIndicesRangeMemory->next;
+							}
 						}
 						inline Memory<GeometryIndicesHolder> FindOrCreate(const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry>& geometryMemory_)
 						{
@@ -940,8 +1007,9 @@ namespace GreatVEngine2
 							const auto &indicesData		= geometryMemory_->GetIndices(indicesRangeMemory_->packMode);
 
 							// calculate offset within IndicesRange
-							const auto &indicesRangeTotalIndicesCount	= GetTotalIndicesCount(indicesRangeMemory_);
-							const auto &indicesRangeTotalDataAmount		= indicesRangeTotalIndicesCount * indicesRangeMemory_->indexSize;
+							const auto &indicesRangeTotalIndicesCount		= GetTotalIndicesCount(indicesRangeMemory_);
+							const auto &indicesRangeTotalDataAmount			= indicesRangeTotalIndicesCount * indicesRangeMemory_->indexSize;
+							const auto &totalIndicesBufferSizeUntillRange	= GetTotalIndicesSizeUntil(indicesRangeMemory_);
 
 							// create holder
 							const auto &geometryIndicesHolder = MakeStrong<GeometryIndicesHolder>(indicesRangeMemory_, geometryMemory_, indicesCount, indicesRangeTotalIndicesCount);
@@ -949,7 +1017,7 @@ namespace GreatVEngine2
 							geometryIndicesHolder->unsubscriber = geometryMemory_->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryIndicesHolder>& geometryIndicesHolderMemory_)>(&GeometryBufferHolder::Delete), this, geometryIndicesHolder.GetValue()));
 
 							// insert data to buffer
-							InsertToIndicesBuffer(indicesRangeTotalDataAmount, indicesData);
+							InsertToIndicesBuffer(totalIndicesBufferSizeUntillRange, indicesData);
 
 							geometryIndicesHolders.push_back(geometryIndicesHolder);
 							
@@ -1218,22 +1286,33 @@ namespace GreatVEngine2
 									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, verticesRangeMemory->offset);
 								}
 							}
+							else if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F_TN16F_Tex32F)
+							{
+								if (const auto &attributeLocation = GetAttributeLocation("vPos"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, verticesRangeMemory->offset);
+								}
+							}
+							else if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F)
+							{
+								if (const auto &attributeLocation = GetAttributeLocation("vPos"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, verticesRangeMemory->offset);
+								}
+							}
 						}
 						inline void EnableAttributes() const
 						{
 							const auto &context					= materialCacheMemory->methodMemory->contextHolder->gl_context;
 							const auto &verticesPackMode		= verticesRangeMemory->packMode;
 							
-							if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							for (auto &attributeLocationIt : gl_attributesLocations)
 							{
-								for (auto &attributeLocationIt : gl_attributesLocations)
-								{
-									const auto &attributeLocation = attributeLocationIt.second;
+								const auto &attributeLocation = attributeLocationIt.second;
 
-									if (attributeLocation)
-									{
-										context->EnableVertexAttributeArray(attributeLocation);
-									}
+								if (attributeLocation)
+								{
+									context->EnableVertexAttributeArray(attributeLocation);
 								}
 							}
 						}
@@ -1242,16 +1321,13 @@ namespace GreatVEngine2
 							const auto &context					= materialCacheMemory->methodMemory->contextHolder->gl_context;
 							const auto &verticesPackMode		= verticesRangeMemory->packMode;
 							
-							if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
+							for (auto &attributeLocationIt : gl_attributesLocations)
 							{
-								for (auto &attributeLocationIt : gl_attributesLocations)
-								{
-									const auto &attributeLocation = attributeLocationIt.second;
+								const auto &attributeLocation = attributeLocationIt.second;
 
-									if (attributeLocation)
-									{
-										context->EnableVertexAttributeArray(attributeLocation);
-									}
+								if (attributeLocation)
+								{
+									context->EnableVertexAttributeArray(attributeLocation);
 								}
 							}
 						}
@@ -1279,10 +1355,18 @@ namespace GreatVEngine2
 							if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F)
 							{
 								attributesLocations.insert({ "vPos", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vPos") });
-								attributesLocations.insert({ "vTan", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTan") });
-								attributesLocations.insert({ "vBin", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vBin") });
-								attributesLocations.insert({ "vNor", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vNor") });
-								attributesLocations.insert({ "vTex", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTex") });
+								// attributesLocations.insert({ "vTan", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTan") });
+								// attributesLocations.insert({ "vBin", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vBin") });
+								// attributesLocations.insert({ "vNor", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vNor") });
+								// attributesLocations.insert({ "vTex", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTex") });
+							}
+							else if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F_TN16F_Tex32F)
+							{
+								attributesLocations.insert({ "vPos", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vPos") });
+							}
+							else if (verticesRangeMemory->packMode == Geometry::VertexPackMode::Pos32F)
+							{
+								attributesLocations.insert({ "vPos", context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vPos") });
 							}
 
 							return Move(attributesLocations);
@@ -1711,7 +1795,7 @@ namespace GreatVEngine2
 										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :
 										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :
 										GL::IndexType::UInt8,
-										attributesCacheMemory->indicesRangeMemory->offset,
+										attributesCacheMemory->indicesRangeMemory->offset + attributesCacheMemory->indicesRangeMemory->indexSize * modelNode.geometryHolder->geometryIndicesHolderMemory->firstIndex,
 										modelNode.geometryHolder->geometryVerticesHolderMemory->firstVertex
 									);
 								}

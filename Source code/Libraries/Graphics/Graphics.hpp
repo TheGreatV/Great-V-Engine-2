@@ -283,7 +283,10 @@ namespace GreatVEngine2
 			inline Model() = delete;
 			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_);
 			inline Model(const Model&) = delete;
-			inline ~Model() = default;
+			inline ~Model()
+			{
+				onDestruction();
+			}
 		public:
 			inline Model& operator = (const Model&) = delete;
 		public:
