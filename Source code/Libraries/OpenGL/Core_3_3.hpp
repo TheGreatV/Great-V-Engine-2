@@ -139,7 +139,14 @@ namespace GreatVEngine2
 				const PFNGLCOLORP4UIVPROC&						glColorP4uiv_,
 				const PFNGLSECONDARYCOLORP3UIPROC&				glSecondaryColorP3ui_,
 				const PFNGLSECONDARYCOLORP3UIVPROC&				glSecondaryColorP3uiv_
-				);
+			);
+		public:
+			inline void VertexAttribDivisor(const Program::Attribute::Location& location_, const Size& divisor_) const
+			{
+				glVertexAttribDivisor(static_cast<Program::Attribute::Location::Value>(location_), divisor_);
+
+				CheckForErrors();
+			}
 		};
 #pragma region Core_3_3
 		Core_3_3::Core_3_3(

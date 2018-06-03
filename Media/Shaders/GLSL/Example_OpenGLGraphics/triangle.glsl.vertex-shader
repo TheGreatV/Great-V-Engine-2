@@ -2,14 +2,25 @@
 
 
 uniform	mat4	modelViewProjectionMatrix;
+uniform	mat4	viewProjectionMatrix;
 
 
 in      vec3    vPos;
+in		vec4	vModelMatrix1;
+in		vec4	vModelMatrix2;
+in		vec4	vModelMatrix3;
 
 
 void main()
 {
-	gl_Position = modelViewProjectionMatrix * vec4(vPos, 1.0f);
+	mat4	modelMatrix = mat4(transpose(mat3x4(
+		vModelMatrix1,
+		vModelMatrix2,
+		vModelMatrix3
+	)));
+	
+	// gl_Position = modelViewProjectionMatrix * vec4(vPos, 1.0f);
+	gl_Position = (viewProjectionMatrix * modelMatrix) * vec4(vPos, 1.0f);
 }
 
 /*layout (column_major, std140) uniform CameraBuffer {
