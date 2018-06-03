@@ -854,6 +854,8 @@ namespace GreatVEngine2
 						public:
 							const Memory<AttributesCache> attributesCacheMemory;
 							Vector<Memory<Object>> objectsMemories;
+							mutable Vector<ObjectUniformBuffer> objectsData;
+							mutable Vector<Vector<Threading::Event>> events; // [draw call id, task id]
 						public:
 							inline AttributesNode(const Memory<AttributesCache>& attributesCacheMemory_):
 								attributesCacheMemory(attributesCacheMemory_)
@@ -861,13 +863,15 @@ namespace GreatVEngine2
 							}
 							inline AttributesNode(AttributesNode&& source_):
 								attributesCacheMemory(source_.attributesCacheMemory),
-								objectsMemories(Move(source_.objectsMemories))
+								objectsMemories(Move(source_.objectsMemories)),
+								objectsData(Move(objectsData))
 							{
 							}
 						public:
 							inline void Add(const Memory<Object>& objectMemory_)
 							{
 								objectsMemories.push_back(objectMemory_);
+								objectsData.resize(objectsMemories.size());
 							}
 						};
 						class MaterialNode
@@ -1192,19 +1196,19 @@ namespace GreatVEngine2
 							if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vModelMatrix1"))
 							{
 								context->VertexAttributePointer(attributeLocation, 4, GL::Program::Attribute::Type::Float, false, sizeof(ObjectUniformBuffer), 0);
-								context->VertexAttribDivisor(attributeLocation, verticesCount);
+								context->VertexAttribDivisor(attributeLocation, 1);
 								context->EnableVertexAttributeArray(attributeLocation);
 							}
 							if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vModelMatrix2"))
 							{
 								context->VertexAttributePointer(attributeLocation, 4, GL::Program::Attribute::Type::Float, false, sizeof(ObjectUniformBuffer), sizeof(Vec4));
-								context->VertexAttribDivisor(attributeLocation, verticesCount);
+								context->VertexAttribDivisor(attributeLocation, 1);
 								context->EnableVertexAttributeArray(attributeLocation);
 							}
 							if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vModelMatrix3"))
 							{
 								context->VertexAttributePointer(attributeLocation, 4, GL::Program::Attribute::Type::Float, false, sizeof(ObjectUniformBuffer), sizeof(Vec4) * 2);
-								context->VertexAttribDivisor(attributeLocation, verticesCount);
+								context->VertexAttribDivisor(attributeLocation, 1);
 								context->EnableVertexAttributeArray(attributeLocation);
 							}
 
@@ -1360,50 +1364,6 @@ namespace GreatVEngine2
 						ForceUpdateCaches();
 					}
 
-					/*Forward::SceneCache::MaterialNode& Forward::SceneCache::FindOrCreate(const Memory<MaterialCache>& materialCacheMemory_)
-					{
-						const auto it		= materialsTable.find(materialCacheMemory_);
-
-						if (it != materialsTable.end())
-						{
-							auto &materialNode = (*it).second;
-
-							return materialNode;
-						}
-
-						const auto &nIt		= materialsTable.emplace(
-							std::piecewise_construct,
-							std::forward_as_tuple(materialCacheMemory_),
-							std::forward_as_tuple(this, materialCacheMemory_)
-						); // TODO: add check?
-						auto &materialNode	= (*nIt.first).second;
-
-						return materialNode;
-					}
-					Forward::SceneCache::ModelNode& Forward::SceneCache::FindOrCreate(MaterialNode& materialNode_, const Memory<Model>& modelMemory_)
-					{
-						auto		&modelsTable	= materialNode_.modelsTable;
-						const auto	&it				= modelsTable.find(modelMemory_);
-
-						if (it != modelsTable.end())
-						{
-							auto &modelNode = (*it).second;
-
-							return modelNode;
-						}
-
-						const auto &geometryHolder			= methodMemory->geometryBufferHolder->Allocate(modelMemory_->GetGeometry().GetValue(), modelMemory_->GetVerticesPackMode(), modelMemory_->GetIndicesPackMode());
-						const auto &attributesCacheMemory	= materialNode_.materialCacheMemory->FindOrCreate(geometryHolder.GetValue());
-						const auto &nIt						= modelsTable.emplace(
-							std::piecewise_construct,
-							std::forward_as_tuple(modelMemory_),
-							std::forward_as_tuple(&materialNode_, modelMemory_, geometryHolder, attributesCacheMemory)
-						); // TODO: add check?
-						auto &modelNode		= (*nIt.first).second;
-
-						return modelNode;
-					}*/
-
 					void Forward::SceneCache::ForceUpdateCaches()
 					{
 						const auto &contextHolder		= methodMemory->contextHolder;
@@ -1491,7 +1451,121 @@ namespace GreatVEngine2
 							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
 						}
 
-						const bool useMultithreading = GetAsyncKeyState('H') == 0;
+						// task manager 
+						auto &taskManagers = methodMemory->taskManagers;
+
+						Size lastUsedTaskManagerIndex = 0;
+
+						auto getTaskManagerIndex = [&]()
+						{
+							auto i = lastUsedTaskManagerIndex;
+
+							++lastUsedTaskManagerIndex;
+							
+							lastUsedTaskManagerIndex = lastUsedTaskManagerIndex % taskManagers.size();
+							
+							return i;
+						};
+
+
+						// prepare data
+						for (const auto &materialNode : materialsNodes.materialsNodes)
+						{
+							const auto &materialCacheMemory = materialNode.materialCacheMemory;
+
+							for (const auto &attributesNode : materialNode.attributesNodes)
+							{
+								const auto &attributesCacheMemory	= attributesNode.attributesCacheMemory;
+								const auto &modelCacheMemory		= attributesCacheMemory->modelCacheMemory;
+								const auto &modelMemory				= modelCacheMemory->modelMemory;
+								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
+								const auto &objectsMemories			= attributesNode.objectsMemories;
+								auto &objectsData					= attributesNode.objectsData;
+								auto &events						= attributesNode.events;
+
+								// perform draw calls
+								const Size	maxObjectsCountPerDrawCall	= methodMemory->geometryBufferHolder->instancesCount;
+								const Size	drawCallsCount				= (objectsData.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+
+								events.resize(drawCallsCount);
+
+								for (const auto &drawCallIndex : Range(drawCallsCount))
+								{
+									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
+									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
+									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
+
+									auto &drawCallEvents						= events[drawCallIndex];
+									const Size minAverageObjectsCountPerTask	= 128;
+									const Size tasksCount						= glm::min(taskManagers.size(), (drawCallInstancesCount + minAverageObjectsCountPerTask - 1) / minAverageObjectsCountPerTask);
+										
+									drawCallEvents.resize(tasksCount);
+									
+									const Size objectsPerTask			= drawCallInstancesCount / tasksCount;
+									
+									for (auto &taskIndex : Range(tasksCount))
+									{
+										auto taskManagerIndex			= getTaskManagerIndex();
+										auto		&taskManager		= taskManagers[taskManagerIndex];
+										const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
+										const Size	lastIndex			= taskIndex < static_cast<int>(tasksCount - 1)
+											? firstIndex + objectsPerTask
+											: lastDrawCallIndex;
+
+										drawCallEvents[taskIndex] = taskManager.Submit(std::bind([](Object*const* objectsMemories_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_)
+										{
+											for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
+											{
+												const auto &objectMemory	= objectsMemories_[objectIndex];
+												auto &objectData			= objectsData_[objectIndex];
+												auto &modelMatrix			= objectData.modelMatrix;
+
+												// objectData.modelMatrix = Transpose(glm::mat4x3(objectMemory->GetMMat()));
+												const auto &position	= objectMemory->GetPosition();
+												const auto &angle		= objectMemory->GetAngle();
+												const auto &scale		= objectMemory->GetScale();
+
+												const auto &px			= position.x;
+												const auto &py			= position.y;
+												const auto &pz			= position.z;
+
+												const auto &sx			= scale.x;
+												const auto &sy			= scale.y;
+												const auto &sz			= scale.z;
+
+												const auto &ax			= Radians(angle.x);
+												const auto &ay			= Radians(angle.y);
+												const auto &az			= Radians(angle.z);
+
+												const auto &sax			= Sin(ax);
+												const auto &cax			= Cos(ax);
+												const auto &say			= Sin(ay);
+												const auto &cay			= Cos(ay);
+												const auto &saz			= Sin(az);
+												const auto &caz			= Cos(az);
+
+												modelMatrix[0][0]		= cay * caz + say * sax * -saz * sx;
+												modelMatrix[0][1]		= cay * saz + say * sax * caz * sy;
+												modelMatrix[0][2]		= say * cax * sz;
+												modelMatrix[0][3]		= px;
+
+												modelMatrix[1][0]		= cax * -saz * sx;
+												modelMatrix[1][1]		= cax * caz * sy;
+												modelMatrix[1][2]		= -sax * sz;
+												modelMatrix[1][3]		= py;
+
+												modelMatrix[2][0]		= -say * caz + cay * sax * -saz * sx;
+												modelMatrix[2][1]		= -say * saz + cay * sax * caz * sy;
+												modelMatrix[2][2]		= cay * cax * sz;
+												modelMatrix[2][3]		= pz;
+											}
+										}, objectsMemories.data(), objectsData.data(), firstIndex, lastIndex));
+									}
+								}
+							}
+						}
+
+						renderContext->BindBuffer(GL::Buffer::Type::Array, methodMemory->geometryBufferHolder->gl_objectsDataBufferHandle);
 
 						for (const auto &materialNode : materialsNodes.materialsNodes)
 						{
@@ -1504,7 +1578,7 @@ namespace GreatVEngine2
 								renderContext->SetUniform(location, Perspective(60.0f, aspect, 0.1f, 10000.0f) * camera_->GetVMat());
 							}
 
-							for (auto &attributesNode : materialNode.attributesNodes)
+							for (const auto &attributesNode : materialNode.attributesNodes)
 							{
 								const auto &attributesCacheMemory	= attributesNode.attributesCacheMemory;
 
@@ -1513,113 +1587,42 @@ namespace GreatVEngine2
 								const auto &modelCacheMemory		= attributesCacheMemory->modelCacheMemory;
 								const auto &modelMemory				= modelCacheMemory->modelMemory;
 								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
+								const auto &objectsMemories			= attributesNode.objectsMemories;
+								auto &objectsData					= attributesNode.objectsData;
+								auto &events						= attributesNode.events;
 
-								for (auto &objectMemory : attributesNode.objectsMemories)
+								// perform draw calls
+								const Size	maxObjectsCountPerDrawCall	= methodMemory->geometryBufferHolder->instancesCount;
+								const Size	drawCallsCount				= (objectsData.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+
+								for (const auto &drawCallIndex : Range(drawCallsCount))
 								{
-									renderContext->BindBuffer(GL::Buffer::Type::Array, methodMemory->geometryBufferHolder->gl_objectsDataBufferHandle);
+									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
+									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
+									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
 
-									ObjectUniformBuffer t;
+									auto &drawCallEvents				= events[drawCallIndex];
 
-									t.modelMatrix = Transpose(glm::mat4x3(objectMemory->GetMMat()));
+									for (auto &drawCallEvent : drawCallEvents)
+									{
+										drawCallEvent.Wait();
+									}
 
-									renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(t), &t);
+									renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(ObjectUniformBuffer) * drawCallInstancesCount, objectsData.data() + firstDrawCallIndex);
 
-									renderContext->DrawElementsBaseVertex(
+									renderContext->DrawElementsInstancedBaseVertex(
 										GL::PrimitiveType::Triangles,
-										geometryMemory->GetIndicesCount(), // TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 : // TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 : // TODO: move to cache
-										GL::IndexType::UInt8,																		   // TODO: move to cache
+										geometryMemory->GetIndicesCount(),																// TODO: move to cache
+										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :	// TODO: move to cache
+										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :	// TODO: move to cache
+										GL::IndexType::UInt8,																			// TODO: move to cache
 										modelCacheMemory->indicesHolderMemory->indicesRangeMemory->offset + modelCacheMemory->indicesHolderMemory->indicesRangeMemory->indexSize * modelCacheMemory->indicesHolderMemory->firstIndex, // TODO: move to cache
-										modelCacheMemory->verticesHolderMemory->firstVertex // TODO: move to cache
+										drawCallInstancesCount,
+										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache
 									);
 								}
 							}
 						}
-
-						/*for (auto &objectMemory : sceneMemory->objects)
-						{
-							// obtain material cache
-							const auto &material				= objectMemory->GetMaterial();
-							const auto &materialMemory			= material.GetValue();
-							const auto &materialCacheMemory		= methodMemory->FindOrAdd(materialMemory);
-						
-							// obtain model cache
-							const auto &model					= objectMemory->GetModel();
-							const auto &modelMemory				= model.GetValue();
-							const auto &modelCacheMemory		= methodMemory->FindOrAdd(modelMemory);
-
-							// obtain attributes cache
-							const auto &attributesCacheMemory	= materialCacheMemory->FindOrCreate(modelCacheMemory);
-
-							// if (auto location = renderContext->GetUniformLocation(materialCacheMemory->gl_programHandle, "modelViewProjectionMatrix"))
-							// {
-							// 	renderContext->SetUniform(location, Perspective(60.0f, aspect, 0.1f, 10000.0f) * camera_->GetVMat() * objectMemory->GetMMat());
-							// }
-							if (auto location = renderContext->GetUniformLocation(materialCacheMemory->gl_programHandle, "viewProjectionMatrix"))
-							{
-								renderContext->SetUniform(location, Perspective(60.0f, aspect, 0.1f, 10000.0f) * camera_->GetVMat());
-							}
-
-							renderContext->BindBuffer(GL::Buffer::Type::Array, methodMemory->geometryBufferHolder->gl_objectsDataBufferHandle);
-
-							ObjectUniformBuffer t;
-
-							t.modelMatrix = Transpose(glm::mat4x3(objectMemory->GetMMat()));
-
-							renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(t), &t);
-
-							const auto &geometryMemory = modelMemory->GetGeometry().GetValue();
-
-							renderContext->BindVertexArray(attributesCacheMemory->gl_verticesArrayHandle);
-
-							renderContext->DrawElementsBaseVertex(
-								GL::PrimitiveType::Triangles,
-								geometryMemory->GetIndicesCount(),
-								modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :
-								modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :
-								GL::IndexType::UInt8,
-								modelCacheMemory->indicesHolderMemory->indicesRangeMemory->offset + modelCacheMemory->indicesHolderMemory->indicesRangeMemory->indexSize * modelCacheMemory->indicesHolderMemory->firstIndex,
-								modelCacheMemory->verticesHolderMemory->firstVertex
-							);
-						}*/
-
-						/*for (auto &materialIt : materialsTable)
-						{
-							const auto	&materialCacheMemory	= materialIt.first;
-							const auto	&materialNode			= materialIt.second;
-							const auto	&modelsTable			= materialNode.modelsTable;
-
-							renderContext->UseProgram(materialCacheMemory->gl_programHandle);
-
-							for (auto &modelIt : modelsTable)
-							{
-								const auto &modelNode				= modelIt.second;
-								const auto &geometryMemory			= modelNode.modelMemory->GetGeometry().GetValue();
-								const auto &attributesCacheMemory	= modelNode.attributesCacheMemory;
-								const auto &objectsTable			= modelNode.objectsTable;
-
-								renderContext->BindVertexArray(attributesCacheMemory->gl_verticesArrayHandle);
-
-								for (auto &objectMemory : objectsTable)
-								{
-									if (auto location = renderContext->GetUniformLocation(materialCacheMemory->gl_programHandle, "modelViewProjectionMatrix"))
-									{
-										renderContext->SetUniform(location, Perspective(60.0f, aspect, 0.1f, 10000.0f) * camera_->GetVMat() * objectMemory->GetMMat());
-									}
-
-									renderContext->DrawElementsBaseVertex(
-										GL::PrimitiveType::Triangles,
-										geometryMemory->GetIndicesCount(),
-										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :
-										attributesCacheMemory->indicesRangeMemory->packMode == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :
-										GL::IndexType::UInt8,
-										attributesCacheMemory->indicesRangeMemory->offset + attributesCacheMemory->indicesRangeMemory->indexSize * modelNode.geometryHolder->geometryIndicesHolderMemory->firstIndex,
-										modelNode.geometryHolder->geometryVerticesHolderMemory->firstVertex
-									);
-								}
-							}
-						}*/
 						
 						renderContext->BindVertexArray(nullptr);
 

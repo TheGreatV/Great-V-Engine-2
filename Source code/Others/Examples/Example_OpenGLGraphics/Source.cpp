@@ -155,6 +155,8 @@ void main()
 		for (auto &i : Range(1))
 		{
 			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F, Geometry::IndexPackMode::UInt32));
+			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F, Geometry::IndexPackMode::UInt8));
+			
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F));
