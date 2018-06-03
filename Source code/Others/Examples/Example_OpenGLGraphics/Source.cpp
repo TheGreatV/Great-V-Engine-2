@@ -396,6 +396,8 @@ void main()
 		{
 			if (!changeModelsCountLock)
 			{
+				const auto &geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
+
 				auto v = rand() % 3;
 				auto verticesPackMode =
 					v == 0 ? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F:
@@ -403,12 +405,12 @@ void main()
 					Geometry::VertexPackMode::Pos32F;
 				auto i = rand() % 3;
 				auto indicesPackMode =
-					i == 0 ? Geometry::IndexPackMode::UInt32:
-					i == 1 ? Geometry::IndexPackMode::UInt16:
-					Geometry::IndexPackMode::UInt8;
-
+					i <= 0 && geometry->GetVerticesCount() <= 0xFF ? Geometry::IndexPackMode::UInt8: 
+					i <= 1 && geometry->GetVerticesCount() <= 0xFFFF ? Geometry::IndexPackMode::UInt16: 
+					Geometry::IndexPackMode::UInt32;
+				
 				// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), packMode, Geometry::IndexPackMode::UInt32));
-				models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), verticesPackMode, indicesPackMode));
+				models.push_back(Make<Graphics::Model>(geometry, verticesPackMode, indicesPackMode));
 
 				changeModelsCountLock = true;
 			}

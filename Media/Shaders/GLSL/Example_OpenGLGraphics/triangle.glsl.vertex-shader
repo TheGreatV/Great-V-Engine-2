@@ -31,6 +31,9 @@ in      vec2    vTex;
 in      vec3    vTan;
 in      vec3    vBin;
 in      vec3    vNor;
+in		vec4	vModelMatrix1;
+in		vec4	vModelMatrix2;
+in		vec4	vModelMatrix3;
 
 
 out     vec3    fPos;
