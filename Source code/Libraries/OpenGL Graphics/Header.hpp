@@ -41,28 +41,28 @@ namespace GreatVEngine2
 				public:
 					const String vertexShaderFilename;
 					const String fragmentShaderFilename;
-					const String albedoFilename;
-					const String normalsFilename;
-					const String roughnessFilename;
-					const String metalnessFilename;
-					const String occlusionFilename;
+					const StrongPointer<Image> albedoImage;
+					const StrongPointer<Image> normalsImage;
+					const StrongPointer<Image> roughnessImage;
+					const StrongPointer<Image> metalnessImage;
+					const StrongPointer<Image> occlusionImage;
 				public:
 					inline Module(const StrongPointer<Module>& this_,
 						const String& vertexShaderFilename_,
 						const String& fragmentShaderFilename_,
-						const String& albedoFilename_ = "",
-						const String& normalsFilename_ = "",
-						const String& roughnessFilename_ = "",
-						const String& metalnessFilename_ = "",
-						const String& occlusionFilename_ = ""
+						const StrongPointer<Image>& albedoImage_,
+						const StrongPointer<Image>& normalsImage_,
+						const StrongPointer<Image>& roughnessImage_,
+						const StrongPointer<Image>& metalnessImage_,
+						const StrongPointer<Image>& occlusionImage_
 					): Material::Module(this_),
 						vertexShaderFilename(vertexShaderFilename_),
 						fragmentShaderFilename(fragmentShaderFilename_),
-						albedoFilename(albedoFilename_),
-						normalsFilename(normalsFilename_),
-						roughnessFilename(roughnessFilename_),
-						metalnessFilename(metalnessFilename_),
-						occlusionFilename(occlusionFilename_)
+						albedoImage(albedoImage_),
+						normalsImage(normalsImage_),
+						roughnessImage(roughnessImage_),
+						metalnessImage(metalnessImage_),
+						occlusionImage(occlusionImage_)
 					{
 					}
 					virtual ~Module() override = default;

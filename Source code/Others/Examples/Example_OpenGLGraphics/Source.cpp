@@ -155,7 +155,7 @@ void main()
 		for (auto &i : Range(1))
 		{
 			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F, Geometry::IndexPackMode::UInt32));
-			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F, Geometry::IndexPackMode::UInt8));
+			// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F, Geometry::IndexPackMode::UInt8));
 			
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32))));
@@ -171,7 +171,12 @@ void main()
 			{
 				material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
 					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader"
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader",
+					OpenIL::Load("Media/Images/Albedo.png"),
+					OpenIL::Load("Media/Images/Normals.png"),
+					OpenIL::Load("Media/Images/Roughness.png"),
+					OpenIL::Load("Media/Images/Metalness.png"),
+					OpenIL::Load("Media/Images/Occlusion.png")
 				));
 
 				materials.push_back(material1);
@@ -252,13 +257,14 @@ void main()
 
 		const Size count =
 			objects.size() < 100 ? 1:
-			objects.size() < 1000 ? 10:
-			objects.size() < 2000 ? 50:
-			objects.size() < 5000 ? 100:
-			objects.size() < 10000 ? 1000:
-			10000;
+			objects.size() < 200 ? 10:
+			objects.size() < 500 ? 50:
+			objects.size() < 2000 ? 100:
+			objects.size() < 5000 ? 200:
+			objects.size() < 20000 ? 1000 :
+			5000;
 		const Float32 minimalDistance = 10.0f;
-		const Float32 maximalDistance = 30.0f;
+		const Float32 maximalDistance = 50.0f;
 		
 		if (GetAsyncKeyState(VK_PRIOR))
 		{
@@ -266,7 +272,7 @@ void main()
 			{
 				auto object = Make<Graphics::Object>(materials[rand() % materials.size()], models[rand() % models.size()], scene);
 				
-				object->SetLocalPosition(RotateY3(Rnd(360.0)) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
+				object->SetLocalPosition((RotateX3(Rnd(360.0f)) * RotateY3(Rnd(360.0))) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
 				object->SetLocalAngle(Rnd3(360.0f));
 
 				objects.push_back(object);
@@ -366,9 +372,52 @@ void main()
 			{
 				auto material = Make<Graphics::Material>();
 				{
+					const auto texturesSet = rand() % 5;
+
+					const auto &albedo =
+						texturesSet == 0 ? OpenIL::Load("Media/Images/Albedo.png") :
+						texturesSet == 1 ? OpenIL::Load("Media/Images/Materials/HerringboneFloor/Albedo.tiff") :
+						texturesSet == 2 ? OpenIL::Load("Media/Images/Materials/RiverStones2/Albedo.tif") :
+						texturesSet == 3 ? OpenIL::Load("Media/Images/Materials/CleanBronze/Albedo.tif") :
+						texturesSet == 4 ? OpenIL::Load("Media/Images/Materials/blocksrough/Albedo.png") :
+						throw Exception();
+					const auto &normals =
+						texturesSet == 0 ? OpenIL::Load("Media/Images/Normals.png") :
+						texturesSet == 1 ? OpenIL::Load("Media/Images/Materials/HerringboneFloor/Normals.tiff") :
+						texturesSet == 2 ? OpenIL::Load("Media/Images/Materials/RiverStones2/Normals.tif") :
+						texturesSet == 3 ? OpenIL::Load("Media/Images/Materials/CleanBronze/Normals.tif") :
+						texturesSet == 4 ? OpenIL::Load("Media/Images/Materials/blocksrough/Normals.png") :
+						throw Exception();
+					const auto &roughness =
+						texturesSet == 0 ? OpenIL::Load("Media/Images/Roughness.png") :
+						texturesSet == 1 ? OpenIL::Load("Media/Images/Materials/HerringboneFloor/Roughness.tiff") :
+						texturesSet == 2 ? OpenIL::Load("Media/Images/Materials/RiverStones2/Roughness.tif") :
+						texturesSet == 3 ? OpenIL::Load("Media/Images/Materials/CleanBronze/Roughness.tif") :
+						texturesSet == 4 ? OpenIL::Load("Media/Images/Materials/blocksrough/Roughness.png") :
+						throw Exception();
+					const auto &metalness =
+						texturesSet == 0 ? OpenIL::Load("Media/Images/Metalness.png") :
+						texturesSet == 1 ? OpenIL::Load("Media/Images/Materials/HerringboneFloor/Metalness.tiff") :
+						texturesSet == 2 ? OpenIL::Load("Media/Images/Materials/RiverStones2/Metalness.tiff") :
+						texturesSet == 3 ? OpenIL::Load("Media/Images/Materials/CleanBronze/Metalness.tiff") :
+						texturesSet == 4 ? OpenIL::Load("Media/Images/Materials/blocksrough/Metalness.png") :
+						throw Exception();
+					const auto &occlusion =
+						texturesSet == 0 ? OpenIL::Load("Media/Images/Occlusion.png") :
+						texturesSet == 1 ? OpenIL::Load("Media/Images/Materials/HerringboneFloor/Occlusion.tiff") :
+						texturesSet == 2 ? OpenIL::Load("Media/Images/Materials/RiverStones2/Occlusion.tif") :
+						texturesSet == 3 ? OpenIL::Load("Media/Images/Materials/CleanBronze/Occlusion.tiff") :
+						texturesSet == 4 ? OpenIL::Load("Media/Images/Materials/blocksrough/Occlusion.png") :
+						throw Exception();
+
 					material->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
 						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader"
+						"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader",
+						albedo,
+						normals,
+						roughness,
+						metalness,
+						occlusion
 					));
 				}
 
@@ -398,18 +447,24 @@ void main()
 		{
 			if (!changeModelsCountLock)
 			{
-				const auto &geometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
+				const auto &m = rand() % 4;
+				const auto &geometry =
+					m == 0 ? Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)) :
+					m == 1 ? Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32)) :
+					m == 2 ? Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32)) :
+					m == 3 ? Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)) :
+					throw Exception();
 
 				auto v = rand() % 3;
-				auto verticesPackMode =
-					v == 0 ? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F:
-					v == 1 ? Geometry::VertexPackMode::Pos32F_TN16F_Tex32F:
-					Geometry::VertexPackMode::Pos32F;
+				auto verticesPackMode = Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F;
+					// v == 0 ? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F:
+					// v == 1 ? Geometry::VertexPackMode::Pos32F_TN16F_Tex32F:
+					// Geometry::VertexPackMode::Pos32F;
 				auto i = rand() % 3;
-				auto indicesPackMode =
-					i <= 0 && geometry->GetVerticesCount() <= 0xFF ? Geometry::IndexPackMode::UInt8: 
-					i <= 1 && geometry->GetVerticesCount() <= 0xFFFF ? Geometry::IndexPackMode::UInt16: 
-					Geometry::IndexPackMode::UInt32;
+				auto indicesPackMode = Geometry::IndexPackMode::UInt32;
+					// i <= 0 && geometry->GetVerticesCount() <= 0xFF ? Geometry::IndexPackMode::UInt8: 
+					// i <= 1 && geometry->GetVerticesCount() <= 0xFFFF ? Geometry::IndexPackMode::UInt16: 
+					// Geometry::IndexPackMode::UInt32;
 				
 				// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), packMode, Geometry::IndexPackMode::UInt32));
 				models.push_back(Make<Graphics::Model>(geometry, verticesPackMode, indicesPackMode));
@@ -448,7 +503,7 @@ void main()
 				{
 					object = Make<Graphics::Object>(materials[rand() % materials.size()], models[rand() % models.size()], scene);
 				
-					object->SetLocalPosition(RotateY3(Rnd(360.0)) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
+					object->SetLocalPosition((RotateX3(Rnd(360.0f)) * RotateY3(Rnd(360.0))) * Vec3(0.0f, 0.0f, Rnd(minimalDistance, maximalDistance)));
 					object->SetLocalAngle(Rnd3(360.0f));
 				}
 

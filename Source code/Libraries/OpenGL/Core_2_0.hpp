@@ -650,6 +650,12 @@ namespace GreatVEngine2
 
 				CheckForErrors();
 			}
+			inline void								SetUniform(const Program::Uniform::Location& location_, const Size& value_) const
+			{
+				glUniform1i(static_cast<GLint>(location_), value_);
+
+				CheckForErrors();
+			}
 		};
 #pragma region Core_2_0
 		Core_2_0::Core_2_0(

@@ -5,22 +5,42 @@ uniform	mat4	modelViewProjectionMatrix;
 uniform	mat4	viewProjectionMatrix;
 
 
+layout (column_major, std140) uniform CameraBuffer {
+	vec4	position;
+	mat4	viewProjectionMatrix;
+} camera;
+
+
 in      vec3    vPos;
+in		vec3	vTan;
+in		vec3	vBin;
+in		vec3	vNor;
+in      vec2    vTex;
 in		vec4	vModelMatrix1;
 in		vec4	vModelMatrix2;
 in		vec4	vModelMatrix3;
 
 
+out		vec3	fPos;
+out		mat3	fTBN;
+out		vec2	fTex;
+
+
 void main()
 {
-	mat4	modelMatrix = mat4(transpose(mat3x4(
+	mat4	modelMatrix	= mat4(transpose(mat3x4(
 		vModelMatrix1,
 		vModelMatrix2,
 		vModelMatrix3
 	)));
 	
-	// gl_Position = modelViewProjectionMatrix * vec4(vPos, 1.0f);
-	gl_Position = (viewProjectionMatrix * modelMatrix) * vec4(vPos, 1.0f);
+	vec3	pos			= (modelMatrix * vec4(vPos, 1.0f)).xyz;
+	
+	gl_Position			= camera.viewProjectionMatrix * vec4(pos, 1.0f);
+	
+	fPos				= pos - camera.position.xyz;
+	fTBN				= mat3(modelMatrix) * mat3(vTan, vBin, vNor);
+	fTex				= vTex;
 }
 
 /*layout (column_major, std140) uniform CameraBuffer {

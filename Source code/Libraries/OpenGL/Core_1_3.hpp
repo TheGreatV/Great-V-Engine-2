@@ -116,6 +116,13 @@ namespace GreatVEngine2
 				const PFNGLMULTTRANSPOSEMATRIXFPROC&	glMultTransposeMatrixf_,
 				const PFNGLMULTTRANSPOSEMATRIXDPROC&	glMultTransposeMatrixd_
 			);
+		public:
+			inline void ActiveTexture(const Size& index_) const
+			{
+				glActiveTexture(GL_TEXTURE0 + index_); // TODO: check
+
+				CheckForErrors();
+			}
 		};
 #pragma region Core_1_3
 		Core_1_3::Core_1_3(

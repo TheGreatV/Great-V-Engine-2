@@ -16,6 +16,321 @@ namespace GreatVEngine2
 {
 	namespace OpenGL
 	{
+		class Texture
+		{
+		public:
+			enum class Type
+			{
+				D1					= GL_TEXTURE_1D,
+				D2					= GL_TEXTURE_2D,
+				D3					= GL_TEXTURE_3D,
+				D1Array				= GL_TEXTURE_1D_ARRAY,
+				D2Array				= GL_TEXTURE_2D_ARRAY,
+				Rectangle			= GL_TEXTURE_RECTANGLE,
+				CubeMap				= GL_TEXTURE_CUBE_MAP,
+				CubeMapArray		= GL_TEXTURE_CUBE_MAP_ARRAY,
+				Buffer				= GL_TEXTURE_BUFFER,
+				D2Multisample		= GL_TEXTURE_2D_MULTISAMPLE,
+				D2MultisampleArray	= GL_TEXTURE_2D_MULTISAMPLE_ARRAY,
+			};
+		public:
+			class Format
+			{
+			public:
+				enum class Internal: GLint
+				{
+					// Base internal formats
+					DepthComponent		= GL_DEPTH_COMPONENT,
+					Stencil				= GL_DEPTH_STENCIL,
+					R					= GL_RED,
+					RG					= GL_RG,
+					RGB					= GL_RGB,
+					RGBA				= GL_RGBA,
+					// Sized internal formats
+					R8					= GL_R8,
+					R8SNorm				= GL_R8_SNORM,
+					R16					= GL_R16,
+					R16SNorm			= GL_R16_SNORM,
+					RG8					= GL_RG8,
+					RG8SNorm			= GL_RG8_SNORM,
+					RG16				= GL_RG16,
+					RG16SNorm			= GL_RG16_SNORM,
+					R3G3B2				= GL_R3_G3_B2,
+					RGB4				= GL_RGB4,
+					RGB5				= GL_RGB5,
+					RGB8				= GL_RGB8,
+					RGB8SNorm			= GL_RGB8_SNORM,
+					RGB10				= GL_RGB10,
+					RGB12				= GL_RGB12,
+					RGB16				= GL_RGB16, // Added manually
+					RGB16SNorm			= GL_RGB16_SNORM,
+					RGBA2				= GL_RGBA2,
+					RGBA4				= GL_RGBA4,
+					RGB5A1				= GL_RGB5_A1,
+					RGBA8				= GL_RGBA8,
+					RGBA8SNorm			= GL_RGBA8_SNORM,
+					RGB10A2				= GL_RGB10_A2,
+					RGB10A2UI			= GL_RGB10_A2UI,
+					RGBA12				= GL_RGBA12,
+					RGBA16				= GL_RGBA16,
+					SRGB8				= GL_SRGB8,
+					SRGB8A8				= GL_SRGB8_ALPHA8,
+					R16F				= GL_R16F,
+					RG16F				= GL_RG16F,
+					RGB16F				= GL_RGB16F,
+					RGBA16F				= GL_RGBA16F,
+					R32F				= GL_R32F,
+					RG32F				= GL_RG32F,
+					RGB32F				= GL_RGB32F,
+					RGBA32F				= GL_RGBA32F,
+					R11FG11FB10F		= GL_R11F_G11F_B10F,
+					RGB9E5				= GL_RGB9_E5,
+					R8I					= GL_R8I,
+					R8UI				= GL_R8UI,
+					R16I				= GL_R16I,
+					R16UI				= GL_R16UI,
+					R32I				= GL_R32I,
+					R32UI				= GL_R32UI,
+					RG8I				= GL_RG8I,
+					RG8UI				= GL_RG8UI,
+					RG16I				= GL_RG16I,
+					RG16UI				= GL_RG16UI,
+					RG32I				= GL_RG32I,
+					RG32UI				= GL_RG32UI,
+					RGB8I				= GL_RGB8I,
+					RGB8UI				= GL_RGB8UI,
+					RGB16I				= GL_RGB16I,
+					RGB16UI				= GL_RGB16UI,
+					RGB32I				= GL_RGB32I,
+					RGB32UI				= GL_RGB32UI,
+					RGBA8I				= GL_RGBA8I,
+					RGBA8UI				= GL_RGBA8UI,
+					RGBA16I				= GL_RGBA16I,
+					RGBA16UI			= GL_RGBA16UI,
+					RGBA32I				= GL_RGBA32I,
+					RGBA32UI			= GL_RGBA32UI,
+				};
+				enum class External: GLenum
+				{
+					R					= GL_RED,
+					RG					= GL_RG,
+					RGB					= GL_RGB,
+					BGR					= GL_BGR,
+					RGBA				= GL_RGBA,
+					BGRA				= GL_BGRA,
+					RI					= GL_RED_INTEGER,
+					RGI					= GL_RG_INTEGER,
+					RGBI				= GL_RGB_INTEGER,
+					BGRI				= GL_BGR_INTEGER,
+					RGBAI				= GL_RGBA_INTEGER,
+					BGRAI				= GL_BGRA_INTEGER,
+					StencilIndex		= GL_STENCIL_INDEX,
+					DepthComponent		= GL_DEPTH_COMPONENT,
+					DepthStencil		= GL_DEPTH_STENCIL,
+				};
+			public:
+				inline static Internal GetInternal(const Memory<const Image>& image_)
+				{
+					if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt8>>>>(image_))
+					{
+						return Internal::R8;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt8, UInt8, UInt8>>>>(image_))
+					{
+						return Internal::RGB8;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_))
+					{
+						return Internal::RGBA8;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt16>>>>(image_))
+					{
+						return Internal::R16;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt16, UInt16, UInt16>>>>(image_))
+					{
+						return Internal::RGB16;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt16, UInt16, UInt16, UInt16>>>>(image_))
+					{
+						return Internal::RGBA16;
+					}
+
+					throw NotImplementedException();
+				}
+				inline static External GetExternal(const Memory<const Image>& image_)
+				{
+					if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16>>>>(image_)
+					) {
+						return External::R;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16>>>>(image_)
+					) {
+						return External::RGB;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt16, UInt16, UInt16, UInt16>>>>(image_)
+					) {
+						return External::RGBA;
+					}
+
+					throw NotImplementedException();
+				};
+			};
+			class Data
+			{
+			public:
+				enum class Type: GLenum
+				{
+					UInt8				= GL_UNSIGNED_BYTE,
+					SInt8				= GL_BYTE,
+					UInt16				= GL_UNSIGNED_SHORT,
+					SInt16				= GL_SHORT,
+					UInt32				= GL_UNSIGNED_INT,
+					SInt32				= GL_INT,
+					SFloat32			= GL_FLOAT,
+					// TODO:			= GL_UNSIGNED_BYTE_3_3_2,
+					// TODO:			= GL_UNSIGNED_BYTE_2_3_3_REV,
+					// TODO:			= GL_UNSIGNED_SHORT_5_6_5,
+					// TODO:			= GL_UNSIGNED_SHORT_5_6_5_REV,
+					// TODO:			= GL_UNSIGNED_SHORT_4_4_4_4,
+					// TODO:			= GL_UNSIGNED_SHORT_4_4_4_4_REV,
+					// TODO:			= GL_UNSIGNED_SHORT_5_5_5_1,
+					// TODO:			= GL_UNSIGNED_SHORT_1_5_5_5_REV,
+					// TODO:			= GL_UNSIGNED_INT_8_8_8_8,
+					// TODO:			= GL_UNSIGNED_INT_8_8_8_8_REV,
+					// TODO:			= GL_UNSIGNED_INT_10_10_10_2,
+					// TODO:			= GL_UNSIGNED_INT_2_10_10_10_REV,
+				};
+			public:
+				inline static Type GetType(const Memory<const Image>& image_)
+				{
+					if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_) ||
+						dynamic_cast<const Memory<const ImageCubeX<Pixel<UInt8, UInt8, UInt8, UInt8>>>>(image_)
+					) {
+						return Type::UInt8;
+					}
+					else if (
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16>>>>(image_) ||
+						dynamic_cast<const Memory<const Image2DX<Pixel<UInt16, UInt16, UInt16, UInt16>>>>(image_)
+					) {
+						return Type::UInt16;
+					}
+
+					throw Exception();
+				};
+			};
+			class Wrap
+			{
+			public:
+				enum class Direction: GLenum
+				{
+					S = GL_TEXTURE_WRAP_S,
+					T = GL_TEXTURE_WRAP_T,
+					R = GL_TEXTURE_WRAP_R,
+				};
+				enum class Mode: GLint
+				{
+					ClampToEdge			= GL_CLAMP_TO_EDGE,
+					Repeat				= GL_REPEAT,
+					MirroredRepeat		= GL_MIRRORED_REPEAT,
+					MirrorClampToEdge	= GL_MIRROR_CLAMP_TO_EDGE,
+					ClampToBorder		= GL_CLAMP_TO_BORDER,
+				};
+			};
+			class Filter
+			{
+			public:
+				class Magnification
+				{
+				public:
+					enum class Mode
+					{
+						Nearest = GL_NEAREST,
+						Linear	= GL_LINEAR,
+					};
+				};
+				class Minification
+				{
+				public:
+					enum class Mode
+					{
+						Nearest					= GL_NEAREST,
+						Linear					= GL_LINEAR,
+						NearestMipmapNearest	= GL_NEAREST_MIPMAP_NEAREST,
+						LinearMipmapNearest		= GL_LINEAR_MIPMAP_NEAREST,
+						NearestMipmapLinear		= GL_NEAREST_MIPMAP_LINEAR,
+						LinearMipmapLinear		= GL_LINEAR_MIPMAP_LINEAR,
+					};
+				};
+			};
+		public:
+			class Handle
+			{
+			public:
+				using Value = GLuint;
+			protected:
+				Value value;
+			public:
+				inline Handle() = default;
+				inline explicit Handle(const Value& value_):
+					value(value_)
+				{}
+				inline Handle(const Handle&) = default;
+				inline ~Handle() = default;
+			public:
+				inline Handle& operator = (const Handle&) = default;
+			public:
+				inline bool operator == (const Handle& source_) const
+				{
+					return value == source_.value;
+				}
+				inline bool operator != (const Handle& source_) const
+				{
+					return value != source_.value;
+				}
+			public:
+				inline explicit operator Value() const
+				{
+					return value;
+				}
+				inline explicit operator Memory<Value>()
+				{
+					return &value;
+				}
+				inline explicit operator Memory<const Value>() const
+				{
+					return &value;
+				}
+			};
+		};
+
+
 		class Core_1_0:
 			public virtual Core
 		{
@@ -28,6 +343,58 @@ namespace GreatVEngine2
 			{
 				glDrawElements(static_cast<GLenum>(primitiveType_), indicesCount_, static_cast<GLenum>(indexType_), reinterpret_cast<const GLvoid*>(offset_));
 				
+				CheckForErrors();
+			}
+			inline void				BindTexture(const Texture::Type& type_, const Null&) const
+			{
+				glBindTexture(static_cast<GLenum>(type_), 0);
+
+				CheckForErrors();
+			}
+			inline void				BindTexture(const Texture::Type& type_, const Texture::Handle& handle_) const
+			{
+				glBindTexture(static_cast<GLenum>(type_), static_cast<Texture::Handle::Value>(handle_));
+
+				CheckForErrors();
+			}
+			inline Texture::Handle	GenTexture() const
+			{
+				Texture::Handle handle;
+
+				glGenTextures(1, static_cast<Memory<Texture::Handle::Value>>(handle));
+
+				CheckForErrors();
+
+				return handle;
+			}
+			inline void				DeleteTexture(const Texture::Handle& handle_) const
+			{
+				glDeleteTextures(1, static_cast<Memory<const Texture::Handle::Value>>(handle_));
+
+				CheckForErrors();
+			}
+			inline void				TextureParameter(const Texture::Type& type_, const Texture::Wrap::Direction& wrapDirection_, const Texture::Wrap::Mode& wrapMode_) const
+			{
+				glTexParameteri(static_cast<GLenum>(type_), static_cast<GLenum>(wrapDirection_), static_cast<GLint>(wrapMode_));
+
+				CheckForErrors();
+			}
+			inline void				TextureParameter(const Texture::Type& type_, const Texture::Filter::Magnification::Mode& magnificationMode_) const
+			{
+				glTexParameteri(static_cast<GLenum>(type_), GL_TEXTURE_MAG_FILTER, static_cast<GLint>(magnificationMode_));
+
+				CheckForErrors();
+			}
+			inline void				TextureParameter(const Texture::Type& type_, const Texture::Filter::Minification::Mode& minificationMode_) const
+			{
+				glTexParameteri(static_cast<GLenum>(type_), GL_TEXTURE_MIN_FILTER, static_cast<GLint>(minificationMode_));
+
+				CheckForErrors();
+			}
+			inline void				TextureImage(const Texture::Type& type_, const Size& level_, const Texture::Format::Internal& internalTextureFormat_, const Size2& size_, const Texture::Format::External& externalTextureFormat_, const Texture::Data::Type& textureDataType_, const Memory<const void>& data_ = nullptr) // TexImage2D
+			{
+				glTexImage2D(static_cast<GLenum>(type_), level_, static_cast<GLint>(internalTextureFormat_), size_.x, size_.y, 0, static_cast<GLenum>(externalTextureFormat_), static_cast<GLenum>(textureDataType_), data_);
+
 				CheckForErrors();
 			}
 			inline void				Flush() const;

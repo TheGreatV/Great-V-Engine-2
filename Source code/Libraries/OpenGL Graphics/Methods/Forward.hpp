@@ -130,12 +130,15 @@ namespace GreatVEngine2
 						using ModelCaches = Map<Memory<Model>, StrongPointer<ModelCache>>;
 						class AttributesCache;
 						using AttributesCaches = Map<Memory<ModelCache>, StrongPointer<AttributesCache>>;
+						class TextureCache;
+						using TextureCaches = Map<Memory<Image>, StrongPointer<TextureCache>>;
 					protected:
 						const StrongPointer<ContextHolder> contextHolder = MakeStrong<ContextHolder>();
 						const StrongPointer<GeometryBufferHolder> geometryBufferHolder = MakeStrong<GeometryBufferHolder>(contextHolder);
+						SceneCaches sceneCaches;
+						TextureCaches textureCaches;
 						MaterialCaches materialCaches;
 						ModelCaches modelCaches;
-						SceneCaches sceneCaches;
 					public:
 						Vector<TaskManager> taskManagers = Vector<TaskManager>(std::thread::hardware_concurrency());
 					public:
@@ -147,6 +150,7 @@ namespace GreatVEngine2
 						inline Forward& operator = (const Forward&) = delete;
 					protected:
 						inline Memory<SceneCache> FindOrAdd(const Memory<Scene>& sceneMemory_);
+						inline Memory<TextureCache> FindOrAdd(const Memory<Image>& imageMemory_);
 						inline Memory<MaterialCache> FindOrAdd(const Memory<Material>& materialMemory_);
 						inline Memory<ModelCache> FindOrAdd(const Memory<Model>& modelMemory_);
 						inline void Remove(const Memory<Material>& materialMemory_);
@@ -849,13 +853,42 @@ namespace GreatVEngine2
 					{
 						friend Output;
 					public:
+						class AttributesNode;
+						class DrawCallNode;
+						class TaskNode
+						{
+						public:
+							const Size firstObjectIndex;
+							const Size lastObjectIndex;
+							mutable Threading::Event onComplete;
+						public:
+							inline TaskNode(const Size& firstObjectIndex_, const Size& lastObjectIndex_):
+								firstObjectIndex(firstObjectIndex_),
+								lastObjectIndex(lastObjectIndex_)
+							{
+							}
+						};
+						class DrawCallNode
+						{
+						public:
+							const Size firstObjectIndex;
+							const Size lastObjectIndex;
+							Vector<TaskNode> taskNodes;
+						public:
+							inline DrawCallNode(const Size& firstObjectIndex_, const Size& lastObjectIndex_):
+								firstObjectIndex(firstObjectIndex_),
+								lastObjectIndex(lastObjectIndex_)
+							{
+							}
+						};
 						class AttributesNode
 						{
 						public:
 							const Memory<AttributesCache> attributesCacheMemory;
 							Vector<Memory<Object>> objectsMemories;
 							mutable Vector<ObjectUniformBuffer> objectsData;
-							mutable Vector<Vector<Threading::Event>> events; // [draw call id, task id]
+							// mutable Vector<Vector<Threading::Event>> events; // [draw call id, task id]
+							mutable Vector<DrawCallNode> drawCallNodes;
 						public:
 							inline AttributesNode(const Memory<AttributesCache>& attributesCacheMemory_):
 								attributesCacheMemory(attributesCacheMemory_)
@@ -871,7 +904,7 @@ namespace GreatVEngine2
 							inline void Add(const Memory<Object>& objectMemory_)
 							{
 								objectsMemories.push_back(objectMemory_);
-								objectsData.resize(objectsMemories.size());
+								// objectsData.resize(objectsMemories.size());
 							}
 						};
 						class MaterialNode
@@ -1045,6 +1078,32 @@ namespace GreatVEngine2
 
 							context->UseProgram(programHandle);
 
+							if (const auto &uniformLocation = context->GetUniformLocation(programHandle, "textureAlbedo"))
+							{
+								context->SetUniform(uniformLocation, 0);
+							}
+							if (const auto &uniformLocation = context->GetUniformLocation(programHandle, "textureNormals"))
+							{
+								context->SetUniform(uniformLocation, 1);
+							}
+							if (const auto &uniformLocation = context->GetUniformLocation(programHandle, "textureRoughness"))
+							{
+								context->SetUniform(uniformLocation, 2);
+							}
+							if (const auto &uniformLocation = context->GetUniformLocation(programHandle, "textureMetalness"))
+							{
+								context->SetUniform(uniformLocation, 3);
+							}
+							if (const auto &uniformLocation = context->GetUniformLocation(programHandle, "textureOcclusion"))
+							{
+								context->SetUniform(uniformLocation, 4);
+							}
+
+							if (const auto &uniformBlockIndex = context->GetUniformBlockIndex(programHandle, "CameraBuffer"))
+							{
+								context->UniformBlockBinding(programHandle, uniformBlockIndex, GL::UniformBlock::Binding(0));
+							}
+
 							// if (const auto &uniformLocation = GL::GetUniformLocation(program, "textureAlbedo"))
 							// {
 							// 	GL::SetUniform(uniformLocation, 0);
@@ -1079,12 +1138,22 @@ namespace GreatVEngine2
 					public:
 						const GL::Program::Handle						gl_programHandle;
 						AttributesCaches								attributesCaches;
+						const Memory<TextureCache>						textureAlbedoCacheMemory;
+						const Memory<TextureCache>						textureNormalsCacheMemory;
+						const Memory<TextureCache>						textureRoughnessCacheMemory;
+						const Memory<TextureCache>						textureMetalnessCacheMemory;
+						const Memory<TextureCache>						textureOcclusionCacheMemory;
 					public:
 						inline MaterialCache(const Memory<Forward>& methodMemory_, const Memory<Material>& materialMemory_):
 							methodMemory(methodMemory_),
 							materialMemory(materialMemory_),
 							unsubscriber(materialMemory->OnDestruction(std::bind(static_cast<void(Forward::*)(const Memory<Material>&)>(&Forward::Remove), methodMemory, materialMemory))),
-							gl_programHandle(ObtainProgramHandle())
+							gl_programHandle(ObtainProgramHandle()),
+							textureAlbedoCacheMemory(methodMemory->FindOrAdd(ObtainModule()->albedoImage.GetValue())),
+							textureNormalsCacheMemory(methodMemory->FindOrAdd(ObtainModule()->normalsImage.GetValue())),
+							textureRoughnessCacheMemory(methodMemory->FindOrAdd(ObtainModule()->roughnessImage.GetValue())),
+							textureMetalnessCacheMemory(methodMemory->FindOrAdd(ObtainModule()->metalnessImage.GetValue())),
+							textureOcclusionCacheMemory(methodMemory->FindOrAdd(ObtainModule()->occlusionImage.GetValue()))
 						{
 						}
 						inline ~MaterialCache()
@@ -1179,6 +1248,26 @@ namespace GreatVEngine2
 									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, 0);
 									context->EnableVertexAttributeArray(attributeLocation);
 								}
+								if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTan"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Vec3));
+									context->EnableVertexAttributeArray(attributeLocation);
+								}
+								if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vBin"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Vec3) * 2);
+									context->EnableVertexAttributeArray(attributeLocation);
+								}
+								if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vNor"))
+								{
+									context->VertexAttributePointer(attributeLocation, 3, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Vec3) * 3);
+									context->EnableVertexAttributeArray(attributeLocation);
+								}
+								if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTex"))
+								{
+									context->VertexAttributePointer(attributeLocation, 2, GL::Program::Attribute::Type::Float, false, vertexSize, sizeof(Vec3) * 4);
+									context->EnableVertexAttributeArray(attributeLocation);
+								}
 							}
 							else if (verticesPackMode == Geometry::VertexPackMode::Pos32F_TN16F_Tex32F)
 							{
@@ -1224,6 +1313,78 @@ namespace GreatVEngine2
 						}
 					};
 #pragma endregion
+#pragma region Forward::TextureCache
+					class Forward::TextureCache
+					{
+					public:
+						inline GL::Texture::Handle ObtainTextureHandle() const
+						{
+							const auto &context		= methodMemory->contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, methodMemory->contextHolder->win_deviceContextHandle);
+							const auto &textureHandle = context->GenTexture();
+
+							return textureHandle;
+						}
+						inline GL::Texture::Type ObtainTextureType() const
+						{
+							const auto &context		= methodMemory->contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, methodMemory->contextHolder->win_deviceContextHandle);
+
+							if (auto image2D = dynamic_cast<Memory<Image2D>>(imageMemory))
+							{
+								const auto &textureType = GL::Texture::Type::D2;
+
+								context->BindTexture(textureType, gl_textureHandle);
+
+								context->TextureParameter(textureType, GL::Texture::Wrap::Direction::S, GL::Texture::Wrap::Mode::Repeat);
+								context->TextureParameter(textureType, GL::Texture::Wrap::Direction::T, GL::Texture::Wrap::Mode::Repeat);
+
+								context->TextureParameter(textureType, GL::Texture::Filter::Magnification::Mode::Linear);
+								context->TextureParameter(textureType, GL::Texture::Filter::Minification::Mode::Linear);
+
+								// TODO: texture parameters
+
+								const auto &internalTextureFormat	= GL::Texture::Format::GetInternal(image2D);
+								const auto &externalTextureFormat	= GL::Texture::Format::GetExternal(image2D);
+								const auto &textureDataType			= GL::Texture::Data::GetType(image2D);
+
+								for (auto mipmapIndex : Range(image2D->GetMipmapsCount()))
+								{
+									const auto &mipmap	= (*image2D)[mipmapIndex];
+									const auto &data	= mipmap.GetData();
+
+									context->TextureImage(textureType, mipmapIndex, internalTextureFormat, mipmap.GetSize(), externalTextureFormat, textureDataType, data);
+								}
+
+								context->BindTexture(textureType, nullptr);
+
+								return textureType;
+							}
+
+							throw NotImplementedException();
+						}
+					public:
+						const Memory<Methods::Forward> methodMemory;
+						const Memory<Image> imageMemory;
+						const GL::Texture::Handle gl_textureHandle;
+						const GL::Texture::Type gl_textureType;
+					public:
+						inline TextureCache(const Memory<Methods::Forward> methodMemory_, const Memory<Image>& imageMemory_):
+							methodMemory(methodMemory_),
+							imageMemory(imageMemory_),
+							gl_textureHandle(ObtainTextureHandle()),
+							gl_textureType(ObtainTextureType())
+						{
+						}
+						inline ~TextureCache()
+						{
+							const auto &context		= methodMemory->contextHolder->gl_context;
+							const auto &contextLock	= WGL::Lock(context, methodMemory->contextHolder->win_deviceContextHandle);
+
+							context->DeleteTexture(gl_textureHandle);
+						}
+					};
+#pragma endregion
 
 #pragma region Forward
 					Forward::Forward(const StrongPointer<Forward>& this_):
@@ -1259,6 +1420,26 @@ namespace GreatVEngine2
 						const auto sceneCacheMemory	= sceneCache.GetValue();
 
 						return sceneCacheMemory;
+					}
+					Memory<Forward::TextureCache> Forward::FindOrAdd(const Memory<Image>& imageMemory_)
+					{
+						const auto it					= textureCaches.find(imageMemory_);
+
+						if (it != textureCaches.end())
+						{
+							const auto textureCache			= (*it).second;
+							const auto textureCacheMemory	= textureCache.GetValue();
+
+							return textureCacheMemory;
+						}
+
+						const auto textureCache			= MakeStrong<TextureCache>(this, imageMemory_);
+
+						textureCaches.insert({ imageMemory_, textureCache }); // TODO: add check?
+						
+						const auto textureCacheMemory	= textureCache.GetValue();
+
+						return textureCacheMemory;
 					}
 					Memory<Forward::MaterialCache> Forward::FindOrAdd(const Memory<Material>& materialMemory_)
 					{
@@ -1398,6 +1579,59 @@ namespace GreatVEngine2
 						
 							attributesNode.Add(objectMemory);
 						}
+
+						// task manager 
+						auto &taskManagers = methodMemory->taskManagers;
+
+						// prepare data
+						for (auto &materialNode : materialsNodes.materialsNodes)
+						{
+							for (auto &attributesNode : materialNode.attributesNodes)
+							{
+								const auto &objectsMemories	= attributesNode.objectsMemories;
+								auto &objectsData			= attributesNode.objectsData;
+								auto &drawCallNodes			= attributesNode.drawCallNodes;
+
+								objectsData.resize(objectsMemories.size());
+
+								// prepare draw calls
+								const Size maxObjectsCountPerDrawCall	= methodMemory->geometryBufferHolder->instancesCount;
+								const Size drawCallsCount				= (objectsMemories.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
+								const Size objectsCountPerDrawCall		= maxObjectsCountPerDrawCall;
+
+								for (const auto &drawCallIndex : Range(drawCallsCount))
+								{
+									const Size firstObjectIndexInDrawCall	= drawCallIndex * objectsCountPerDrawCall;
+									const Size lastObjectIndexInDrawCall	= static_cast<Size>(drawCallIndex) < (drawCallsCount - 1)
+										? firstObjectIndexInDrawCall + objectsCountPerDrawCall
+										: objectsMemories.size();
+									const Size countOfObjectsInDrawCall		= lastObjectIndexInDrawCall - firstObjectIndexInDrawCall;
+
+									// create draw call node
+									drawCallNodes.push_back(DrawCallNode(firstObjectIndexInDrawCall, lastObjectIndexInDrawCall));
+									
+									auto &drawCallNode = drawCallNodes.back();
+
+									// prepare tasks
+									const Size minimalCountOfObjectsPerTask	= 128;
+									const Size tasksCount					= glm::min(taskManagers.size(), (countOfObjectsInDrawCall + minimalCountOfObjectsPerTask - 1) / minimalCountOfObjectsPerTask);
+									const Size averageCountOfObjectsPerTask	= countOfObjectsInDrawCall / tasksCount;
+
+									for (auto &taskIndex : Range(tasksCount))
+									{
+										const Size	firstObjectIndexInTask	= firstObjectIndexInDrawCall + taskIndex * averageCountOfObjectsPerTask;
+										const Size	lastObjectIndexInTask	= static_cast<Size>(taskIndex) < (tasksCount - 1)
+											? firstObjectIndexInTask + averageCountOfObjectsPerTask
+											: lastObjectIndexInDrawCall;
+
+										auto &taskNode = TaskNode(firstObjectIndexInTask, lastObjectIndexInTask);
+
+										drawCallNode.taskNodes.push_back(taskNode);
+									}
+								}
+							}
+						}
+
 					}
 					void Forward::SceneCache::UpdateCaches()
 					{
@@ -1449,6 +1683,8 @@ namespace GreatVEngine2
 
 							renderContext->BindBuffer(GL::Buffer::Type::Uniform, contextHolder->gl_cameraUniformsBuffer);
 							renderContext->BufferSubData(GL::Buffer::Type::Uniform, 0, sizeof(CameraUniformBuffer), &contextHolder->cameraUniformsBufferData);
+
+							renderContext->BindBufferBase(GL::Buffer::Type::Uniform, GL::UniformBlock::Binding(0), contextHolder->gl_cameraUniformsBuffer);
 						}
 
 						// task manager 
@@ -1471,8 +1707,6 @@ namespace GreatVEngine2
 						// prepare data
 						for (const auto &materialNode : materialsNodes.materialsNodes)
 						{
-							const auto &materialCacheMemory = materialNode.materialCacheMemory;
-
 							for (const auto &attributesNode : materialNode.attributesNodes)
 							{
 								const auto &attributesCacheMemory	= attributesNode.attributesCacheMemory;
@@ -1481,38 +1715,16 @@ namespace GreatVEngine2
 								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
 								const auto &objectsMemories			= attributesNode.objectsMemories;
 								auto &objectsData					= attributesNode.objectsData;
-								auto &events						= attributesNode.events;
-
-								// perform draw calls
-								const Size	maxObjectsCountPerDrawCall	= methodMemory->geometryBufferHolder->instancesCount;
-								const Size	drawCallsCount				= (objectsData.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
-
-								events.resize(drawCallsCount);
-
-								for (const auto &drawCallIndex : Range(drawCallsCount))
+								const auto &drawCallNodes			= attributesNode.drawCallNodes;
+								
+								for (const auto &drawCallNode : drawCallNodes)
 								{
-									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
-									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
-									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
-
-									auto &drawCallEvents						= events[drawCallIndex];
-									const Size minAverageObjectsCountPerTask	= 128;
-									const Size tasksCount						= glm::min(taskManagers.size(), (drawCallInstancesCount + minAverageObjectsCountPerTask - 1) / minAverageObjectsCountPerTask);
-										
-									drawCallEvents.resize(tasksCount);
-									
-									const Size objectsPerTask			= drawCallInstancesCount / tasksCount;
-									
-									for (auto &taskIndex : Range(tasksCount))
+									for (const auto &taskNode : drawCallNode.taskNodes)
 									{
 										auto taskManagerIndex			= getTaskManagerIndex();
 										auto		&taskManager		= taskManagers[taskManagerIndex];
-										const Size	firstIndex			= firstDrawCallIndex + taskIndex * objectsPerTask;
-										const Size	lastIndex			= taskIndex < static_cast<int>(tasksCount - 1)
-											? firstIndex + objectsPerTask
-											: lastDrawCallIndex;
-
-										drawCallEvents[taskIndex] = taskManager.Submit(std::bind([](Object*const* objectsMemories_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_)
+										
+										taskNode.onComplete = taskManager.Submit(std::bind([](Object*const* objectsMemories_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_)
 										{
 											for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
 											{
@@ -1559,7 +1771,7 @@ namespace GreatVEngine2
 												modelMatrix[2][2]		= cay * cax * sz;
 												modelMatrix[2][3]		= pz;
 											}
-										}, objectsMemories.data(), objectsData.data(), firstIndex, lastIndex));
+										}, objectsMemories.data(), objectsData.data(), taskNode.firstObjectIndex, taskNode.lastObjectIndex));
 									}
 								}
 							}
@@ -1572,6 +1784,17 @@ namespace GreatVEngine2
 							const auto &materialCacheMemory = materialNode.materialCacheMemory;
 
 							renderContext->UseProgram(materialCacheMemory->gl_programHandle);
+
+							renderContext->ActiveTexture(0);
+							renderContext->BindTexture(materialCacheMemory->textureAlbedoCacheMemory->gl_textureType, materialCacheMemory->textureAlbedoCacheMemory->gl_textureHandle);
+							renderContext->ActiveTexture(1);
+							renderContext->BindTexture(materialCacheMemory->textureNormalsCacheMemory->gl_textureType, materialCacheMemory->textureNormalsCacheMemory->gl_textureHandle);
+							renderContext->ActiveTexture(2);
+							renderContext->BindTexture(materialCacheMemory->textureRoughnessCacheMemory->gl_textureType, materialCacheMemory->textureRoughnessCacheMemory->gl_textureHandle);
+							renderContext->ActiveTexture(3);
+							renderContext->BindTexture(materialCacheMemory->textureMetalnessCacheMemory->gl_textureType, materialCacheMemory->textureMetalnessCacheMemory->gl_textureHandle);
+							renderContext->ActiveTexture(4);
+							renderContext->BindTexture(materialCacheMemory->textureOcclusionCacheMemory->gl_textureType, materialCacheMemory->textureOcclusionCacheMemory->gl_textureHandle);
 
 							if (auto location = renderContext->GetUniformLocation(materialCacheMemory->gl_programHandle, "viewProjectionMatrix"))
 							{
@@ -1587,7 +1810,34 @@ namespace GreatVEngine2
 								const auto &modelCacheMemory		= attributesCacheMemory->modelCacheMemory;
 								const auto &modelMemory				= modelCacheMemory->modelMemory;
 								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
-								const auto &objectsMemories			= attributesNode.objectsMemories;
+								auto &objectsData					= attributesNode.objectsData;
+								const auto &drawCallNodes			= attributesNode.drawCallNodes;
+								
+								for (const auto &drawCallNode : drawCallNodes)
+								{
+									// for (const auto &taskNode : drawCallNode.taskNodes)
+									// {
+									// 	taskNode.onComplete.Wait();
+									// }
+
+									const Size firstObjectIndex	= drawCallNode.firstObjectIndex;
+									const Size objectsCount		= drawCallNode.lastObjectIndex - drawCallNode.firstObjectIndex;
+
+									renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(ObjectUniformBuffer) * objectsCount, objectsData.data() + firstObjectIndex);
+
+									renderContext->DrawElementsInstancedBaseVertex(
+										GL::PrimitiveType::Triangles,
+										geometryMemory->GetIndicesCount(),																// TODO: move to cache
+										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :	// TODO: move to cache
+										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :	// TODO: move to cache
+										GL::IndexType::UInt8,																			// TODO: move to cache
+										modelCacheMemory->indicesHolderMemory->indicesRangeMemory->offset + modelCacheMemory->indicesHolderMemory->indicesRangeMemory->indexSize * modelCacheMemory->indicesHolderMemory->firstIndex, // TODO: move to cache
+										objectsCount,
+										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache
+									);
+								}
+
+								/*const auto &objectsMemories			= attributesNode.objectsMemories;
 								auto &objectsData					= attributesNode.objectsData;
 								auto &events						= attributesNode.events;
 
@@ -1601,12 +1851,12 @@ namespace GreatVEngine2
 									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
 									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
 
-									auto &drawCallEvents				= events[drawCallIndex];
-
-									for (auto &drawCallEvent : drawCallEvents)
-									{
-										drawCallEvent.Wait();
-									}
+									// auto &drawCallEvents				= events[drawCallIndex];
+									// 
+									// for (auto &drawCallEvent : drawCallEvents)
+									// {
+									// 	drawCallEvent.Wait();
+									// }
 
 									renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(ObjectUniformBuffer) * drawCallInstancesCount, objectsData.data() + firstDrawCallIndex);
 
@@ -1620,8 +1870,19 @@ namespace GreatVEngine2
 										drawCallInstancesCount,
 										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache
 									);
-								}
+								}*/
 							}
+							
+							renderContext->ActiveTexture(0);
+							renderContext->BindTexture(materialCacheMemory->textureAlbedoCacheMemory->gl_textureType, nullptr);
+							renderContext->ActiveTexture(1);
+							renderContext->BindTexture(materialCacheMemory->textureNormalsCacheMemory->gl_textureType, nullptr);
+							renderContext->ActiveTexture(2);
+							renderContext->BindTexture(materialCacheMemory->textureRoughnessCacheMemory->gl_textureType, nullptr);
+							renderContext->ActiveTexture(3);
+							renderContext->BindTexture(materialCacheMemory->textureMetalnessCacheMemory->gl_textureType, nullptr);
+							renderContext->ActiveTexture(4);
+							renderContext->BindTexture(materialCacheMemory->textureOcclusionCacheMemory->gl_textureType, nullptr);
 						}
 						
 						renderContext->BindVertexArray(nullptr);
