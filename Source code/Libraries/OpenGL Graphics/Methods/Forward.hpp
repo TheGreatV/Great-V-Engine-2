@@ -589,7 +589,7 @@ namespace GreatVEngine2
 						const Memory<ContextHolder>		contextHolder;
 						const GL::VertexArray::Handle	gl_verticesArrayHandle; // Indices buffer binding cannot be performed without VAO
 					public:
-						const Size						instancesCount = 32 * 1024;
+						const Size						instancesCount = 64 * 1024;
 						const GL::Buffer::Handle		gl_objectsDataBufferHandle;
 					public:
 						StrongPointer<IndicesRange> indicesRange = StrongPointer<IndicesRange>(nullptr);
@@ -1613,7 +1613,7 @@ namespace GreatVEngine2
 									auto &drawCallNode = drawCallNodes.back();
 
 									// prepare tasks
-									const Size minimalCountOfObjectsPerTask	= 128;
+									const Size minimalCountOfObjectsPerTask	= 256;
 									const Size tasksCount					= glm::min(taskManagers.size(), (countOfObjectsInDrawCall + minimalCountOfObjectsPerTask - 1) / minimalCountOfObjectsPerTask);
 									const Size averageCountOfObjectsPerTask	= countOfObjectsInDrawCall / tasksCount;
 
@@ -1709,10 +1709,6 @@ namespace GreatVEngine2
 						{
 							for (const auto &attributesNode : materialNode.attributesNodes)
 							{
-								const auto &attributesCacheMemory	= attributesNode.attributesCacheMemory;
-								const auto &modelCacheMemory		= attributesCacheMemory->modelCacheMemory;
-								const auto &modelMemory				= modelCacheMemory->modelMemory;
-								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
 								const auto &objectsMemories			= attributesNode.objectsMemories;
 								auto &objectsData					= attributesNode.objectsData;
 								const auto &drawCallNodes			= attributesNode.drawCallNodes;
@@ -1815,10 +1811,10 @@ namespace GreatVEngine2
 								
 								for (const auto &drawCallNode : drawCallNodes)
 								{
-									// for (const auto &taskNode : drawCallNode.taskNodes)
-									// {
-									// 	taskNode.onComplete.Wait();
-									// }
+									for (const auto &taskNode : drawCallNode.taskNodes)
+									{
+										taskNode.onComplete.Wait();
+									}
 
 									const Size firstObjectIndex	= drawCallNode.firstObjectIndex;
 									const Size objectsCount		= drawCallNode.lastObjectIndex - drawCallNode.firstObjectIndex;
