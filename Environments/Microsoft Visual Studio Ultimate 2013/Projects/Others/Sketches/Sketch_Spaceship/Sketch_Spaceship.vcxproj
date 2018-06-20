@@ -11,18 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{79A758EB-1E5F-4BE2-B766-D7B44EE225AB}</ProjectGuid>
-    <RootNamespace>Geometry</RootNamespace>
+    <ProjectGuid>{5A6BFEB2-E036-46F4-A48A-EF78F9E4F5E3}</ProjectGuid>
+    <RootNamespace>Sketch_Spaceship</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -33,13 +33,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Properties\[Great V Engine 2] Common Project Properties (Debug).props" />
-    <Import Project="..\..\..\Properties\Libraries\[Great V Engine 2] Geometry - Project.props" />
+    <Import Project="..\..\..\..\Properties\[Great V Engine 2] Common Project Properties (Debug).props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\Properties\[Great V Engine 2] Common Project Properties (Release).props" />
-    <Import Project="..\..\..\Properties\Libraries\[Great V Engine 2] Geometry - Project.props" />
+    <Import Project="..\..\..\..\Properties\[Great V Engine 2] Common Project Properties (Release).props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -68,16 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Geometry.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Header.cpp" />
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Geometry.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Header.hpp" />
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.hpp" />
+    <ClCompile Include="..\..\..\..\..\..\Source code\Others\Sketches\Sketch_Spaceship\Source.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

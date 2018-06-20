@@ -102,6 +102,16 @@ namespace GreatVEngine2
 
 							return doneEvent;
 						}
+						inline void Submit(Threading::Event onComplete_, const Task& task_)
+						{
+							Lock lock(mutex);
+
+							onComplete_.Reset();
+
+							tasks.push({ task_, onComplete_ });
+
+							wakeUp.Set();
+						}
 					};
 					class Forward:
 						public Method
@@ -860,7 +870,7 @@ namespace GreatVEngine2
 						public:
 							const Size firstObjectIndex;
 							const Size lastObjectIndex;
-							mutable Threading::Event onComplete;
+							mutable Threading::Event onComputationCompleted;
 						public:
 							inline TaskNode(const Size& firstObjectIndex_, const Size& lastObjectIndex_):
 								firstObjectIndex(firstObjectIndex_),
@@ -873,6 +883,8 @@ namespace GreatVEngine2
 						public:
 							const Size firstObjectIndex;
 							const Size lastObjectIndex;
+							mutable Size numberOfVisibleObjects = 0;
+							mutable StrongPointer<std::mutex> visibleObjectsCounterMutex = MakeStrong<std::mutex>();
 							Vector<TaskNode> taskNodes;
 						public:
 							inline DrawCallNode(const Size& firstObjectIndex_, const Size& lastObjectIndex_):
@@ -1715,12 +1727,17 @@ namespace GreatVEngine2
 								
 								for (const auto &drawCallNode : drawCallNodes)
 								{
+									auto &counter	= drawCallNode.numberOfVisibleObjects;
+									auto mutex		= drawCallNode.visibleObjectsCounterMutex.GetValue();		
+									
+									counter = 0;
+
 									for (const auto &taskNode : drawCallNode.taskNodes)
 									{
-										auto taskManagerIndex			= getTaskManagerIndex();
-										auto		&taskManager		= taskManagers[taskManagerIndex];
+										auto taskManagerIndex	= getTaskManagerIndex();
+										auto &taskManager		= taskManagers[taskManagerIndex];
 										
-										taskNode.onComplete = taskManager.Submit(std::bind([](Object*const* objectsMemories_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_)
+										taskManager.Submit(taskNode.onComputationCompleted, std::bind([](Object*const* objectsMemories_, ObjectUniformBuffer* objectsData_, const Size firtsIndex_, const Size lastIndex_, std::mutex* mutex_, Size* counter_)
 										{
 											for (Size objectIndex = firtsIndex_; objectIndex < lastIndex_; ++objectIndex)
 											{
@@ -1752,22 +1769,30 @@ namespace GreatVEngine2
 												const auto &saz			= Sin(az);
 												const auto &caz			= Cos(az);
 
-												modelMatrix[0][0]		= cay * caz + say * sax * -saz * sx;
-												modelMatrix[0][1]		= cay * saz + say * sax * caz * sy;
-												modelMatrix[0][2]		= say * cax * sz;
-												modelMatrix[0][3]		= px;
+												const auto &say_saz		= say * saz;
+												const auto &say_caz		= say * caz;
+												const auto &cay_caz		= cay * caz;
+												const auto &cay_saz		= cay * saz;
+												const auto &sax_sx		= sax * sx;
+												const auto &sax_sy		= sax * sy;
+												const auto &cax_sz		= cax * sz;
 
-												modelMatrix[1][0]		= cax * -saz * sx;
-												modelMatrix[1][1]		= cax * caz * sy;
-												modelMatrix[1][2]		= -sax * sz;
-												modelMatrix[1][3]		= py;
+												modelMatrix[0][0]		= + (cay_caz) - (say_saz * sax_sx);
+												modelMatrix[0][1]		= + (cay_saz) + (say_caz * sax_sy);
+												modelMatrix[0][2]		= + (say * cax_sz);
+												modelMatrix[0][3]		= + (px);
 
-												modelMatrix[2][0]		= -say * caz + cay * sax * -saz * sx;
-												modelMatrix[2][1]		= -say * saz + cay * sax * caz * sy;
-												modelMatrix[2][2]		= cay * cax * sz;
-												modelMatrix[2][3]		= pz;
+												modelMatrix[1][0]		= - (cax * saz * sx);
+												modelMatrix[1][1]		= + (cax * caz * sy);
+												modelMatrix[1][2]		= - (sax * sz);
+												modelMatrix[1][3]		= + (py);
+
+												modelMatrix[2][0]		= - (say_caz) - (cay_saz * sax_sx);
+												modelMatrix[2][1]		= - (say_saz) + (cay_caz * sax_sy);
+												modelMatrix[2][2]		= + (cay * cax_sz);
+												modelMatrix[2][3]		= + (pz);
 											}
-										}, objectsMemories.data(), objectsData.data(), taskNode.firstObjectIndex, taskNode.lastObjectIndex));
+										}, objectsMemories.data(), objectsData.data(), taskNode.firstObjectIndex, taskNode.lastObjectIndex, mutex, &counter));
 									}
 								}
 							}
@@ -1813,7 +1838,7 @@ namespace GreatVEngine2
 								{
 									for (const auto &taskNode : drawCallNode.taskNodes)
 									{
-										taskNode.onComplete.Wait();
+										taskNode.onComputationCompleted.Wait();
 									}
 
 									const Size firstObjectIndex	= drawCallNode.firstObjectIndex;
@@ -1832,41 +1857,6 @@ namespace GreatVEngine2
 										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache
 									);
 								}
-
-								/*const auto &objectsMemories			= attributesNode.objectsMemories;
-								auto &objectsData					= attributesNode.objectsData;
-								auto &events						= attributesNode.events;
-
-								// perform draw calls
-								const Size	maxObjectsCountPerDrawCall	= methodMemory->geometryBufferHolder->instancesCount;
-								const Size	drawCallsCount				= (objectsData.size() + maxObjectsCountPerDrawCall - 1) / maxObjectsCountPerDrawCall;
-
-								for (const auto &drawCallIndex : Range(drawCallsCount))
-								{
-									const Size firstDrawCallIndex		= drawCallIndex * maxObjectsCountPerDrawCall;
-									const Size lastDrawCallIndex		= glm::min((drawCallIndex + 1) * maxObjectsCountPerDrawCall, objectsData.size());
-									const Size drawCallInstancesCount	= lastDrawCallIndex - firstDrawCallIndex;
-
-									// auto &drawCallEvents				= events[drawCallIndex];
-									// 
-									// for (auto &drawCallEvent : drawCallEvents)
-									// {
-									// 	drawCallEvent.Wait();
-									// }
-
-									renderContext->BufferSubData(GL::Buffer::Type::Array, 0, sizeof(ObjectUniformBuffer) * drawCallInstancesCount, objectsData.data() + firstDrawCallIndex);
-
-									renderContext->DrawElementsInstancedBaseVertex(
-										GL::PrimitiveType::Triangles,
-										geometryMemory->GetIndicesCount(),																// TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :	// TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :	// TODO: move to cache
-										GL::IndexType::UInt8,																			// TODO: move to cache
-										modelCacheMemory->indicesHolderMemory->indicesRangeMemory->offset + modelCacheMemory->indicesHolderMemory->indicesRangeMemory->indexSize * modelCacheMemory->indicesHolderMemory->firstIndex, // TODO: move to cache
-										drawCallInstancesCount,
-										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache
-									);
-								}*/
 							}
 							
 							renderContext->ActiveTexture(0);

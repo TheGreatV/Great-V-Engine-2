@@ -262,7 +262,9 @@ void main()
 			objects.size() < 2000 ? 100:
 			objects.size() < 5000 ? 200:
 			objects.size() < 20000 ? 1000 :
-			5000;
+			objects.size() < 50000 ? 5000 :
+			objects.size() < 100000 ? 10000 :
+			20000;
 		const Float32 minimalDistance = 10.0f;
 		const Float32 maximalDistance = 50.0f;
 		
@@ -548,8 +550,8 @@ void main()
 		std::cout <<
 			"materials: " << materials.size() << ", " <<
 			"models: " << models.size() << ", " <<
-			"frame time: " << averageFrameTime << "ms, " <<
-			"objects: " << objects.size() + 1 <<
+			"objects: " << objects.size() + 1 << ", "
+			"frame time: " << averageFrameTime << "ms" <<
 			std::endl;
 		// std::cout << "frame time: " << frameTimeMs << "ms" << std::endl;
 
