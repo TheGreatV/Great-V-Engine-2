@@ -1,5 +1,46 @@
+#include <../Common/Common.hpp>
+namespace GVE = GreatVEngine2;
+
+
 namespace Spaceship
 {
+	class Entity;
+	class Game;
+
+
+	namespace Power
+	{
+		class Circuit;
+		class CircuitComponent;
+
+		class Generator;
+		class Fuse;
+		class Battery;
+		class Accumulator;
+	}
+}
+namespace Spaceship
+{
+	class Entity:
+		public GVE::This<Entity>
+	{
+	protected:
+		const GVE::Memory<Game> game;
+	public:
+		inline Entity(const GVE::StrongPointer<Entity>& this_, const GVE::Memory<Game>& game_);
+		inline virtual ~Entity() = default;
+	};
+	class Game:
+		public GVE::This<Game>
+	{
+	public:
+		inline Game(const GVE::StrongPointer<Game>& this_);
+	public:
+		inline void SignalCreated(const GVE::Memory<Power::CircuitComponent>& circuitComponentMemory_);
+		inline void SignalDeleted(const GVE::Memory<Power::CircuitComponent>& circuitComponentMemory_);
+	};
+
+
 	namespace Time
 	{
 		class Delta
@@ -43,27 +84,32 @@ namespace Spaceship
 
 	namespace Power
 	{
-		class Reactor
+		class Circuit
 		{
+		protected:
+			GVE::Set<GVE::Memory<CircuitComponent>> components;
+		};
+		class CircuitComponent:
+			public virtual Entity
+		{
+		protected:
+			GVE::Memory<const Circuit> circuit = nullptr;
 		public:
-			// inline Resources::Energy Obtain();
+			inline CircuitComponent(const GVE::StrongPointer<CircuitComponent>& this_, const GVE::Memory<Game>& game_);
+			inline ~CircuitComponent();
 		};
 
+		class Generator
+		{
+		};
 		class Fuse
 		{
-		public:
-			inline Resources::Energy Conduct(const Resources::Energy& energy_, const Time::Delta& delta_);
 		};
-		class Battery
+		class Battery // not rechargable
 		{
-		public:
-			inline Resources::Energy Discharge(const Time::Delta& delta_);
 		};
-		class Accumulator
+		class Accumulator // rechargable
 		{
-		public:
-			inline void Charge();
-			inline Resources::Energy Discharge(const Time::Delta& delta_);
 		};
 	}
 
@@ -118,8 +164,49 @@ namespace Spaceship
 		};
 	}
 }
+namespace Spaceship
+{
+#pragma region Entity
+	Entity::Entity(const GVE::StrongPointer<Entity>& this_, const GVE::Memory<Game>& game_):
+		This(this_),
+		game(game_)
+	{
+	}
+#pragma endregion
+#pragma region Game
+	Game::Game(const GVE::StrongPointer<Game>& this_):
+		This(this_)
+	{
+	}
+
+	void Game::SignalCreated(const GVE::Memory<Power::CircuitComponent>& circuitComponentMemory_)
+	{
+	}
+	void Game::SignalDeleted(const GVE::Memory<Power::CircuitComponent>& circuitComponentMemory_)
+	{
+	}
+#pragma endregion
+
+	namespace Power
+	{
+		CircuitComponent::CircuitComponent(const GVE::StrongPointer<CircuitComponent>& this_, const GVE::Memory<Game>& game_):
+			Entity(this_, game_)
+		{
+			game->SignalCreated(this);
+		}
+		CircuitComponent::~CircuitComponent()
+		{
+			game->SignalDeleted(this);
+		}
+	}
+}
+
+
+#pragma region
+#pragma endregion
 
 
 void main()
 {
+	auto game = GVE::Make<Spaceship::Game>();
 }
