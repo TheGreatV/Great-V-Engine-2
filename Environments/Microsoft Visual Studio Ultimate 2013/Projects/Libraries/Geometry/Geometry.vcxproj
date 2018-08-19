@@ -68,13 +68,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Geometry.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Header.cpp" />
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Geometry.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Header.hpp" />
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.hpp" />

@@ -152,9 +152,11 @@ void main()
 
 	auto models = Vector<StrongPointer<Graphics::Model>>();
 	{
+		const auto boxGeometry = Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1));
+
 		for (auto &i : Range(1))
 		{
-			models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F, Geometry::IndexPackMode::UInt32));
+			models.push_back(Make<Graphics::Model>(boxGeometry, Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F, Geometry::IndexPackMode::UInt32));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F, Geometry::IndexPackMode::UInt8));
 			
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));

@@ -15,6 +15,7 @@
 #include "Helpers.hpp"
 #include "Threading.hpp"
 #include "Subscription.hpp"
+#include "Geometry.hpp"
 
 #pragma endregion
 

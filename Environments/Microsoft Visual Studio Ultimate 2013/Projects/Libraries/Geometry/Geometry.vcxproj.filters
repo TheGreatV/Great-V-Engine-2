@@ -24,9 +24,6 @@
     <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Geometry.hpp">
@@ -36,9 +33,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Shapes.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Source code\Libraries\Geometry\Collisions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

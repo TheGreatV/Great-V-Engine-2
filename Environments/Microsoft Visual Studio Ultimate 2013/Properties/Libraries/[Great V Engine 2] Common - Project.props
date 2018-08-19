@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\External\[Great V Engine 2] Half - External.props" />
     <Import Project="..\External\[Great V Engine 2] GLM - External.props" />
+    <Import Project="..\External\[Great V Engine 2] Tau - External.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
