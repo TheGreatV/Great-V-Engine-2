@@ -1,0 +1,83 @@
+#version 330
+
+#define PI 3.1415926535897932384626433832795
+
+
+layout(origin_upper_left) in vec4 gl_FragCoord;
+
+
+uniform sampler2D textureAlbedo;
+uniform sampler2D textureNormals;
+uniform sampler2D textureRoughness;
+uniform sampler2D textureMetalness;
+uniform sampler2D textureOcclusion;
+
+
+in		vec3	fPos;
+in		mat3	fTBN;
+in		vec2	fTex;
+
+
+out     vec4    oColor;
+
+
+vec2	GetCorrectTextureCoordinates(vec2 tex);
+vec3	GetAmbientIntensity(vec3 albedo, float occlusion);
+vec3	GetDiffuseIntensity(vec3 normal, vec3 light, vec3 view, vec3 albedo, float roughness, float metalness);
+
+
+void	main() {
+	// obtain camera data
+    vec3    view	= normalize(-fPos);
+
+	// obtain texture coordinates
+    vec2    tex		= GetCorrectTextureCoordinates(fTex);
+
+	// obtain material data
+    vec4    dataAlbedo      = texture(textureAlbedo,    tex);
+    vec4    dataNormals     = texture(textureNormals,   tex);
+    vec4    dataRoughness   = texture(textureRoughness, tex);
+    vec4    dataMetalness	= texture(textureMetalness, tex);
+    vec4    dataOcclusion   = texture(textureOcclusion, tex);
+    // vec4    dataAlbedo      = vec4(1, 1, 1, 1);		// texture(textureAlbedo,    tex);
+    // vec4    dataNormals     = vec4(0, 0, 1, 1);		// texture(textureNormals,   tex);
+    // vec4    dataRoughness   = vec4(0.5, 0, 0, 0);	// texture(textureRoughness, tex);
+    // vec4    dataMetalness	= vec4(0, 0, 0, 0);		// texture(textureMetalness, tex);
+    // vec4    dataOcclusion   = vec4(1, 0, 0, 0);		// texture(textureOcclusion, tex);
+
+	// convert material data
+    vec3    albedo      = dataAlbedo.xyz;
+    vec3    normal      = normalize(fTBN * (dataNormals.xyz * 2.0 - 1.0f));
+    float   height      = dataNormals.w;
+    float   roughness   = dataRoughness.x;
+    float   metalness   = dataMetalness.x;
+    float   occlusion   = dataOcclusion.x;
+
+	// obtain light data
+    vec3    light       = normalize(vec3(0, 1, 0)); // vector to light
+    
+	// obtain intensities
+	vec3	ambientIntensity	= GetAmbientIntensity(albedo, occlusion);
+	vec3	diffuseIntensity	= GetDiffuseIntensity(normal, light, view, albedo, roughness, metalness);
+	
+	// obtain final color
+	oColor	= vec4(ambientIntensity + diffuseIntensity, 1);
+}
+
+
+vec2	GetCorrectTextureCoordinates(vec2 tex) {
+	return tex;
+}
+vec3	GetAmbientIntensity(vec3 albedo, float occlusion) {
+	float	ambientIntensity = 0.6;
+	
+	return	albedo * occlusion * ambientIntensity;
+}
+vec3	GetDiffuseIntensity(vec3 normal, vec3 light, vec3 view, vec3 albedo, float roughness, float metalness) {
+	float	lightIntensity = clamp(dot(light, normal), 0, 1);
+	
+	return albedo * lightIntensity;
+}
+
+
+

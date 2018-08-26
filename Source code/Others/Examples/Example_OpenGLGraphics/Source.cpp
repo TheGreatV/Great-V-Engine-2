@@ -148,6 +148,8 @@ void main()
 	auto openGLWindow1View = createView(openGLWindow1Handle);
 
 
+	const auto geometry = Geometry2::Load("output.tau");
+
 	auto openGLEngine = Make<Graphics::APIs::OpenGL::Engine>(Make<Graphics::APIs::OpenGL::Methods::Forward>());
 
 	auto models = Vector<StrongPointer<Graphics::Model>>();
@@ -156,7 +158,7 @@ void main()
 
 		for (auto &i : Range(1))
 		{
-			models.push_back(Make<Graphics::Model>(boxGeometry, Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F, Geometry::IndexPackMode::UInt32));
+			models.push_back(Make<Graphics::Model>(geometry));
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)), Geometry::VertexPackMode::Pos32F, Geometry::IndexPackMode::UInt8));
 			
 			// models.push_back(Make<Graphics::Model>(Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32))));
@@ -173,7 +175,7 @@ void main()
 			{
 				material1->modules.push_back(Make<Graphics::APIs::OpenGL::Module>(
 					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.vertex-shader",
-					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle.glsl.fragment-shader",
+					"Media/Shaders/GLSL/Example_OpenGLGraphics/triangle-flat.glsl.fragment-shader",
 					OpenIL::Load("Media/Images/Albedo.png"),
 					OpenIL::Load("Media/Images/Normals.png"),
 					OpenIL::Load("Media/Images/Roughness.png"),
@@ -451,27 +453,28 @@ void main()
 		{
 			if (!changeModelsCountLock)
 			{
-				const auto &m = rand() % 4;
-				const auto &geometry =
-					m == 0 ? Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)) :
-					m == 1 ? Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32)) :
-					m == 2 ? Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32)) :
-					m == 3 ? Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)) :
-					throw Exception();
-
-				auto v = rand() % 3;
-				auto verticesPackMode = Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F;
-					// v == 0 ? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F:
-					// v == 1 ? Geometry::VertexPackMode::Pos32F_TN16F_Tex32F:
-					// Geometry::VertexPackMode::Pos32F;
-				auto i = rand() % 3;
-				auto indicesPackMode = Geometry::IndexPackMode::UInt32;
-					// i <= 0 && geometry->GetVerticesCount() <= 0xFF ? Geometry::IndexPackMode::UInt8: 
-					// i <= 1 && geometry->GetVerticesCount() <= 0xFFFF ? Geometry::IndexPackMode::UInt16: 
-					// Geometry::IndexPackMode::UInt32;
+				// const auto &m = rand() % 4;
+				// const auto &geometry =
+				// 	m == 0 ? Geometry::CreateBox(Vec3(1.0f), Vec3(1.0f), UVec3(1)) :
+				// 	m == 1 ? Geometry::CreateSphere(0.5f, Vec2(3.14f, 3.14f / 2), UVec2(64, 32)) :
+				// 	m == 2 ? Geometry::CreateCapsule(0.4f, 0.5f, Vec2(3.14f, 3.14f / 2 + 0.5f), UVec2(64, 32)) :
+				// 	m == 3 ? Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)) :
+				// 	throw Exception();
+				// 
+				// auto v = rand() % 3;
+				// auto verticesPackMode = Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F;
+				// 	// v == 0 ? Geometry::VertexPackMode::Pos32F_TBN32F_Tex32F:
+				// 	// v == 1 ? Geometry::VertexPackMode::Pos32F_TN16F_Tex32F:
+				// 	// Geometry::VertexPackMode::Pos32F;
+				// auto i = rand() % 3;
+				// auto indicesPackMode = Geometry::IndexPackMode::UInt32;
+				// 	// i <= 0 && geometry->GetVerticesCount() <= 0xFF ? Geometry::IndexPackMode::UInt8: 
+				// 	// i <= 1 && geometry->GetVerticesCount() <= 0xFFFF ? Geometry::IndexPackMode::UInt16: 
+				// 	// Geometry::IndexPackMode::UInt32;
 				
 				// models.push_back(Make<Graphics::Model>(Geometry::CreateTorus(0.6f, 0.2f, Vec2(8.0f, 2.0f), UVec2(128, 32)), packMode, Geometry::IndexPackMode::UInt32));
-				models.push_back(Make<Graphics::Model>(geometry, verticesPackMode, indicesPackMode));
+				// models.push_back(Make<Graphics::Model>(geometry));
+				models.push_back(models[0]);
 
 				changeModelsCountLock = true;
 			}

@@ -276,14 +276,10 @@ namespace GreatVEngine2
 		protected:
 			mutable EventDestruction onDestruction;
 		protected:
-			const StrongPointer<Geometry> geometry = StrongPointer<Geometry>(nullptr);
-			const Geometry::VertexPackMode verticesPackMode = Geometry::VertexPackMode::Default;
-			const Geometry::IndexPackMode indicesPackMode = Geometry::IndexPackMode::Default;
-			const StrongPointer<Geometry2> geometry2 = StrongPointer<Geometry2>(nullptr);
+			const StrongPointer<Geometry2::Indexed> geometry2 = StrongPointer<Geometry2::Indexed>(nullptr);
 		public:
 			inline Model() = delete;
-			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_);
-			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry2>& geometry_);
+			inline Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry2::Indexed>& geometry_);
 			inline Model(const Model&) = delete;
 			inline ~Model()
 			{
@@ -292,16 +288,7 @@ namespace GreatVEngine2
 		public:
 			inline Model& operator = (const Model&) = delete;
 		public:
-			inline StrongPointer<Geometry> GetGeometry() const;
-			inline Geometry::VertexPackMode GetVerticesPackMode() const
-			{
-				return verticesPackMode;
-			}
-			inline Geometry::IndexPackMode GetIndicesPackMode() const
-			{
-				return indicesPackMode;
-			}
-			inline StrongPointer<Geometry2> GetGeometry2() const;
+			inline StrongPointer<Geometry2::Indexed> GetGeometry2() const;
 		public:
 			inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
 			{
@@ -595,24 +582,13 @@ GreatVEngine2::Graphics::Material::Material(const StrongPointer<Material>& this_
 
 #pragma region Model
 
-GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry>& geometry_, const Geometry::VertexPackMode& verticesPackMode_, const Geometry::IndexPackMode& indicesPackMode_):
-	This(this_),
-	geometry(geometry_),
-	verticesPackMode(verticesPackMode_),
-	indicesPackMode(indicesPackMode_)
-{
-}
-GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry2>& geometry_):
+GreatVEngine2::Graphics::Model::Model(const StrongPointer<Model>& this_, const StrongPointer<Geometry2::Indexed>& geometry_):
 	This(this_),
 	geometry2(geometry_)
 {
 }
 
-GreatVEngine2::StrongPointer<GreatVEngine2::Geometry> GreatVEngine2::Graphics::Model::GetGeometry() const
-{
-	return geometry;
-}
-GreatVEngine2::StrongPointer<GreatVEngine2::Geometry2> GreatVEngine2::Graphics::Model::GetGeometry2() const
+GreatVEngine2::StrongPointer<GreatVEngine2::Geometry2::Indexed> GreatVEngine2::Graphics::Model::GetGeometry2() const
 {
 	return geometry2;
 }

@@ -500,24 +500,44 @@ namespace GreatVEngine2
 						{
 						public:
 							const Memory<VerticesRange> verticesRangeMemory;
-							const Memory<Geometry> geometryMemory;
-							const Geometry::EventDestruction::Unsubscriber unsubscriber;
+							const Memory<Geometry2::Indexed> geometryMemory;
+							const Geometry2::EventDestruction::Unsubscriber unsubscriber;
 							Size firstVertex;
 						public:
-							inline VerticesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& firstVertex_);
+							inline VerticesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_, const Size& firstVertex_);
 						};
 						class VerticesRange
 						{
+						protected:
+							inline static Size GetVertexSize(const StrongPointer<Geometry2::Vertices::Attributes>& attributes_)
+							{
+								if (const auto attributes = DynamicCast<Geometry2::Vertices::Attributes::Listed>(attributes_))
+								{
+									const auto attributesValues = attributes->GetValues();
+									const auto firstAttribute = attributesValues[0];
+
+									if (const auto attribute = DynamicCast<Geometry2::Vertices::Attribute::Regular>(firstAttribute))
+									{
+										const auto stride = attribute->GetStride();
+
+										// TODO: check that all stdires is the same
+
+										return stride;
+									}
+								}
+
+								throw Exception();
+							}
 						public:
-							const Geometry::VertexPackMode packMode;
+							const StrongPointer<Geometry2::Vertices::Attributes> attributes;
 							const Size vertexSize;
 							Buffer gl_verticesBuffer;
 							Vector<StrongPointer<VerticesHolder>> verticesHolders;
 						public:
-							inline VerticesRange(const Memory<ContextHolder>& contextHolder_, const Geometry::VertexPackMode& packMode_):
-								packMode(packMode_),
+							inline VerticesRange(const Memory<ContextHolder>& contextHolder_, const StrongPointer<Geometry2::Vertices::Attributes>& attributes_):
+								attributes(attributes_),
 								gl_verticesBuffer(contextHolder_, GL::Buffer::Type::Array, 128 * 1024),
-								vertexSize(Geometry::GetVertexSize(packMode))
+								vertexSize(GetVertexSize(attributes_))
 							{
 							}
 						public:
@@ -527,7 +547,7 @@ namespace GreatVEngine2
 
 								for (auto &verticesHolder : verticesHolders)
 								{
-									count += verticesHolder->geometryMemory->GetVerticesCount();
+									count += verticesHolder->geometryMemory->GetVertices()->GetCount();
 								}
 
 								return count;
@@ -538,25 +558,37 @@ namespace GreatVEngine2
 						{
 						public:
 							const Memory<IndicesRange> indicesRangeMemory;
-							const Memory<Geometry> geometryMemory;
-							const Geometry::EventDestruction::Unsubscriber unsubscriber;
+							const Memory<Geometry2::Indexed> geometryMemory;
+							const Geometry2::EventDestruction::Unsubscriber unsubscriber;
 							Size firstIndex;
 						public:
-							inline IndicesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& firstIndex_);
+							inline IndicesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_, const Size& firstIndex_);
 						};
 						class IndicesRange
 						{
+						protected:
+							inline static Size GetIndexSize(const StrongPointer<Geometry2::Indices::Attributes>& attributes_)
+							{
+								const auto component = attributes_->GetComponent();
+
+								if (const auto regular = DynamicCast<Geometry2::Component::Regular>(component))
+								{
+									return regular->GetSize();
+								}
+
+								throw Exception();
+							}
 						public:
-							const Geometry::IndexPackMode packMode;
+							const StrongPointer<Geometry2::Indices::Attributes> attributes;
 							const Size indexSize;
 							Size offset = 0; // in bytes
 							Size size = 0;
 							Vector<StrongPointer<IndicesHolder>> indicesHolders;
 							StrongPointer<IndicesRange> next = StrongPointer<IndicesRange>(nullptr);
 						public:
-							inline IndicesRange(const Geometry::IndexPackMode& packMode_, const StrongPointer<IndicesRange>& next_):
-								packMode(packMode_),
-								indexSize(Geometry::GetIndexSize(packMode)),
+							inline IndicesRange(const StrongPointer<Geometry2::Indices::Attributes>& attributes_, const StrongPointer<IndicesRange>& next_):
+								attributes(attributes_),
+								indexSize(GetIndexSize(attributes_)),
 								next(next_)
 							{
 							}
@@ -567,10 +599,19 @@ namespace GreatVEngine2
 
 								for (auto &indicesHolder : indicesHolders)
 								{
-									count += indicesHolder->geometryMemory->GetIndicesCount();
+									count += indicesHolder->geometryMemory->GetIndices()->GetCount();
 								}
 
 								return count;
+							}
+						};
+					public:
+						class VerticesAttributesComparator
+						{
+						public:
+							inline bool operator () (const StrongPointer<Geometry2::Vertices::Attributes>& a_, const StrongPointer<Geometry2::Vertices::Attributes>& b_)const
+							{
+								return a_->operator==(b_);
 							}
 						};
 					protected:
@@ -604,7 +645,7 @@ namespace GreatVEngine2
 					public:
 						StrongPointer<IndicesRange> indicesRange = StrongPointer<IndicesRange>(nullptr);
 						Buffer gl_indicesBuffer;
-						Map<Geometry::VertexPackMode, StrongPointer<VerticesRange>> verticesRanges;
+						std::map<StrongPointer<Geometry2::Vertices::Attributes>, StrongPointer<VerticesRange>, VerticesAttributesComparator> verticesRanges;
 					public:
 						inline GeometryBufferHolder(const Memory<ContextHolder>& contextHolder_):
 							contextHolder(contextHolder_),
@@ -631,7 +672,7 @@ namespace GreatVEngine2
 							verticesRanges.clear();
 						}
 					public:
-						inline Memory<IndicesRange> FindOrCreate(const Geometry::IndexPackMode& indicesPackMode_)
+						/*inline Memory<IndicesRange> FindOrCreate(const Geometry::IndexPackMode& indicesPackMode_)
 						{
 							auto currentIndicesRangeMemory = indicesRange.GetValue();
 
@@ -840,16 +881,244 @@ namespace GreatVEngine2
 
 							// remove
 							verticesHolders.erase(it);
+						}*/
+						inline Memory<IndicesRange> FindOrCreate(const StrongPointer<Geometry2::Indices::Attributes>& indicesAttributes_)
+						{
+							auto currentIndicesRangeMemory = indicesRange.GetValue();
+
+							while (currentIndicesRangeMemory && currentIndicesRangeMemory->attributes->operator==(indicesAttributes_))
+							{
+								currentIndicesRangeMemory = currentIndicesRangeMemory->next.GetValue();
+							}
+
+							if (currentIndicesRangeMemory)
+							{
+								return currentIndicesRangeMemory;
+							}
+
+							indicesRange = MakeStrong<IndicesRange>(indicesAttributes_, indicesRange);
+
+							const auto &indicesRangeMemory	= indicesRange.GetValue();
+
+							return indicesRangeMemory;
+						}
+						inline Memory<IndicesHolder> FindOrCreate(const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_)
+						{
+							const auto indices			= geometryMemory_->GetIndices();
+							const auto indicesMemory	= indices.GetValue();
+
+							auto &indicesHolders = indicesRangeMemory_->indicesHolders;
+
+							for (const auto &indicesHolder : indicesHolders)
+							{
+								const auto &indicesHolderMemory = indicesHolder.GetValue();
+
+								if (indicesHolderMemory->geometryMemory == geometryMemory_)
+								{
+									return indicesHolderMemory;
+								}
+							}
+
+							// prepare data
+							const auto &indicesData		= indicesMemory->GetData();
+							const auto &indicesDataSize	= indicesData.size();
+
+							// add new holder
+							const auto &indicesHolder		= MakeStrong<IndicesHolder>(this, indicesRangeMemory_, geometryMemory_, indicesRangeMemory_->GetTotalIndicesCount());
+							const auto &indicesHolderMemory	= indicesHolder.GetValue();
+
+							indicesHolders.push_back(indicesHolder);
+
+							indicesRangeMemory_->size += indicesDataSize;
+
+							// insert data to buffer
+							gl_indicesBuffer.Insert(indicesRangeMemory_->offset + indicesHolderMemory->firstIndex * indicesRangeMemory_->indexSize, indicesData);
+
+							// update offsets
+							auto currentIndicesRangeMemory = indicesRangeMemory_->next.GetValue();
+
+							while (currentIndicesRangeMemory)
+							{
+								currentIndicesRangeMemory->offset += indicesDataSize;
+								currentIndicesRangeMemory = currentIndicesRangeMemory->next.GetValue();
+							}
+
+							// return result
+							return indicesHolderMemory;
+						}
+						inline Memory<IndicesHolder> FindOrCreateIndices(const Memory<Model>& modelMemory_)
+						{
+							const auto geometry				= modelMemory_->GetGeometry2();
+							const auto geometryMemory		= geometry.GetValue();
+
+							const auto indices				= geometryMemory->GetIndices();
+							const auto indicesAttributes	= indices->GetAttributes();
+
+							const auto indicesRangeMemory	= FindOrCreate(indicesAttributes);
+							const auto indicesHolderMemory	= FindOrCreate(indicesRangeMemory, geometryMemory);
+
+							return indicesHolderMemory;
+						}
+						inline void Delete(const Memory<IndicesHolder>& indicesHolderMemory_)
+						{
+							const auto &indicesRangeMemory	= indicesHolderMemory_->indicesRangeMemory;
+							const auto &indexSize			= indicesRangeMemory->indexSize;
+							const auto &indicesCount		= indicesHolderMemory_->geometryMemory->GetIndices()->GetCount();
+							const auto &totalIndicesSize	= indicesRangeMemory->indexSize * indicesCount;
+							const auto &totalIndicesOffset	= indicesRangeMemory->offset + indicesHolderMemory_->firstIndex * indexSize;
+
+							gl_indicesBuffer.Remove(totalIndicesOffset, totalIndicesSize);
+
+							// find position inside IndicesRange
+							auto &indicesHolders	= indicesRangeMemory->indicesHolders;
+							const auto &it			= std::find_if(indicesHolders.begin(), indicesHolders.end(), [&](const StrongPointer<IndicesHolder>& indicesHolder_){
+								return indicesHolder_.GetValue() == indicesHolderMemory_;
+							});
+
+							if (it == indicesHolders.end())
+							{
+								throw Exception();
+							}
+
+							// update following holders
+							auto nit = it; ++nit;
+
+							while (nit != indicesHolders.end())
+							{
+								(*nit)->firstIndex -= indicesCount;
+
+								++nit;
+							}
+
+							// update followint ranges
+							auto currentIndicesRangeMemory = indicesRangeMemory->next.GetValue();
+
+							while (currentIndicesRangeMemory)
+							{
+								currentIndicesRangeMemory->offset -= totalIndicesSize;
+
+								currentIndicesRangeMemory = currentIndicesRangeMemory->next.GetValue();
+							}
+
+							// remove
+							indicesHolders.erase(it);
+						}
+						inline Memory<VerticesRange> FindOrCreate(const StrongPointer<Geometry2::Vertices::Attributes>& verticesAttributes_)
+						{
+							const auto &it = verticesRanges.find(verticesAttributes_);
+
+							if (it != verticesRanges.end())
+							{
+								const auto &verticesRange		= (*it).second;
+								const auto &verticesRangeMemory	= verticesRange.GetValue();
+
+								return verticesRangeMemory;
+							}
+
+							const auto &context			= contextHolder->gl_context;
+							const auto &contextLock		= WGL::Lock(context, contextHolder->win_deviceContextHandle);
+							const auto &verticesRange	= MakeStrong<VerticesRange>(contextHolder, verticesAttributes_);
+
+							verticesRanges.insert({ verticesAttributes_, verticesRange });
+
+							const auto &verticesRangeMemory	= verticesRange.GetValue();
+
+							return verticesRangeMemory;
+						}
+						inline Memory<VerticesHolder> FindOrCreate(const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_)
+						{
+							const auto vertices			= geometryMemory_->GetVertices();
+							const auto verticesMemory	= vertices.GetValue();
+							
+							auto &verticesHolders		= verticesRangeMemory_->verticesHolders;
+
+							for (const auto &verticesHolder : verticesHolders)
+							{
+								const auto &verticesHolderMemory = verticesHolder.GetValue();
+
+								if (verticesHolderMemory->geometryMemory->GetVertices().GetValue() == verticesMemory)
+								{
+									return verticesHolderMemory;
+								}
+							}
+
+							// prepare data
+							const auto &verticesData		= verticesMemory->GetData();
+							const auto &verticesDataSize	= verticesData.size();
+
+							// add new holder
+							const auto &verticesHolder			= MakeStrong<VerticesHolder>(this, verticesRangeMemory_, geometryMemory_, verticesRangeMemory_->GetTotalVerticesCount());
+							const auto &verticesHolderMemory	= verticesHolder.GetValue();
+
+							verticesHolders.push_back(verticesHolder);
+
+							// insert data to buffer
+							auto &gl_verticesBuffer = verticesRangeMemory_->gl_verticesBuffer;
+							
+							gl_verticesBuffer.Insert(verticesHolderMemory->firstVertex * verticesRangeMemory_->vertexSize, verticesData);
+
+							// return result
+							return verticesHolderMemory;
+						}
+						inline Memory<VerticesHolder> FindOrCreateVertices(const Memory<Model>& modelMemory_)
+						{
+							const auto geometry				= modelMemory_->GetGeometry2();
+							const auto geometryMemory		= geometry.GetValue();
+
+							const auto vertices				= geometryMemory->GetVertices();
+							const auto verticesAttributes	= vertices->GetAttributes();
+
+							const auto verticesRangeMemory	= FindOrCreate(verticesAttributes);
+							const auto verticesHolderMemory	= FindOrCreate(verticesRangeMemory, geometryMemory);
+
+							return verticesHolderMemory;
+						}
+						inline void Delete(const Memory<VerticesHolder>& verticesHolderMemory_)
+						{
+							const auto &verticesRangeMemory	= verticesHolderMemory_->verticesRangeMemory;
+							const auto &vertexSize			= verticesRangeMemory->vertexSize;
+							const auto &verticesCount		= verticesHolderMemory_->geometryMemory->GetVertices()->GetCount();
+							const auto &totalVerticesSize	= verticesRangeMemory->vertexSize * verticesCount;
+							const auto &totalVerticesOffset	= verticesHolderMemory_->firstVertex * vertexSize;
+
+							// remove from buffer
+							auto &gl_verticesBuffer = verticesRangeMemory->gl_verticesBuffer;
+							
+							gl_verticesBuffer.Remove(totalVerticesOffset, totalVerticesSize);
+
+							// fvert position inside VerticesRange
+							auto &verticesHolders	= verticesRangeMemory->verticesHolders;
+							const auto &it			= std::find_if(verticesHolders.begin(), verticesHolders.end(), [&](const StrongPointer<VerticesHolder>& verticesHolder_){
+								return verticesHolder_.GetValue() == verticesHolderMemory_;
+							});
+
+							if (it == verticesHolders.end())
+							{
+								throw Exception();
+							}
+
+							// update following holders
+							auto nit = it; ++nit;
+
+							while (nit != verticesHolders.end())
+							{
+								(*nit)->firstVertex -= verticesCount;
+
+								++nit;
+							}
+
+							// remove
+							verticesHolders.erase(it);
 						}
 					};
-					Forward::GeometryBufferHolder::VerticesHolder::VerticesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& firstVertex_):
+					Forward::GeometryBufferHolder::VerticesHolder::VerticesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<VerticesRange>& verticesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_, const Size& firstVertex_):
 						verticesRangeMemory(verticesRangeMemory_),
 						geometryMemory(geometryMemory_),
-						unsubscriber(geometryMemory->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryBufferHolder::VerticesHolder>&)>(&Forward::GeometryBufferHolder::Delete), geometryBufferHolderMemory_, this))),
+						unsubscriber(geometryMemory_->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryBufferHolder::VerticesHolder>&)>(&Forward::GeometryBufferHolder::Delete), geometryBufferHolderMemory_, this))),
 						firstVertex(firstVertex_)
 					{
 					}
-					Forward::GeometryBufferHolder::IndicesHolder::IndicesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry>& geometryMemory_, const Size& firstIndex_):
+					Forward::GeometryBufferHolder::IndicesHolder::IndicesHolder(const Memory<GeometryBufferHolder>& geometryBufferHolderMemory_, const Memory<IndicesRange>& indicesRangeMemory_, const Memory<Geometry2::Indexed>& geometryMemory_, const Size& firstIndex_):
 						indicesRangeMemory(indicesRangeMemory_),
 						geometryMemory(geometryMemory_),
 						unsubscriber(geometryMemory->OnDestruction(std::bind(static_cast<void(GeometryBufferHolder::*)(const Memory<GeometryBufferHolder::IndicesHolder>&)>(&Forward::GeometryBufferHolder::Delete), geometryBufferHolderMemory_, this))),
@@ -1197,8 +1466,8 @@ namespace GreatVEngine2
 						inline ModelCache(const Memory<Forward>& methodMemory_, const Memory<Model>& modelMemory_):
 							methodMemory(methodMemory_),
 							modelMemory(modelMemory_),
-							verticesHolderMemory(methodMemory->geometryBufferHolder->FindOrCreate(modelMemory->GetGeometry().GetValue(), modelMemory->GetVerticesPackMode())),
-							indicesHolderMemory(methodMemory->geometryBufferHolder->FindOrCreate(modelMemory->GetGeometry().GetValue(), modelMemory->GetIndicesPackMode()))
+							verticesHolderMemory(methodMemory->geometryBufferHolder->FindOrCreateVertices(modelMemory)),
+							indicesHolderMemory(methodMemory->geometryBufferHolder->FindOrCreateIndices(modelMemory))
 						{
 						}
 						inline ~ModelCache()
@@ -1235,12 +1504,142 @@ namespace GreatVEngine2
 						{
 							const auto &context				= materialCacheMemory->methodMemory->contextHolder->gl_context;
 							const auto &contextLock			= WGL::Lock(context, materialCacheMemory->methodMemory->contextHolder->win_deviceContextHandle);
-							const auto &verticesPackMode	= modelCacheMemory->modelMemory->GetVerticesPackMode();
-							const auto &vertexSize			= Geometry::GetVertexSize(verticesPackMode);
-							const auto &verticesCount		= modelCacheMemory->modelMemory->GetGeometry()->GetVerticesCount();
+							// const auto &verticesPackMode	= modelCacheMemory->modelMemory->GetVerticesPackMode();
+							// const auto vertexSize			= modelCacheMemory->verticesHolderMemory->verticesRangeMemory->vertexSize;
+							// const auto verticesCount		= modelCacheMemory->modelMemory->GetGeometry2()->GetVerticesCount();
+							// const auto &vertexSize			= Geometry::GetVertexSize(verticesPackMode);
+							// const auto &verticesCount		= modelCacheMemory->modelMemory->GetGeometry()->GetVerticesCount();
 
 							context->BindBuffer(GL::Buffer::Type::ElementArray, materialCacheMemory->methodMemory->geometryBufferHolder->gl_indicesBuffer.gl_bufferHandle);
 
+							const auto geometry				= modelCacheMemory->modelMemory->GetGeometry2();
+							const auto geometryMemory		= geometry.GetValue();
+
+							const auto vertices				= geometryMemory->GetVertices();
+							const auto verticesAttributes	= vertices->GetAttributes();
+
+							if (const auto attributes = DynamicCast<Geometry2::Vertices::Attributes::Listed>(verticesAttributes))
+							{
+								for (const auto &attribute : attributes->GetValues())
+								{
+									if (const auto regular = DynamicCast<Geometry2::Vertices::Attribute::Regular>(attribute))
+									{
+										const auto offset	= regular->GetOffset();
+										const auto stride	= regular->GetStride();
+										const auto type		= regular->GetType();
+
+										if (const auto vector = DynamicCast<Geometry2::Vertices::Attribute::Type::Vector>(type))
+										{
+											const auto component		= vector->GetComponent();
+											const auto componentsCount	= vector->GetComponentsCount();
+
+											if (const auto regularComponent = DynamicCast<Geometry2::Component::Regular>(component))
+											{
+												using Component = Geometry2::Component::Regular;
+
+												const auto size				= regularComponent->GetSize();
+												const auto sign				= regularComponent->GetSign();
+												const auto normalization	= regularComponent->GetNormalization();
+												const auto conversion		= regularComponent->GetConversion();
+
+												const auto isNormalized		= normalization == Component::Normalization::Normalized;
+
+												if (size == 32 && sign == Component::Sign::Signed && conversion == Component::Conversion::Floating) // SFloat32
+												{
+													const auto type = GL::Program::Attribute::Type::Float;
+													const auto name = String(
+														regular->GetName() == "Position"			? "vPos" :
+														regular->GetName() == "Tangent"				? "vTan" :
+														regular->GetName() == "Bitangent"			? "vBin" :
+														regular->GetName() == "Normal"				? "vNor" :
+														regular->GetName() == "Texture Coordinates"	? "vTex" :
+														// regular->GetName() == "Tangent Space"	? "vTBN" :
+														""
+													);
+
+													if (name != "")
+													{
+														context->BindBuffer(GL::Buffer::Type::Array, modelCacheMemory->verticesHolderMemory->verticesRangeMemory->gl_verticesBuffer.gl_bufferHandle);
+
+														if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, name))
+														{
+															context->VertexAttributePointer(attributeLocation, componentsCount, type, isNormalized, stride, offset);
+															context->EnableVertexAttributeArray(attributeLocation);
+														}
+													}
+												}
+											}
+										}
+										else if (const auto matrix = DynamicCast<Geometry2::Vertices::Attribute::Type::Matrix>(type))
+										{
+											const auto component		= matrix->GetComponent();
+											const auto rowsCount		= matrix->GetRowsCount();
+											const auto columnsCount		= matrix->GetColumnsCount();
+											const auto order			= matrix->GetOrder();
+
+											if (const auto regularComponent = DynamicCast<Geometry2::Component::Regular>(component))
+											{
+												using Component = Geometry2::Component::Regular;
+
+												const auto size				= regularComponent->GetSize();
+												const auto sign				= regularComponent->GetSign();
+												const auto normalization	= regularComponent->GetNormalization();
+												const auto conversion		= regularComponent->GetConversion();
+
+												const auto isNormalized		= normalization == Component::Normalization::Normalized;
+
+												if (size == 32 && sign == Component::Sign::Signed && conversion == Component::Conversion::Floating) // SFloat32
+												{
+													const auto type = GL::Program::Attribute::Type::Float;
+
+													if (regular->GetName() == "Tangent Space")
+													{
+														const auto offset1	= offset + sizeof(float) * 3 * 0;
+														const auto offset2	= offset + sizeof(float) * 3 * 1;
+														const auto offset3	= offset + sizeof(float) * 3 * 2;
+
+														context->BindBuffer(GL::Buffer::Type::Array, modelCacheMemory->verticesHolderMemory->verticesRangeMemory->gl_verticesBuffer.gl_bufferHandle);
+
+														if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTBN"))
+														{
+															const auto column1	= GL::Program::Attribute::Location(static_cast<GL::Program::Attribute::Location::Value>(attributeLocation) + 0);
+															const auto column2	= GL::Program::Attribute::Location(static_cast<GL::Program::Attribute::Location::Value>(attributeLocation) + 1);
+															const auto column3	= GL::Program::Attribute::Location(static_cast<GL::Program::Attribute::Location::Value>(attributeLocation) + 2);
+
+															context->VertexAttributePointer(column1, 3, type, isNormalized, stride, offset1);
+															context->EnableVertexAttributeArray(column1);
+															context->VertexAttributePointer(column2, 3, type, isNormalized, stride, offset2);
+															context->EnableVertexAttributeArray(column2);
+															context->VertexAttributePointer(column3, 3, type, isNormalized, stride, offset3);
+															context->EnableVertexAttributeArray(column3);
+														}
+														else
+														{
+															if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vTan"))
+															{
+																context->VertexAttributePointer(attributeLocation, 3, type, isNormalized, stride, offset1);
+																context->EnableVertexAttributeArray(attributeLocation);
+															}
+															if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vBin"))
+															{
+																context->VertexAttributePointer(attributeLocation, 3, type, isNormalized, stride, offset2);
+																context->EnableVertexAttributeArray(attributeLocation);
+															}
+															if (const auto &attributeLocation = context->GetAttributeLocation(materialCacheMemory->gl_programHandle, "vNor"))
+															{
+																context->VertexAttributePointer(attributeLocation, 3, type, isNormalized, stride, offset3);
+																context->EnableVertexAttributeArray(attributeLocation);
+															}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+
+							/*
 							if (verticesPackMode == Geometry::VertexPackMode::Pos32F)
 							{
 								context->BindBuffer(GL::Buffer::Type::Array, modelCacheMemory->verticesHolderMemory->verticesRangeMemory->gl_verticesBuffer.gl_bufferHandle);
@@ -1291,6 +1690,7 @@ namespace GreatVEngine2
 									context->EnableVertexAttributeArray(attributeLocation);
 								}
 							}
+							*/
 
 							context->BindBuffer(GL::Buffer::Type::Array, materialCacheMemory->methodMemory->geometryBufferHolder->gl_objectsDataBufferHandle);
 
@@ -1674,9 +2074,10 @@ namespace GreatVEngine2
 						glClearDepth(1.0f);
 						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-						glEnable(GL_CULL_FACE);
-						glCullFace(GL_BACK);
-						glFrontFace(GL_CCW);
+						glDisable(GL_CULL_FACE);
+						// glEnable(GL_CULL_FACE);
+						// glCullFace(GL_BACK);
+						// glFrontFace(GL_CCW);
 
 						glEnable(GL_DEPTH_TEST);
 						glDepthFunc(GL_LESS);
@@ -1824,13 +2225,38 @@ namespace GreatVEngine2
 
 							for (const auto &attributesNode : materialNode.attributesNodes)
 							{
+								using Component = Geometry2::Component::Regular;
+
 								const auto &attributesCacheMemory	= attributesNode.attributesCacheMemory;
 
 								renderContext->BindVertexArray(attributesCacheMemory->gl_verticesArrayHandle);
 								
 								const auto &modelCacheMemory		= attributesCacheMemory->modelCacheMemory;
 								const auto &modelMemory				= modelCacheMemory->modelMemory;
-								const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
+								
+								// const auto &geometryMemory			= modelMemory->GetGeometry().GetValue();
+								const auto geometry					= modelMemory->GetGeometry2();
+								const auto indices					= geometry->GetIndices();
+								const auto indicesComponent			= DynamicCast<Geometry2::Component::Regular>(indices->GetAttributes()->GetComponent());
+
+								if (!indicesComponent)
+								{
+									throw Exception(); // TODO
+								}
+
+								const auto indexType				= (
+									(indicesComponent->GetSign() == Component::Sign::Unsigned) &&
+									(indicesComponent->GetNormalization() == Component::Normalization::Unnormalized) &&
+									(indicesComponent->GetConversion() == Component::Conversion::Integer)
+								)
+									? (
+										indicesComponent->GetSize() == 32 ? GL::IndexType::UInt32 :
+										indicesComponent->GetSize() == 16 ? GL::IndexType::UInt16 :
+										indicesComponent->GetSize() == 8 ? GL::IndexType::UInt8 :
+										throw Exception()
+									)
+									: throw Exception();
+
 								auto &objectsData					= attributesNode.objectsData;
 								const auto &drawCallNodes			= attributesNode.drawCallNodes;
 								
@@ -1848,10 +2274,12 @@ namespace GreatVEngine2
 
 									renderContext->DrawElementsInstancedBaseVertex(
 										GL::PrimitiveType::Triangles,
-										geometryMemory->GetIndicesCount(),																// TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :	// TODO: move to cache
-										modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :	// TODO: move to cache
-										GL::IndexType::UInt8,																			// TODO: move to cache
+										indices->GetCount(),
+										indexType,
+										// geometryMemory->GetIndicesCount(),																// TODO: move to cache
+										// modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt32 ? GL::IndexType::UInt32 :	// TODO: move to cache
+										// modelMemory->GetIndicesPackMode() == Geometry::IndexPackMode::UInt16 ? GL::IndexType::UInt16 :	// TODO: move to cache
+										// GL::IndexType::UInt8,																			// TODO: move to cache
 										modelCacheMemory->indicesHolderMemory->indicesRangeMemory->offset + modelCacheMemory->indicesHolderMemory->indicesRangeMemory->indexSize * modelCacheMemory->indicesHolderMemory->firstIndex, // TODO: move to cache
 										objectsCount,
 										modelCacheMemory->verticesHolderMemory->firstVertex												// TODO: move to cache

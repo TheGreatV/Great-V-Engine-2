@@ -10,6 +10,7 @@
 #include "Collection.hpp"
 #include "Reference.hpp"
 #include "Exception.hpp"
+#include "Subscription.hpp"
 
 #include <fstream>
 
@@ -23,6 +24,8 @@ namespace GreatVEngine2
 	class Geometry2
 	{
 	public:
+		using EventDestruction = Subscription<void()>;
+	public:
 		class Component;
 	public:
 		class Vertices;
@@ -32,8 +35,15 @@ namespace GreatVEngine2
 		class Indexed;
 	public:
 		inline static StrongPointer<Geometry2> Load(const String& filePath_);
+	protected:
+		mutable EventDestruction onDestruction;
 	public:
 		inline virtual ~Geometry2() = default;
+	public:
+		inline EventDestruction::Unsubscriber OnDestruction(const EventDestruction::Subscriber& subscriber_) const
+		{
+			return Move(onDestruction += subscriber_);
+		}
 	};
 #pragma region Geometry2::Component
 	class Geometry2::Component
@@ -166,6 +176,7 @@ namespace GreatVEngine2
 	{
 	public:
 		class Vector;
+		class Matrix;
 	public:
 		virtual ~Type() = default;
 	public:
@@ -187,6 +198,33 @@ namespace GreatVEngine2
 	public:
 		inline StrongPointer<Component> GetComponent() const;
 		inline Size GetComponentsCount() const;
+	};
+#pragma endregion
+#pragma region Geometry2::Vertices::Attribute::Type::Matrix
+	class Geometry2::Vertices::Attribute::Type::Matrix:
+		public Type
+	{
+	public:
+		enum class Order
+		{
+			RowMajor,
+			ColumnMajor,
+		};
+	protected:
+		const StrongPointer<Vertexed::Component> component;
+		const Size rowsCount;
+		const Size columnsCount;
+		const Order order;
+	public:
+		inline Matrix(const StrongPointer<Component>& component_, const Size& rowsCount_, const Size& columnsCount_, const Order& order_);
+		inline ~Matrix() override = default;
+	public:
+		inline bool operator == (const StrongPointer<Type>& source_) const override;
+	public:
+		inline StrongPointer<Component> GetComponent() const;
+		inline Size GetRowsCount() const;
+		inline Size GetColumnsCount() const;
+		inline Order GetOrder() const;
 	};
 #pragma endregion
 #pragma region Geometry2::Vertices::Attribute::Regular
@@ -316,28 +354,58 @@ namespace GreatVEngine2
 		// attributes
 		auto verticesAttributesValues			= Geometry2::Vertices::Attributes::Listed::Values();
 
-		// position
-		const auto positionAttributeModel = verticesAttributesModel["Position"];
+		const auto verticesAttributesModelKeys = verticesAttributesModel.Keys();
 
-		if (positionAttributeModel.Is<Tau::Object>())
+		for (int i = 0; i < static_cast<int>(verticesAttributesModelKeys.Length()); ++i)
 		{
-			const auto typeModel		= static_cast<String>(positionAttributeModel["Type"]);
-			const auto componentsModel	= static_cast<int>(positionAttributeModel["Components"]);
-			const auto offsetModel		= static_cast<int>(positionAttributeModel["Offset"]);
-			const auto strideModel		= static_cast<int>(positionAttributeModel["Stride"]);
+			const auto key		= verticesAttributesModelKeys[i];
 
-			if (typeModel == "Signed 32-bit Float")
+			if (key.Is<Tau::String>())
 			{
-				if (componentsModel == 3)
+				const auto attributeName	= static_cast<String>(key);
+				const auto attributeModel	= verticesAttributesModel[key];
+
+				const auto attributeClass	= static_cast<String>(attributeModel["Class"]);
+				
+				if (attributeClass == "Regular Attribute")
 				{
-					const auto position	= MakeStrong<Attribute::Regular>("Position", offsetModel, strideModel, vec3Attribute);
+					const auto offsetModel			= static_cast<int>(attributeModel["Offset"]);
+					const auto strideModel			= static_cast<int>(attributeModel["Stride"]);
+					
+					const auto attributeType		= attributeModel["Type"];
+					const auto attributeTypeClass	= static_cast<String>(attributeType["Class"]);
 
-					verticesAttributesValues.push_back(position);
+					if (attributeTypeClass == "Vector Attribute Type")
+					{
+						const auto componentsCount	= static_cast<int>(attributeType["Size"]);
+						const auto componentModel	= static_cast<String>(attributeType["Component"]);
+
+						if (componentModel == "Signed 32-bit Float")
+						{
+							const auto attribute = MakeStrong<Attribute::Regular>(attributeName, offsetModel, strideModel, MakeStrong<Attribute::Type::Vector>(sfloat32, componentsCount));
+
+							verticesAttributesValues.push_back(attribute);
+						}
+					}
+					else if (attributeTypeClass == "Matrix Attribute Type")
+					{
+						const auto rowsCount		= static_cast<int>(attributeType["Rows"]);
+						const auto columnsCount		= static_cast<int>(attributeType["Columns"]);
+						const auto orderModel		= static_cast<String>(attributeType["Order"]);
+						const auto order			=
+							orderModel == "Row-major" ? Attribute::Type::Matrix::Order::RowMajor:
+							orderModel == "Column-major" ? Attribute::Type::Matrix::Order::ColumnMajor:
+							throw Exception();
+						const auto componentModel	= static_cast<String>(attributeType["Component"]);
+
+						if (componentModel == "Signed 32-bit Float")
+						{
+							const auto attribute = MakeStrong<Attribute::Regular>(attributeName, offsetModel, strideModel, MakeStrong<Attribute::Type::Matrix>(sfloat32, rowsCount, columnsCount, order));
+
+							verticesAttributesValues.push_back(attribute);
+						}
+					}
 				}
-			}
-			else
-			{
-				throw NotImplementedException();
 			}
 		}
 
@@ -558,6 +626,71 @@ namespace GreatVEngine2
 	Size Geometry2::Vertices::Attribute::Type::Vector::GetComponentsCount() const
 	{
 		return componentsCount;
+	}
+#pragma endregion
+#pragma region Geometry2::Vertices::Attribute::Type::Matrix
+	Geometry2::Vertices::Attribute::Type::Matrix::Matrix(const StrongPointer<Component>& component_, const Size& rowsCount_, const Size& columnsCount_, const Order& order_):
+		component(component_),
+		rowsCount(rowsCount_),
+		columnsCount(columnsCount_),
+		order(order_)
+	{
+	}
+	
+	bool Geometry2::Vertices::Attribute::Type::Matrix::operator == (const StrongPointer<Type>& source_) const
+	{
+		if (const auto source = DynamicCast<Matrix>(source_))
+		{
+			if (source->GetRowsCount() != GetRowsCount())
+			{
+				return false;
+			}
+			if (source->GetColumnsCount() != GetColumnsCount())
+			{
+				return false;
+			}
+			if (source->GetOrder() != GetOrder())
+			{
+				return false;
+			}
+			if (source->component->operator==(component) == false)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	StrongPointer<Geometry2::Component> Geometry2::Vertices::Attribute::Type::Matrix::GetComponent() const
+	{
+		return component;
+	}
+	Size Geometry2::Vertices::Attribute::Type::Matrix::GetRowsCount() const
+	{
+		return rowsCount;
+	}
+	Size Geometry2::Vertices::Attribute::Type::Matrix::GetColumnsCount() const
+	{
+		return columnsCount;
+	}
+	Geometry2::Vertices::Attribute::Type::Matrix::Order Geometry2::Vertices::Attribute::Type::Matrix::GetOrder() const
+	{
+		return order;
+	}
+#pragma endregion
+#pragma region Geometry2::Indexed
+	Geometry2::Indexed::Indexed(const StrongPointer<Vertices>& vertices_, const StrongPointer<Indices>& indices_):
+		Vertexed(vertices_),
+		indices(indices_)
+	{
+	}
+	
+	StrongPointer<Geometry2::Indexed::Indices> Geometry2::Indexed::GetIndices() const
+	{
+		return indices;
 	}
 #pragma endregion
 #pragma region Geometry2::Vertices::Attribute::Regular

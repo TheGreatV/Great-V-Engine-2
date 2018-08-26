@@ -12,9 +12,10 @@ layout (column_major, std140) uniform CameraBuffer {
 
 
 in      vec3    vPos;
-in		vec3	vTan;
-in		vec3	vBin;
-in		vec3	vNor;
+// in		vec3	vTan;
+// in		vec3	vBin;
+// in		vec3	vNor;
+in		mat3	vTBN;
 in      vec2    vTex;
 in		vec4	vModelMatrix1;
 in		vec4	vModelMatrix2;
@@ -39,7 +40,8 @@ void main()
 	gl_Position			= camera.viewProjectionMatrix * vec4(pos, 1.0f);
 	
 	fPos				= pos - camera.position.xyz;
-	fTBN				= mat3(modelMatrix) * mat3(vTan, vBin, vNor);
+	// fTBN				= mat3(modelMatrix) * mat3(vTan, vBin, vNor);
+	fTBN				= mat3(modelMatrix) * vTBN;
 	fTex				= vTex;
 }
 
